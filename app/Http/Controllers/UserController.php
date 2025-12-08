@@ -740,12 +740,12 @@ class UserController extends DefaultController
 
     protected function signatureBulkUpdate()
     {
-        $token = request('token');
+        $token = request('event_id');
         if (!$token) {
-            abort(403, 'Token Not Found');
+            abort(403, 'Event Not Found');
         }
 
-        $event = Event::where('token', $token)->first();
+        $event = Event::where('id', $token)->first();
         $participants = Participant::where('event_id', $event->id)->get();
         $niks = $participants->pluck('nik');
         $users = User::whereIn('nik', $niks)->get();
