@@ -1,0 +1,71 @@
+body {
+    font-family: "Poppins", sans-serif;
+    background-color: #f0f7f8; /* Latar belakang dari sistem Anda */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+}
+.test-container {
+    max-width: 960px; /* Diperlebar untuk memuat kolom nomor */
+    width: 100%;
+}
+.card {
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+.form-control:focus,
+.form-select:focus {
+    box-shadow: 0 0 0 0.25rem rgba(8, 145, 178, 0.25); /* Cyan focus */
+    border-color: #0891b2;
+}
+.answer-option {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+.answer-option:hover {
+    background-color: #f8f9fa;
+    border-color: #0891b2;
+    cursor: pointer;
+}
+.answer-option input[type="radio"] {
+    display: none;
+}
+.answer-option.selected {
+    background-color: #e6f4f1;
+    border-color: #0891b2;
+    box-shadow: 0 0 5px rgba(8, 145, 178, 0.3);
+}
+/* Style untuk tombol nomor soal */
+#question-navigator .btn {
+    font-weight: 600;
+}
+/* Style untuk Test Type Card */
+.test-type-card {
+    transition: all 0.3s ease;
+    position: relative;
+    cursor: pointer;
+    border: 2px solid #dee2e6;
+}
+.test-type-card:hover {
+    background-color: #f8f9fa;
+    border-color: #0891b2 !important;
+    box-shadow: 0 2px 8px rgba(8, 145, 178, 0.15);
+    transform: translateY(-2px);
+}
+.test-type-card input[type="radio"]:checked {
+    accent-color: #0891b2;
+}
+.test-type-card:has(input[type="radio"]:checked) {
+    background-color: #e6f4f1;
+    border-color: #0891b2 !important;
+    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+}
+.test-type-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}

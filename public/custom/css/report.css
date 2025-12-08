@@ -1,0 +1,93 @@
+body {
+    font-size: 10px;
+    margin: 0;
+    padding: 0;
+    font-family: "DejaVu Sans", sans-serif;
+}
+
+.text-start {
+    text-align: left;
+}
+
+.letterhead {
+    position: relative;
+    margin-bottom: 10px;
+    overflow: visible;
+    padding-bottom: 10px;
+    /* border: 2px solid black; */
+}
+
+.letterhead img {
+    position: absolute;
+    width: 40px;
+    padding-top: 22px;
+    padding-left: 10px;
+    /* border: 1px solid green; */
+}
+
+.letterhead h3 {
+    /* margin-top: 20px; */
+    margin-bottom: 0;
+    text-align: right;
+    /* padding: 10px; */
+    /* border: 1px solid red; */
+    padding: 0px;
+}
+
+.letterhead p {
+    text-align: right;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding: 0px;
+    /* border:1px solid blue; */
+}
+
+.info-section {
+    font-size: 10px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
+    page-break-inside: auto;
+}
+
+th,
+td {
+    border: 1px solid #000;
+    padding: 4px;
+    text-align: center;
+}
+
+.no-border {
+    border: none !important;
+}
+
+.th {
+    border: 1px solid black;
+    font-size: 6px;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    vertical-align: middle;
+    height: 80px;
+    width: 25px;
+    position: relative; /* Tambahkan ini */
+}
+
+.rotate-text {
+    position: absolute; /* Posisi absolute agar bisa full */
+    top: 50%; /* Posisi vertical center */
+    left: 50%; /* Posisi horizontal center */
+    transform: translate(-50%, -50%) rotate(-90deg); /* Gabung translate dan rotate */
+    width: 80px; /* Sesuaikan dengan height th */
+    display: flex; /* Gunakan flex untuk centering content */
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.highlight {
+    background-color: gray; /* Warna kuning */
+}

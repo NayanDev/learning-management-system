@@ -1,0 +1,71 @@
+body {
+    font-family: "Poppins", sans-serif;
+    background-color: #f0f7f8; /* Light blue-gray background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+.qrcode-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.attendance-card {
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    padding: 30px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.attendance-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background-color: #0891b2; /* Cyan top border */
+}
+.brand-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+.brand-logo {
+    height: 40px; /* Adjust as needed */
+    margin-right: 10px;
+}
+.qr-code-section {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 25px;
+    border: 1px dashed #dee2e6;
+}
+.qr-code-img {
+    max-width: 180px; /* Adjust QR code size */
+    height: auto;
+    border: 5px solid #ffffff; /* White border for QR */
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    text-align: left;
+    margin-bottom: 12px;
+}
+.info-item .icon {
+    font-size: 1.5rem;
+    color: #0891b2; /* Cyan icon */
+    margin-right: 15px;
+    flex-shrink: 0;
+    margin-top: 3px;
+}

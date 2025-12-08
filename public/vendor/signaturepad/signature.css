@@ -1,0 +1,45 @@
+.signature-container {
+    margin-top: 15px;
+}
+.signature-method-selector {
+    margin-bottom: 15px;
+}
+.signature-pad {
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    cursor: crosshair;
+    width: 100%
+}
+.signature-actions {
+    margin-top: 10px;
+    text-align: center;
+}
+.signature-actions .btn {
+    margin: 0 5px;
+}
+.current-signature {
+    max-width: 150px;
+    max-height: 80px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+}
+.signature-preview {
+    margin-top: 10px;
+    text-align: center;
+}
+.upload-zone {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    background: #f9f9f9;
+}
+
+@media (max-width: 576px) {
+    .svg-container {
+        max-width: 100%;
+        height: auto;
+    }
+}
