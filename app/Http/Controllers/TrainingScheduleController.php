@@ -292,7 +292,7 @@ class TrainingScheduleController extends DefaultController
         ])
             ->when($request->training_id, function ($query) use ($request) {
                 $query->whereHas('trainingNeed', function ($subQuery) use ($request) {
-                    $subQuery->where('id', $request->training_id);
+                    $subQuery->where('training_id', $request->training_id);
                 });
             })
             ->when($request->year, function ($query) use ($request) {

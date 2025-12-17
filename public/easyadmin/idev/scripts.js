@@ -321,7 +321,12 @@ function generatePaginate(formId, current, pages) {
     var htmlPaginate = '<div class="idev-pagination">';
     $.each(pages, function (key, item) {
         var isCurrent = current == item.label ? "current" : "";
-        if (item.label != "&laquo; Previous" && item.label != "Next &raquo;") {
+        var isNavButton = item.label == "&laquo; Previous" || 
+                        item.label == "Next &raquo;" ||
+                        item.label == "pagination.previous" || 
+                        item.label == "pagination.next";
+        
+        if (!isNavButton) {
             htmlPaginate +=
                 '<button class="paginate_button ' +
                 isCurrent +
