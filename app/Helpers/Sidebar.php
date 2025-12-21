@@ -113,7 +113,7 @@ class Sidebar
           'childrens' => []
         ],
         [
-          'name' => 'Training Unplan',
+          'name' => 'Training Unplanned',
           'icon' => 'ti ti-calendar-plus',
           'key' => 'training-unplan',
           'base_key' => 'training-unplan',
@@ -122,7 +122,7 @@ class Sidebar
           'childrens' => []
         ],
         [
-          'name' => 'Training Unplan Participant',
+          'name' => 'Training Unplanned Participant',
           'icon' => 'ti ti-user-plus',
           'key' => 'training-unplan-participant',
           'base_key' => 'training-unplan-participant',

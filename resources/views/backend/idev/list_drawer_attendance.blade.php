@@ -19,10 +19,10 @@
                         
                             @if(request('event_id'))
                                 <a class="btn btn-warning float-end text-white mx-1" href="{{ url('attendance-ready-pdf') }}?event_id={{ request('event_id') }}">
-                                    <i class="ti ti-file"></i> Ready
+                                    <i class="ti ti-file"></i> Command
                                 </a>
                                 <a class="btn btn-success float-end text-white mx-1" href="{{ url('attendance-present-pdf') }}?event_id={{ request('event_id') }}">
-                                    <i class="ti ti-file"></i> Present
+                                    <i class="ti ti-file"></i> Attendance
                                 </a>
                                 <a class="btn btn-primary float-end text-white mx-1" href="{{ route('set.attendance', ['id' => request('event_id')]) }}">
                                     <i class="ti ti-qrcode"></i> Access

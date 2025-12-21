@@ -43,7 +43,7 @@
                     <td width="3%" style="vertical-align: top" class="no-border">:</td>
                     <td class="text-start no-border no-border">
                         @foreach($trainer as $trainer)
-                            {{ $trainer->user->name }}<br>
+                            {{ ucwords(strtolower($trainer->user->name ?? '-')) }}<br>
                         @endforeach
                     </td>
                 </tr>

@@ -89,7 +89,7 @@
         <!-- Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h3 class="fw-bold mb-1">Manajemen Tanda Tangan User</h3>
+                <h3 class="fw-bold mb-1">Manajemen Tanda Tangan Peserta</h3>
                 <p class="text-muted mb-0">Update tanda tangan pengguna secara massal.</p>
             </div>
             <div class="d-flex gap-2">

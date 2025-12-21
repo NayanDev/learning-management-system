@@ -31,9 +31,9 @@ class EventController extends DefaultController
             ['name' => 'No', 'column' => '#', 'order' => true],
             ['name' => 'Training', 'column' => 'workshop', 'order' => true],
             ['name' => 'User', 'column' => 'created_by', 'order' => true],
-            ['name' => 'Year', 'column' => 'year', 'order' => true],
+            ['name' => 'TNA (year)', 'column' => 'year', 'order' => true],
             ['name' => 'Participant', 'column' => 'participant_count', 'order' => true],
-            ['name' => 'Letter number', 'column' => 'letter_number', 'order' => true],
+            ['name' => 'Register number', 'column' => 'letter_number', 'order' => true],
             ['name' => 'Organizer', 'column' => 'organizer', 'order' => true],
             ['name' => 'Trainer', 'column' => 'trainers', 'order' => true],
             ['name' => 'Location', 'column' => 'location', 'order' => true],
@@ -348,5 +348,50 @@ class EventController extends DefaultController
         $data['filters'] = $this->filters();
 
         return view($layout, $data);
+    }
+
+
+    protected function filters()
+    {
+        if (Auth::user()->role->name === 'admin') {
+            $isEvent = Event::get();
+        } else {
+            $isEvent = Event::where('user_id', Auth::user()->id)->get();
+        }
+        // $arrEvent = [];
+        // $arrEvent[] = ['value' => "", 'text' => "All Year"];
+        // foreach ($isEvent as $key => $event) {
+        //     $arrEvent[] = ['value' => $event->year, 'text' => $event->year];
+        // }
+
+
+        $arrEvent = [];
+        $arrEvent[] = ['value' => '', 'text' => 'All Year'];
+
+        $years = [];
+
+        foreach ($isEvent as $event) {
+            $year = $event->year;
+            $years[] = $year;
+        }
+
+        $years = array_unique($years);
+        sort($years);
+
+        foreach ($years as $year) {
+            $arrEvent[] = ['value' => $year, 'text' => $year];
+        }
+
+        $fields = [
+                [
+                    'type' => 'select2',
+                    'label' => 'Year',
+                    'name' => 'year',
+                    'class' => 'col-md-2',
+                    'options' => $arrEvent,
+                ],
+            ];
+
+        return $fields;
     }
 }

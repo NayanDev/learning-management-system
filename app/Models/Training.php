@@ -113,9 +113,9 @@ class Training extends Model
         }
 
         $arrLink = [
-            ['label' => 'Training Analyst ', 'url' => url('training-analyst') . "?training_id=" . $this->id, 'icon' => 'ti ti-users', 'disabled' => $disable],
-            ['label' => 'Training Needs', 'url' => url('training-need') . "?training_id=" . $this->id, 'icon' => 'ti ti-archive', 'disabled' => $disable],
-            ['label' => 'Training Schedule', 'url' => url('training-schedule') . "?training_id=" . $this->id, 'icon' => 'ti ti-calendar', 'disabled' => $disable],
+            ['label' => 'Analisa Kebutuhan Latihan', 'url' => url('training-analyst') . "?training_id=" . $this->id, 'icon' => 'ti ti-users', 'disabled' => $disable],
+            ['label' => 'Rencana Usulan Pelatihan', 'url' => url('training-need') . "?training_id=" . $this->id, 'icon' => 'ti ti-archive', 'disabled' => $disable],
+            ['label' => 'Training Schedule', 'url' => url('training-schedule-pdf') . "?training_id=" . $this->id, 'icon' => 'ti ti-calendar', 'disabled' => $disable],
             ['label' => 'Training Unplanned', 'url' => url('training-unplan') . "?training_id=" . $this->id, 'icon' => 'ti ti-help'],
         ];
 
