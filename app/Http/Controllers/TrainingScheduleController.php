@@ -321,7 +321,7 @@ class TrainingScheduleController extends DefaultController
                     } else if ($participantCount === 1) {
                         $participantText = ucwords(strtolower($workshop->participants[0]->name));
                     } else {
-                        $participantText = ucwords(strtolower($divisi)) . ' (TBC)';
+                        $participantText = $divisi . ' (TBC)';
                     }
 
                     // Determine which weeks/months to highlight based on start_date

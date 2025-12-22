@@ -86,6 +86,41 @@
             font-size: 3rem;
             margin-bottom: 1rem;
         }
+        
+        .test-type-card {
+    transition: all 0.3s ease;
+    position: relative;
+    cursor: pointer;
+    border: 2px solid #dee2e6;
+}
+.test-type-card:hover {
+    background-color: #f8f9fa;
+    border-color: #0891B2 !important;
+    box-shadow: 0 2px 8px rgba(8, 145, 178, 0.15);
+    transform: translateY(-2px);
+}
+.test-type-card.opacity-50 {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.test-type-card.opacity-50:hover {
+    background-color: transparent;
+    border-color: #dee2e6 !important;
+    box-shadow: none;
+    transform: none;
+}
+.test-type-card input[type="radio"]:checked {
+    accent-color: #0891B2;
+}
+.test-type-card:has(input[type="radio"]:checked) {
+    background-color: #E6F4F1;
+    border-color: #0891B2 !important;
+    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+}
+.test-type-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
     </style>
 </head>
 <body>
@@ -185,6 +220,9 @@
                                             </div>
                                             <h5 class="fw-bold mb-2">Pre-Test</h5>
                                             <p class="text-muted small mb-0">Test awal sebelum mengikuti pelatihan untuk mengukur pemahaman dasar</p>
+                                            @if($resultQuestion && $resultQuestion->pretest_score > 0)
+                                                <span class="badge bg-success mt-2">Sudah Dikerjakan (Nilai: {{ number_format($resultQuestion->pretest_score, 0) }})</span>
+                                            @endif
                                         </div>
                                     </label>
                                 </div>
@@ -197,6 +235,11 @@
                                             </div>
                                             <h5 class="fw-bold mb-2">Post-Test</h5>
                                             <p class="text-muted small mb-0">Test akhir setelah mengikuti pelatihan untuk evaluasi hasil pembelajaran</p>
+                                            @if(!$resultQuestion || $resultQuestion->pretest_score == 0)
+                                                <span class="badge bg-warning mt-2">Selesaikan Pre-Test Terlebih Dahulu</span>
+                                            @elseif($resultQuestion->posttest1_score > 0 || $resultQuestion->posttest2_score > 0)
+                                                <span class="badge bg-success mt-2">Sudah Dikerjakan</span>
+                                            @endif
                                         </div>
                                     </label>
                                 </div>

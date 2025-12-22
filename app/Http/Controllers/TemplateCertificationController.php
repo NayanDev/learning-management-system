@@ -20,14 +20,15 @@ class TemplateCertificationController extends DefaultController
     protected $generalUri;
     protected $tableHeaders;
     // protected $actionButtons;
-    // protected $arrPermissions;
+    protected $arrPermissions = ['list', 'show', 'create', 'edit', 'delete', 'export-excel-default', 'export-pdf-default', 'import-excel-default'];
+    protected $dynamicPermission = true;
     protected $importExcelConfig;
 
     public function __construct()
     {
         $this->title = 'Template Certification';
         $this->generalUri = 'template-certification';
-        // $this->arrPermissions = [];
+        $this->arrPermissions = [];
         $this->actionButtons = ['btn_edit', 'btn_show', 'btn_delete'];
 
         $this->tableHeaders = [

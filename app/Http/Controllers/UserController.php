@@ -911,4 +911,20 @@ class UserController extends DefaultController
             ], 500);
         }
     }
+
+
+    protected function signatureVerified()
+    {
+        // $id = request('id');
+        // $user = User::find($id);
+        // if (!$user) {
+        //     abort(404, 'User Not Found');
+        // }
+
+        // $data = [
+        //     'user' => $user,
+        // ];
+
+        return view('backend.idev.signature_verified');
+    }
 }

@@ -69,8 +69,9 @@
             width:48%; 
             padding-bottom:10px;
             position:relative;
+            box-sizing: border-box;
+            vertical-align: top;
             /* border: 1px solid black; */
-            /* height: 30px; */
         }
 
         .option-cross {
@@ -78,6 +79,21 @@
             font-size: 20px;
             top: -4px;
             left: -2px;
+        }
+
+        .question-wrong {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid red;
+            border-radius: 50%;
+            top: -5px;
+            left: -8px;
+        }
+
+        .question-wrap {
+            page-break-inside: avoid;
+            page-break-after: auto;
         }
 
     </style>
@@ -135,29 +151,33 @@
     <div>
         @foreach($questions as $question)
 
+            
+            <div class="question-wrap">
                 @if(isset($question->image))
                     <img src="{{ asset('images/soal/' . $question->image) }}" alt="Question Image" style="max-height: 100px;"> <br>
                 @endif
 
-            <p style="position: relative;">
-                
-                    @foreach ($question->answerParticipants as $answerParticipant)
-                        @if($answerParticipant->point === 0)
-                            <span class="option-cross">X</span> 
-                        @endif
-                    @endforeach
-                {{ $loop->iteration }}. {{ $question->name }}
-            </p>
-            @foreach($question->answers as $index => $answer)
-                <span class="options">
-                    @foreach($answerParticipants as $answerParticipant)
-                        @if($answer->name === $answerParticipant->answer->name && $answerParticipant->question_id === $question->id)
-                            <span class="option-cross">X</span> 
-                        @endif
-                    @endforeach
-                {{ chr(65 + $index) }}. {{ $answer->name }}
-                </span>
-            @endforeach
+                <p style="position: relative;">
+                    
+                        @foreach ($question->answerParticipants as $answerParticipant)
+                            @if($answerParticipant->point === 0)
+                                <span class="question-wrong"></span> 
+                            @endif
+                        @endforeach
+                    {{ $loop->iteration }}. {{ $question->name }}
+                </p>
+                @foreach($question->answers as $index => $answer)
+                    <span class="options">
+                        @foreach($answerParticipants as $answerParticipant)
+                            @if($answer->name === $answerParticipant->answer->name && $answerParticipant->question_id === $question->id)
+                                <span class="option-cross">X</span> 
+                            @endif
+                        @endforeach
+                    {{ strtolower(chr(65 + $index)) }}. {{ $answer->name }}
+                    </span>
+                @endforeach
+            </div>
+            
         @endforeach
         
     </div>

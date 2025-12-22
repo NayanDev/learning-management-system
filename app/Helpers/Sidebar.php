@@ -67,69 +67,69 @@ class Sidebar
           'ajax_load' => false,
           'childrens' => []
         ],
-        [
-          'name' => 'Training Analyst',
-          'icon' => 'ti ti-chart-bar',
-          'key' => 'training-analyst',
-          'base_key' => 'training-analyst',
-          'visibility' => true,
-          'ajax_load' => false,
-          'childrens' => []
-        ],
-        [
-          'name' => 'Training Need',
-          'icon' => 'ti ti-target',
-          'key' => 'training-need',
-          'base_key' => 'training-need',
-          'visibility' => true,
-          'ajax_load' => false,
-          'childrens' => []
-        ],
-        [
-          'name' => 'Training Workshop',
-          'icon' => 'ti ti-briefcase',
-          'key' => 'training-workshop',
-          'base_key' => 'training-workshop',
-          'visibility' => true,
-          'ajax_load' => false,
-          'childrens' => []
-        ],
-        [
-          'name' => 'Training Participant',
-          'icon' => 'ti ti-user-exclamation',
-          'key' => 'training-participant',
-          'base_key' => 'training-participant',
-          'visibility' => true,
-          'ajax_load' => false,
-          'childrens' => []
-        ],
-        [
-          'name' => 'Training Schedule',
-          'icon' => 'ti ti-calendar-time',
-          'key' => 'training-schedule',
-          'base_key' => 'training-schedule',
-          'visibility' => true,
-          'ajax_load' => false,
-          'childrens' => []
-        ],
-        [
-          'name' => 'Training Unplanned',
-          'icon' => 'ti ti-calendar-plus',
-          'key' => 'training-unplan',
-          'base_key' => 'training-unplan',
-          'visibility' => true,
-          'ajax_load' => false,
-          'childrens' => []
-        ],
-        [
-          'name' => 'Training Unplanned Participant',
-          'icon' => 'ti ti-user-plus',
-          'key' => 'training-unplan-participant',
-          'base_key' => 'training-unplan-participant',
-          'visibility' => true,
-          'ajax_load' => false,
-          'childrens' => []
-        ],
+        // [
+        //   'name' => 'Training Analyst',
+        //   'icon' => 'ti ti-chart-bar',
+        //   'key' => 'training-analyst',
+        //   'base_key' => 'training-analyst',
+        //   'visibility' => true,
+        //   'ajax_load' => false,
+        //   'childrens' => []
+        // ],
+        // [
+        //   'name' => 'Training Need',
+        //   'icon' => 'ti ti-target',
+        //   'key' => 'training-need',
+        //   'base_key' => 'training-need',
+        //   'visibility' => true,
+        //   'ajax_load' => false,
+        //   'childrens' => []
+        // ],
+        // [
+        //   'name' => 'Training Workshop',
+        //   'icon' => 'ti ti-briefcase',
+        //   'key' => 'training-workshop',
+        //   'base_key' => 'training-workshop',
+        //   'visibility' => true,
+        //   'ajax_load' => false,
+        //   'childrens' => []
+        // ],
+        // [
+        //   'name' => 'Training Participant',
+        //   'icon' => 'ti ti-user-exclamation',
+        //   'key' => 'training-participant',
+        //   'base_key' => 'training-participant',
+        //   'visibility' => true,
+        //   'ajax_load' => false,
+        //   'childrens' => []
+        // ],
+        // [
+        //   'name' => 'Training Schedule',
+        //   'icon' => 'ti ti-calendar-time',
+        //   'key' => 'training-schedule',
+        //   'base_key' => 'training-schedule',
+        //   'visibility' => true,
+        //   'ajax_load' => false,
+        //   'childrens' => []
+        // ],
+        // [
+        //   'name' => 'Training Unplanned',
+        //   'icon' => 'ti ti-calendar-plus',
+        //   'key' => 'training-unplan',
+        //   'base_key' => 'training-unplan',
+        //   'visibility' => true,
+        //   'ajax_load' => false,
+        //   'childrens' => []
+        // ],
+        // [
+        //   'name' => 'Training Unplanned Participant',
+        //   'icon' => 'ti ti-user-plus',
+        //   'key' => 'training-unplan-participant',
+        //   'base_key' => 'training-unplan-participant',
+        //   'visibility' => true,
+        //   'ajax_load' => false,
+        //   'childrens' => []
+        // ],
         [
           'name' => 'Event',
           'icon' => 'ti ti-layout-grid',

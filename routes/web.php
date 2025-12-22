@@ -290,4 +290,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
 
     // Route Documentation
     Route::get('documentation-pdf', [DocumentationController::class, 'generatePDF'])->name('documentation.pdf');
+
+    // Route Signature Verified
+    Route::get('signature-verified', [UserController::class, 'signatureVerified'])->name('signature.verified');
 });

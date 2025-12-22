@@ -204,32 +204,15 @@ if ($totalRows == 0) {
                 <br>
                 Dibuat Oleh,
                 <br><br>
-                @if($created->status === 'close')
                 <div style="display: flex; justify-content: center;">
                     <div style="display: inline-block;">
-                        {!! DNS2D::getBarcodeHTML( $created->approver->name . "\n" . 'Manager ' . $created->approver->divisi . "\n" . '(ini adalah dokumen resmi dan sah)', 'QRCODE', 1, 1 ) !!}
+                        {!! DNS2D::getBarcodeHTML( 'SARJONO' . "\n" . 'Manager ' . 'Umum & SDM' . "\n" . '(ini adalah dokumen resmi dan sah)', 'QRCODE', 1, 1 ) !!}
                     </div>
                 </div>
                 <br>
-                <u><strong>{{ $created->approver->name ?? '-' }}</strong></u>
+                <u><strong>SARJONO</strong></u>
                 <br>
-                <span>Manager {{ ucwords(strtolower($created->approver->divisi)) ?? '-' }}</span>
-                @elseif($created->status === 'submit')
-                <div style="display: flex; justify-content: center;">
-                    <div style="display: inline-block;">
-                        {!! DNS2D::getBarcodeHTML( $created->approver->name . "\n" . 'Manager ' . $created->approver->divisi . "\n" . '(ini adalah dokumen resmi dan sah)', 'QRCODE', 1, 1 ) !!}
-                    </div>
-                </div>
-                <br>
-                <u><strong>{{ $created->approver->name ?? '-' }}</strong></u>
-                <br>
-                <span>Manager {{ ucwords(strtolower($created->approver->divisi)) ?? '-' }}</span>
-                @else
-                <div style="height: 50px"></div>
-                <u><strong>{{ $created->approver->name ?? '-' }}</strong></u>
-                <br>
-                <span>Manager {{ ucwords(strtolower($created->approver->divisi)) ?? '-' }}</span>
-                @endif
+                <span>Manager Umum & SDM</span>
             </td>
             <td class="no-border" style="width:20%;"></td>
             <td class="no-border" style="width:20%;"></td>
@@ -237,7 +220,6 @@ if ($totalRows == 0) {
             <td class="no-border text-center"style="width:20%;">
                 Mengetahui,
                 <br><br>
-                @if($created->status === 'close')
                 <div style="display: flex; justify-content: center;">
                     <div style="display: inline-block;">
                         {!! DNS2D::getBarcodeHTML("MAKMURI YUSIN\nDirektur Umum & SDM\n(ini adalah dokumen resmi dan sah)", 'QRCODE', 1, 1) !!}
@@ -247,10 +229,6 @@ if ($totalRows == 0) {
                 <u><strong>MAKMURI YUSIN</strong></u>
                 <br>
                 <span>Direktur Umum & SDM</span>
-                @else
-                <div style="height: 50px"></div>
-                <em>Data belum tersedia</em>
-                @endif
             </td>
         </tr>
     </table>

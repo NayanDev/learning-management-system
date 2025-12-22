@@ -24,9 +24,9 @@
         $.each(links, function( index, link ) {
             mHtml += "<div class='col-md-6'>";
             if (link.disabled) {
-                mHtml += "<a href='javascript:void(0);' class='btn btn-outline-secondary w-100 my-1 text-left disabled-link'>";
+                mHtml += "<a href='javascript:void(0);' class='btn btn-outline-secondary w-100 my-1 text-left disabled-link' target='_blank'>";
             } else {
-                mHtml += "<a href='"+link.url+"' class='btn btn-outline-secondary w-100 my-1 text-left'>";
+                mHtml += "<a href='"+link.url+"' class='btn btn-outline-secondary w-100 my-1 text-left' target='_blank'>";
             }
             mHtml += "<i class='"+link.icon+" fw-bold'></i><br>";
             mHtml += link.label;

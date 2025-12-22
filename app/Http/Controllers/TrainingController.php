@@ -29,7 +29,7 @@ class TrainingController extends DefaultController
         $this->title = 'Training';
         $this->generalUri = 'training';
         $this->arrPermissions = [];
-        $this->actionButtons = ['btn_approve', 'btn_edit', 'btn_multilink', 'btn_delete'];
+        $this->actionButtons = ['btn_edit', 'btn_multilink', 'btn_delete'];
 
         $this->tableHeaders = [
             ['name' => 'No', 'column' => '#', 'order' => true],
