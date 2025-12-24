@@ -130,17 +130,25 @@ class EvaluationController extends DefaultController
             abort(403, 'Token Not Found.');
         }
 
-        $eventId = Event::where('token', $token)->first();
-        $participantId = Participant::where('nik', Auth::user()->nik)->where('event_id', $eventId->id)->first();
-        dd($participantId->id);
-        $evaluation = Evaluation::where('event_id', $eventId->id)->where('participant_id', $participantId->id)->first();
+        $event = Event::where('token', $token)->first();
+        if (!$event) {
+            abort(403, 'Event tidak ditemukan.');
+        }
+
+        $participant = Participant::where('nik', Auth::user()->nik)
+            ->where('event_id', $event->id)
+            ->first();
+
+        if (!$participant) {
+            abort(403, 'Anda tidak terdaftar pada event ini.');
+        }
+
+        $evaluation = Evaluation::where('event_id', $event->id)
+            ->where('participant_id', $participant->id)
+            ->first();
 
         if ($evaluation) {
             abort(403, 'Anda sudah mengisi form evaluasi untuk event ini.');
-        }
-
-        if (!$participantId) {
-            abort(403, 'Anda tidak terdaftar pada event ini.');
         }
 
         return view('backend.idev.evaluation_form');
@@ -215,7 +223,6 @@ class EvaluationController extends DefaultController
         $data = [
             'evaluation' => $evaluation
         ];
-        dd($data);
         $token = $request->token;
         if (!$token) {
             abort(403, 'Token Not Found.');

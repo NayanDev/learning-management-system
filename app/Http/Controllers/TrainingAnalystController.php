@@ -390,10 +390,16 @@ class TrainingAnalystController extends DefaultController
     protected function trainingForm()
     {
         $queryString = request('training_analyst');
-        $user = Auth::user()->divisi;
-        $access = TrainingAnalyst::where('divisi', $user)->find($queryString);
-        if (!$access) {
-            abort(404);
+        $user = auth::user();
+
+        if ($user->role !== 'admin') {
+            $access = TrainingAnalyst::where('divisi', $user->divisi)
+                ->where('id', $queryString)
+                ->first();
+
+            if (!$access) {
+                abort(404);
+            }
         }
 
         $permissions =  $this->arrPermissions;

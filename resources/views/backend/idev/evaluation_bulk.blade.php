@@ -170,9 +170,10 @@
         <div class="card evaluation-card">
             
             <!-- Form Utama -->
-            <form action="{{ route('submit.evaluation.bulk') }}" method="POST">
+            <form id="formEvaluationBulk" action="{{ route('submit.evaluation.bulk') }}" method="POST">
                 @csrf
                 
+                <input type="hidden" name="token" value="{{ request('token') }}">
                 <input type="hidden" name="event_id" value="{{ $event->id }}">
 
                 <div class="row g-0 h-100">
