@@ -328,6 +328,11 @@ class TrainingUnplanController extends DefaultController
             ],
         ];
 
+        $params = "";
+        if (request('training_id')) {
+            $params = "?training_id=" . request('training_id');
+        }
+
         $permissions =  $this->arrPermissions;
         if ($this->dynamicPermission) {
             $permissions = (new Constant())->permissionByMenu($this->generalUri);
@@ -342,7 +347,7 @@ class TrainingUnplanController extends DefaultController
         $data['table_headers'] = $this->tableHeaders;
         $data['title'] = $this->title;
         $data['uri_key'] = $this->generalUri;
-        $data['uri_list_api'] = route($this->generalUri . '.listapi');
+        $data['uri_list_api'] = route($this->generalUri . '.listapi') . $params;
         $data['uri_create'] = route($this->generalUri . '.create');
         $data['url_store'] = route($this->generalUri . '.store');
         $data['fields'] = $this->fields();
