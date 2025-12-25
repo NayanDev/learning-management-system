@@ -281,6 +281,22 @@ class AttendanceController extends DefaultController
         return view('backend.idev.attendance_access', $data);
     }
 
+    protected function checkoutBarcode()
+    {
+        $eventId = session('checkout_id');
+        if (!$eventId) {
+            abort(404);
+        }
+        $event = Event::findOrFail($eventId);
+
+        $data = [
+            'title' => 'Akses Checkout',
+            'barcode' => url('checkout-participant') . '?token=' . $event->token,
+        ];
+
+        return view('backend.idev.attendance_checkout', $data);
+    }
+
 
     public function attendanceFormReady(Request $request)
     {
@@ -352,6 +368,87 @@ class AttendanceController extends DefaultController
                     'participant_name' => $participant->name,
                     'event_name' => $participant->event->workshop->name ?? 'N/A',
                     'date_ready' => $attendance->date_ready->format('d M Y H:i:s')
+                ]
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function checkoutForm(Request $request, $token)
+    {
+        try {
+            $token = request('token');
+            $user = Auth::user();
+
+            if (!$token) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Token tidak ditemukan.'
+                ], 400);
+            }
+
+            if (!$user->nik) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'NIK user tidak terdaftar. Silakan hubungi administrator.'
+                ], 400);
+            }
+
+            $participant = Participant::with('event')
+                ->where('nik', $user->nik)
+                ->whereHas('event', function ($query) use ($token) {
+                    $query->where('token', $token);
+                })
+                ->first();
+
+            if (!$participant) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Anda tidak terdaftar sebagai peserta training ini atau token tidak valid.'
+                ], 404);
+            }
+
+            $existingAttendance = Attendance::where('participant_id', $participant->id)
+                ->whereNotNull('date_out_present')
+                ->first();
+
+            if ($existingAttendance) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Anda sudah melakukan tanda tangan present sebelumnya pada ' .
+                        $existingAttendance->date_present->format('d M Y H:i:s')
+                ], 409); // 409 Conflict
+            }
+
+            DB::beginTransaction();
+
+            $attendance = Attendance::updateOrCreate(
+                [
+                    'participant_id' => $participant->id
+                ],
+                [
+                    'event_id' => $participant->event_id,
+                    'date_out_present' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Checkout berhasil disimpan!',
+                'data' => [
+                    'attendance_id' => $attendance->id,
+                    'participant_name' => $participant->name,
+                    'event_name' => $participant->event->workshop->name ?? 'N/A',
+                    'date_out_present' => $attendance->date_out_present->format('d M Y H:i:s')
                 ]
             ], 200);
         } catch (Exception $e) {
@@ -500,6 +597,65 @@ class AttendanceController extends DefaultController
         $data['data_query'] = $participant;
 
         $layout = (request('from_ajax') && request('from_ajax') == true) ? 'easyadmin::backend.idev.list_drawer_ajax' : 'backend.idev.attendance_form';
+
+        return view($layout, $data);
+    }
+
+
+    protected function checkout()
+    {
+        $moreActions = [
+            [
+                'key' => 'import-excel-default',
+                'name' => 'Import Excel',
+                'html_button' => "<button id='import-excel' type='button' class='btn btn-sm btn-info radius-6' href='#' data-bs-toggle='modal' data-bs-target='#modalImportDefault' title='Import Excel' ><i class='ti ti-upload'></i></button>"
+            ],
+            [
+                'key' => 'export-excel-default',
+                'name' => 'Export Excel',
+                'html_button' => "<a id='export-excel' class='btn btn-sm btn-success radius-6' target='_blank' href='" . url($this->generalUri . '-export-excel-default') . "'  title='Export Excel'><i class='ti ti-cloud-download'></i></a>"
+            ],
+            [
+                'key' => 'export-pdf-default',
+                'name' => 'Export Pdf',
+                'html_button' => "<a id='export-pdf' class='btn btn-sm btn-danger radius-6' target='_blank' href='" . url($this->generalUri . '-export-pdf-default') . "' title='Export PDF'><i class='ti ti-file'></i></a>"
+            ],
+        ];
+
+        $token = request('token');
+
+        $user = Auth::user();
+
+        $participant = Participant::where('nik', $user->nik)
+            ->whereHas('event', function ($query) use ($token) {
+                $query->where('token', $token);
+            })
+            ->with('event')
+            ->with('attendance')
+            ->first();
+
+        if (! $participant) {
+            abort(403, 'token tidak valid');
+        }
+
+        $permissions = (new Constant())->permissionByMenu($this->generalUri);
+        $data['permissions'] = $permissions;
+        $data['more_actions'] = $moreActions;
+        $data['table_headers'] = $this->tableHeaders;
+        $data['title'] = $this->title;
+        $data['uri_key'] = $this->generalUri;
+        $data['uri_list_api'] = route($this->generalUri . '.listapi');
+        $data['uri_create'] = route($this->generalUri . '.create');
+        $data['url_store'] = route($this->generalUri . '.store');
+        $data['fields'] = $this->fields();
+        $data['edit_fields'] = $this->fields();
+        $data['actionButtonViews'] = $this->actionButtonViews;
+        $data['templateImportExcel'] = "#";
+        $data['filters'] = $this->filters();
+        $data['drawerExtraClass'] = 'w-50';
+        $data['data_query'] = $participant;
+
+        $layout = (request('from_ajax') && request('from_ajax') == true) ? 'easyadmin::backend.idev.list_drawer_ajax' : 'backend.idev.checkout_form';
 
         return view($layout, $data);
     }

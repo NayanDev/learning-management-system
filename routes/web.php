@@ -248,6 +248,8 @@ Route::group(['middleware' => ['web', 'auth']], function () {
 
     // Route Attendance
     Route::get('attendance-participant', [AttendanceController::class, 'attendance'])->name('participant.attendance');
+    Route::get('checkout-participant', [AttendanceController::class, 'checkout'])->name('participant.checkout');
+    Route::post('participant-checkout/{token}', [AttendanceController::class, 'checkoutForm'])->name('participant.checkout.form');
     Route::post('participant-attendance/{token}', [AttendanceController::class, 'attendanceForm'])->name('participant.attendance.form');
     Route::post('participant-attendance-ready/', [AttendanceController::class, 'attendanceFormReady'])->name('participant.attendance.form.ready');
     Route::get('attendance-ready-pdf', [AttendanceController::class, 'readyPdf'])->name('attendance.ready.pdf');
@@ -271,6 +273,12 @@ Route::group(['middleware' => ['web', 'auth']], function () {
         return redirect('/question-barcode');
     })->name('set.question');
     Route::get('/question-barcode', [QuestionController::class, 'questionBarcode'])->name('question.barcode');
+
+    Route::get('/set-checkout/{id}', function ($id) {
+        session(['checkout_id' => $id]);
+        return redirect('/checkout-barcode');
+    })->name('set.checkout');
+    Route::get('/checkout-barcode', [AttendanceController::class, 'checkoutBarcode'])->name('checkout.barcode');
 
     // Route Assesment
     Route::get('/api/questions', [QuestionController::class, 'getQuestionsForTest'])->name('api.questions');

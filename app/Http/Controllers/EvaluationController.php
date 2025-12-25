@@ -34,8 +34,8 @@ class EvaluationController extends DefaultController
             ['name' => 'No', 'column' => '#', 'order' => true],
             ['name' => 'Name', 'column' => 'name', 'order' => true],
             ['name' => 'Type', 'column' => 'type', 'order' => true],
-            ['name' => 'Event id', 'column' => 'event_id', 'order' => true],
-            ['name' => 'Participant id', 'column' => 'participant_id', 'order' => true],
+            ['name' => 'Event id', 'column' => 'workshop', 'order' => true],
+            ['name' => 'Participant id', 'column' => 'participant', 'order' => true],
             ['name' => 'Score', 'column' => 'score', 'order' => true],
             ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
             ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
@@ -287,5 +287,47 @@ class EvaluationController extends DefaultController
             ->setPaper('A4', 'portrait');
 
         return $pdf->stream("Evaluation" . ($request->year ?? date('Y')) . ".pdf");
+    }
+
+
+    protected function defaultDataQuery()
+    {
+        $filters = [];
+        $orThose = null;
+        $orderBy = 'id';
+        $orderState = 'DESC';
+        if (request('search')) {
+            $orThose = request('search');
+        }
+        if (request('order')) {
+            $orderBy = request('order');
+            $orderState = request('order_state');
+        }
+        if (request('event_id')) {
+            $filters[] = ['questions.event_id', '=', request('event_id')];
+        }
+
+        $dataQueries = Evaluation::join('events', 'events.id', '=', 'evaluations.event_id')
+            ->join('workshops', 'workshops.id', '=', 'events.workshop_id')
+            ->join('participants', 'participants.id', '=', 'evaluations.participant_id')
+            ->where($filters)
+            ->where(function ($query) use ($orThose) {
+                $query->where('evaluations.name', 'LIKE', '%' . $orThose . '%');
+                $query->where('evaluations.type', 'LIKE', '%' . $orThose . '%');
+                $query->where('evaluations.score', 'LIKE', '%' . $orThose . '%');
+                $query->orWhere('workshops.name', 'LIKE', '%' . $orThose . '%');
+                $query->orWhere('participants.name', 'LIKE', '%' . $orThose . '%');
+            });
+
+        // Cek role user
+        if (Auth::user()->role->name !== 'admin') {
+            $dataQueries = $dataQueries->where('evaluations.user_id', Auth::user()->id);
+        }
+
+        $dataQueries = $dataQueries
+            ->select('evaluations.*', 'workshops.name as workshop', 'participants.name as participant')
+            ->orderBy($orderBy, $orderState);
+
+        return $dataQueries;
     }
 }

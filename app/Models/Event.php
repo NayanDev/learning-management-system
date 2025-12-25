@@ -68,6 +68,7 @@ class Event extends Model
             ['label' => 'Documentation', 'url' => url('documentation') . "?event_id=" . $this->id, 'icon' => 'ti ti-photo'],
             ['label' => 'Training Report', 'url' => url('training-report') . "?event_id=" . $this->id, 'icon' => 'ti ti-clipboard'],
             ['label' => 'Bulk Signature', 'url' => url('signature-bulk-update') . "?event_id=" . $this->id, 'icon' => 'ti ti-signature'],
+            ['label' => 'Checkout Access', 'url' => route('set.checkout', ['id' => $this->id]), 'icon' => 'ti ti-qrcode'],
         ];
         $html = "<button type='button' data-links='" . json_encode($arrLink) . "' onclick='setMM(this)' title='Navigation' class='btn btn-outline-warning btn-sm radius-6' style='margin:1px;' data-bs-toggle='modal' data-bs-target='#modalMultiLink'>
                     <i class='ti ti-list'></i>
