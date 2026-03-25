@@ -92,6 +92,8 @@ class EventController extends DefaultController
             ['value' => 'external', 'text' => 'External'],
         ];
 
+        $rooms = rooms();
+
         $fields = [
             [
                 'type' => 'onlyview',
@@ -152,12 +154,13 @@ class EventController extends DefaultController
                 'options' => $instructor
             ],
             [
-                'type' => 'text',
+                'type' => 'select',
                 'label' => 'Location',
                 'name' =>  'location',
                 'class' => 'col-md-12 my-2',
                 'required' => $this->flagRules('location', $id),
-                'value' => (isset($edit)) ? $edit->location : ''
+                'value' => (isset($edit)) ? $edit->location : '',
+                'options' => $rooms
             ],
             [
                 'type' => 'hidden',
@@ -264,6 +267,14 @@ class EventController extends DefaultController
 
     protected function indexApi()
     {
+        $manyDatas = 10;
+        if (request('manydatas')) {
+            $manyDatas = request('manydatas');
+            if ($manyDatas == "All") {
+                $manyDatas = 10000; // we are using this boundaries to prevent lack of request
+            }
+        }
+
         $permission = (new Constant)->permissionByMenu($this->generalUri);
         $permission[] = 'multilink';
 
@@ -281,7 +292,7 @@ class EventController extends DefaultController
             }
         }
 
-        $dataQueries = $this->defaultDataQuery()->paginate(10);
+        $dataQueries = $this->defaultDataQuery()->paginate($manyDatas);
 
         $datas['extra_buttons'] = $eb;
         $datas['data_columns'] = $data_columns;

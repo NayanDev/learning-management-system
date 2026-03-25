@@ -83,9 +83,32 @@ $note = $template->note ?? '';
             font-size: 25px;
             margin-top:40px;
         }
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;               /* agar penuh */
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 100px;
+            text-align: center;        /* teks di tengah */
+            white-space: nowrap;       /* jangan pindah baris */
+            color: rgba(0, 0, 0, 0.15);
+            z-index: -1;
+        }
     </style>
 </head>
 <body>
+    @php
+        $allowedRoles = ['admin'];
+    @endphp
+
+    @if(!in_array(Auth::user()->role->name, $allowedRoles))
+        <h1 class="watermark">
+            SAMPHARINDO <br>
+            PERDANA <br>
+            INVESTAMA
+        </h1>
+    @endif
     <h1 class="sertifikat">&nbsp;</h1>
     <h2 class="no_sertifikat">No. {{ $sertificateNumber }}</h2>
     <h4 class="diberikan">&nbsp;</h4>

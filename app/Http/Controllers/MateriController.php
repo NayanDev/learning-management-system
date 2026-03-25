@@ -27,7 +27,7 @@ class MateriController extends DefaultController
         $this->title = 'Materi';
         $this->generalUri = 'materi';
         $this->arrPermissions = [];
-        $this->actionButtons = ['btn_edit', 'btn_show', 'btn_delete'];
+        $this->actionButtons = ['btn_print', 'btn_edit', 'btn_show', 'btn_delete'];
 
         $this->tableHeaders = [
             ['name' => 'No', 'column' => '#', 'order' => true],
@@ -293,5 +293,36 @@ class MateriController extends DefaultController
         $layout = (request('from_ajax') && request('from_ajax') == true) ? 'easyadmin::backend.idev.list_drawer_ajax' : 'easyadmin::backend.idev.list_drawer';
 
         return view($layout, $data);
+    }
+
+
+    protected function indexApi()
+    {
+        $permission = (new Constant)->permissionByMenu($this->generalUri);
+        $permission[] = 'print';
+
+        $eb = [];
+        $data_columns = [];
+        foreach ($this->tableHeaders as $key => $col) {
+            if ($key > 0) {
+                $data_columns[] = $col['column'];
+            }
+        }
+
+        foreach ($this->actionButtons as $key => $ab) {
+            if (in_array(str_replace("btn_", "", $ab), $permission)) {
+                $eb[] = $ab;
+            }
+        }
+
+        $dataQueries = $this->defaultDataQuery()->paginate(10);
+
+        $datas['extra_buttons'] = $eb;
+        $datas['data_columns'] = $data_columns;
+        $datas['data_queries'] = $dataQueries;
+        $datas['data_permissions'] = $permission;
+        $datas['uri_key'] = $this->generalUri;
+
+        return $datas;
     }
 }

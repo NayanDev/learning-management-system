@@ -151,21 +151,24 @@ class TrainingController extends DefaultController
             $orderState = request('order_state');
         }
 
-        $dataQueries = Training::join('users', 'users.id', '=', 'trainings.user_id')
-            ->where($filters)
-            ->where(function ($query) use ($orThose) {
-                $query->where('trainings.year', 'LIKE', '%' . $orThose . '%');
-                $query->orWhere('trainings.end_date', 'LIKE', '%' . $orThose . '%');
-                $query->orWhere('trainings.description', 'LIKE', '%' . $orThose . '%');
-                $query->orWhere('trainings.divisi', 'LIKE', '%' . $orThose . '%');
-                $query->orWhere('trainings.status', 'LIKE', '%' . $orThose . '%');
-                $query->orWhere('users.name', 'LIKE', '%' . $orThose . '%');
-            })
-            ->orderBy($orderBy, $orderState)
-            ->select('trainings.*', 'users.name as user');
+            $dataQueries = Training::join('users', 'users.id', '=', 'trainings.user_id')
+                ->when(Auth::user()->role->name !== 'admin', function ($query) {
+                    $query->where('trainings.status', 'open');
+                })
+                ->where($filters)
+                ->where(function ($query) use ($orThose) {
+                    $query->where('trainings.year', 'LIKE', '%' . $orThose . '%');
+                    $query->orWhere('trainings.end_date', 'LIKE', '%' . $orThose . '%');
+                    $query->orWhere('trainings.description', 'LIKE', '%' . $orThose . '%');
+                    $query->orWhere('trainings.divisi', 'LIKE', '%' . $orThose . '%');
+                    $query->orWhere('trainings.status', 'LIKE', '%' . $orThose . '%');
+                    $query->orWhere('users.name', 'LIKE', '%' . $orThose . '%');
+                })
+                ->orderBy($orderBy, $orderState)
+                ->select('trainings.*', 'users.name as user');
 
-        return $dataQueries;
-    }
+            return $dataQueries;
+        }
 
 
     public function indexApi()

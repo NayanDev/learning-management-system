@@ -268,6 +268,12 @@ class CertificationController extends DefaultController
                 $query->orWhere('participants.name', 'LIKE', '%' . $orThose . '%');
             });
 
+            if (Auth::user()->role->name !== 'admin') {
+                $dataQueries = $dataQueries->whereHas('participant', function ($query) {
+                    $query->where('nik', Auth::user()->nik);
+                });
+            }
+
         $dataQueries = $dataQueries
             ->select('certifications.*', 'workshops.name as workshop_name', 'template_certifications.name as template_certification_name', 'participants.name as participant_name')
             ->orderBy($orderBy, $orderState);

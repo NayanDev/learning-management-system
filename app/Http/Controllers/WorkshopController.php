@@ -87,7 +87,7 @@ class WorkshopController extends DefaultController
     {
         $filters = [];
         $orThose = null;
-        $orderBy = 'id';
+        $orderBy = 'workshops.id';
         $orderState = 'DESC';
         if (request('search')) {
             $orThose = request('search');
@@ -99,13 +99,24 @@ class WorkshopController extends DefaultController
 
         $dataQueries = Workshop::join('users', 'users.id', '=', 'workshops.user_id')
             ->where($filters)
-            ->where(function ($query) use ($orThose) {
+            ->when($orThose,function ($query) use ($orThose) {
                 $query->where('workshops.name', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('users.name', 'LIKE', '%' . $orThose . '%');
             })
             ->orderBy($orderBy, $orderState)
-            ->select('workshops.*', 'users.name as user');
+            ->select('workshops.*', 'users.name as user', 'workshops.id as workshopId');
 
         return $dataQueries;
+    }
+
+
+    protected function show($id)
+    {
+        $singleData = $this->defaultDataQuery()->where('workshops.id', $id)->first();
+        unset($singleData['id']);
+
+        $data['detail'] = $singleData;
+
+        return view('backend.idev.show-silabus', $data);
     }
 }

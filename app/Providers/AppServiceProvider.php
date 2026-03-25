@@ -26,5 +26,9 @@ class AppServiceProvider extends ServiceProvider
                 resource_path('views')
             ]);
         });
+
+        foreach (glob(app_path('Helpers/*.php')) as $file) {
+            require_once $file;
+        }
     }
 }

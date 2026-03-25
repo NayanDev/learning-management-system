@@ -53,13 +53,14 @@ class Event extends Model
 
     public function getBtnMultilinkAttribute()
     {
+        $token = Event::find($this->id)->token;
         $arrLink = [
             ['label' => 'Trainer', 'url' => url('trainer') . "?event_id=" . $this->id, 'icon' => 'ti ti-users'],
             ['label' => 'Participant', 'url' => url('participant') . "?event_id=" . $this->id, 'icon' => 'ti ti-users'],
             ['label' => 'Attendance', 'url' => url('attendance') . "?event_id=" . $this->id, 'icon' => 'ti ti-check'],
             ['label' => 'Materi', 'url' => url('materi') . "?event_id=" . $this->id, 'icon' => 'ti ti-book fw-bold'],
             ['label' => 'Question', 'url' => url('question') . "?event_id=" . $this->id, 'icon' => 'ti ti-question-mark fw-bold'],
-            ['label' => 'Scoreboard', 'url' => url('scoreboard') . "?event_id=" . $this->id, 'icon' => 'ti ti-award fw-bold'],
+            // ['label' => 'Scoreboard', 'url' => url('scoreboard') . "?event_id=" . $this->id, 'icon' => 'ti ti-award fw-bold'],
             ['label' => 'Question Access', 'url' => route('set.question', ['id' => $this->id]), 'icon' => 'ti ti-qrcode'],
             ['label' => 'Result Question', 'url' => url('result-question') . "?event_id=" . $this->id, 'icon' => 'ti ti-star fw-bold'],
             ['label' => 'Participant Answer', 'url' => url('answer-participant') . "?event_id=" . $this->id, 'icon' => 'ti ti-archive fw-bold'],
@@ -69,6 +70,8 @@ class Event extends Model
             ['label' => 'Training Report', 'url' => url('training-report') . "?event_id=" . $this->id, 'icon' => 'ti ti-clipboard'],
             ['label' => 'Bulk Signature', 'url' => url('signature-bulk-update') . "?event_id=" . $this->id, 'icon' => 'ti ti-signature'],
             ['label' => 'Checkout Access', 'url' => route('set.checkout', ['id' => $this->id]), 'icon' => 'ti ti-qrcode'],
+            ['label' => 'Evaluation Participant', 'url' => url('evaluation-bulk') . "?token=" . $token, 'icon' => 'ti ti-pencil'],
+            ['label' => 'Evaluation 3 Month', 'url' => url('evaluation-month') . "?token=" . $token, 'icon' => 'ti ti-pencil'],
         ];
         $html = "<button type='button' data-links='" . json_encode($arrLink) . "' onclick='setMM(this)' title='Navigation' class='btn btn-outline-warning btn-sm radius-6' style='margin:1px;' data-bs-toggle='modal' data-bs-target='#modalMultiLink'>
                     <i class='ti ti-list'></i>

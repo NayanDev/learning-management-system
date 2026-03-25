@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Evaluation;
+use App\Models\EvaluationMonth;
 use App\Models\Event;
 use App\Models\Participant;
+use App\Models\ResultQuestion;
+use App\Models\Trainer;
+use App\Models\User;
 use Exception;
 use Idev\EasyAdmin\app\Http\Controllers\DefaultController;
 use Illuminate\Http\Request;
@@ -164,12 +168,94 @@ class EvaluationController extends DefaultController
         $event = Event::where('token', $token)->first();
         $participants = Participant::where('event_id', $event->id)->get();
 
+        // Ambil data evaluasi yang sudah ada untuk semua participant
+        $existingEvaluations = [];
+        foreach ($participants as $participant) {
+            $evaluations = Evaluation::where('event_id', $event->id)
+                ->where('participant_id', $participant->id)
+                ->where('type', 'penyelenggara')
+                ->get()
+                ->keyBy('name');
+            
+            $existingEvaluations[$participant->id] = $evaluations;
+        }
+
         $data = [
             'event' => $event,
             'participants' => $participants,
+            'existingEvaluations' => $existingEvaluations,
         ];
 
         return view('backend.idev.evaluation_bulk', $data);
+    }
+
+
+    protected function evaluationMonth()
+    {
+        $token = request('token');
+        if (!$token) {
+            abort(403, 'Token Not Found.');
+        }
+        $event = Event::where('token', $token)->first();
+        $participants = Participant::where('event_id', $event->id)->get();
+
+        // Ambil data evaluasi yang sudah ada untuk semua participant
+        $existingEvaluations = [];
+        foreach ($participants as $participant) {
+            $evaluations = Evaluation::where('event_id', $event->id)
+                ->where('participant_id', $participant->id)
+                ->where('type', 'penyelenggara')
+                ->get()
+                ->keyBy('name');
+            
+            $existingEvaluations[$participant->id] = $evaluations;
+        }
+
+        $data = [
+            'event' => $event,
+            'participants' => $participants,
+            'existingEvaluations' => $existingEvaluations,
+        ];
+
+        return view('backend.idev.evaluation_month', $data);
+    }
+
+
+    protected function evaluationMonthResult()
+    {
+        $token = request('token');
+        if (!$token) {
+            abort(403, 'Token Not Found.');
+        }
+        
+        $event = Event::with('workshop')->where('token', $token)->first();
+        if (!$event) {
+            abort(403, 'Event tidak ditemukan.');
+        }
+        
+        $participants = Participant::where('event_id', $event->id)->get();
+
+        // Ambil data evaluasi yang sudah ada untuk semua participant
+        $evaluationData = [];
+        foreach ($participants as $participant) {
+            $evaluations = EvaluationMonth::where('event_id', $event->id)
+                ->where('participant_id', $participant->id)
+                ->get()
+                ->groupBy('name');
+            
+            $evaluationData[$participant->id] = [
+                'participant' => $participant,
+                'evaluations' => $evaluations,
+            ];
+        }
+
+        $data = [
+            'event' => $event,
+            'participants' => $participants,
+            'evaluationData' => $evaluationData,
+        ];
+
+        return view('backend.idev.evaluation_month_result', $data);
     }
 
 
@@ -219,41 +305,162 @@ class EvaluationController extends DefaultController
 
     protected function submitEvaluationBulk(Request $request)
     {
-        $evaluation = $request->input('evaluations');
-        $data = [
-            'evaluation' => $evaluation
-        ];
         $token = $request->token;
         if (!$token) {
             abort(403, 'Token Not Found.');
         }
-        $eventId = Event::where('token', $token)->first();
-        $participantId = Participant::where('nik', Auth::user()->nik)->where('event_id', $eventId->id)->first();
-        if (!$participantId) {
-            abort(403, 'Anda tidak terdaftar pada event ini.');
+        
+        $event = Event::where('token', $token)->first();
+        if (!$event) {
+            abort(403, 'Event tidak ditemukan.');
+        }
+        
+        // Validasi bahwa user adalah trainer/pemilik event
+        if ($event->user_id !== Auth::user()->id) {
+            abort(403, 'Anda bukan trainer pada event ini.');
         }
 
         DB::beginTransaction();
 
         try {
-            foreach ($evaluation as $eval) {
-                // Melakukan penyimpanan untuk setiap aspek dari peserta
-                foreach (['penguasaan_teori', 'penguasaan_praktek', 'kedisiplinan_dan_prilaku'] as $aspek) {
-                    Evaluation::create([
-                        'name'           => $aspek,
-                        'type'           => 'penyelenggara',
-                        'event_id'       => $eventId->id,
-                        'participant_id' => $participantId->id,
-                        'score'          => $eval[$aspek] ?: null, // Menyimpan nilai aspek atau null
-                    ]);
+            $evaluations = $request->input('evaluations');
+            $totalSaved = 0;
+
+            foreach ($evaluations as $evaluation) {
+            $participantId = $evaluation['participant_id'];
+            
+            // Mapping field name sesuai dengan form
+            $fields = [
+                'penguasaan_teori' => 'Penguasaan Teori',
+                'penguasaan_praktek' => 'Penguasaan Praktek',
+                'kedisiplinan_dan_prilaku' => 'Kedisiplinan & Prilaku',
+            ];
+
+            foreach ($fields as $fieldName => $aspekName) {
+                if (isset($evaluation[$fieldName])) {
+                    Evaluation::updateOrCreate(
+                        [
+                            'name'           => $aspekName,
+                            'type'           => 'penyelenggara',
+                            'event_id'       => $event->id,
+                            'participant_id' => $participantId,
+                        ],
+                        [
+                            'score'          => $evaluation[$fieldName],
+                        ]
+                    );
+                    $totalSaved++;
+                }
+            }
+        }
+
+        DB::commit();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Evaluasi berhasil disimpan.',
+            'data' => [
+                'total_saved' => $totalSaved,
+                'event_name' => $event->workshop->name ?? 'N/A',
+            ],
+            'redirect_url' => url('/evaluation')
+        ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menyimpan data: ' . $e->getMessage(),
+                'error_detail' => $e->getTrace()
+            ], 500);
+        }
+    }
+
+
+    protected function submitEvaluationMonth(Request $request)
+    {
+        $token = $request->token;
+        if (!$token) {
+            abort(403, 'Token Not Found.');
+        }
+        
+        $event = Event::where('token', $token)->first();
+        if (!$event) {
+            abort(403, 'Event tidak ditemukan.');
+        }
+        
+        // Validasi bahwa user adalah trainer/pemilik event
+        if ($event->user_id !== Auth::user()->id) {
+            abort(403, 'Anda bukan trainer pada event ini.');
+        }
+
+        // Get trainer_id for this event
+        $trainer = Trainer::where('event_id', $event->id)->first();
+        if (!$trainer) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Trainer tidak ditemukan untuk event ini.',
+            ], 404);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $evaluations = $request->input('evaluations');
+            $totalSaved = 0;
+
+            foreach ($evaluations as $evaluation) {
+                $participantId = $evaluation['participant_id'];
+                
+                // Mapping field name sesuai dengan form
+                $fields = [
+                    'efektivitas_efisiensi' => 'Efektivitas & Efisiensi Kerja',
+                    'ketepatan_waktu' => 'Ketepatan Waktu Dalam Menyelesaikan Tugas',
+                    'kemampuan_target' => 'Kemampuan Mencapai Target',
+                    'tertib_administrasi' => 'Tertib Administrasi',
+                    'inisiatif' => 'Inisiatif',
+                    'kerjasama_koordinasi' => 'Kerjasama / Koordinasi Antar Bagian',
+                    'perilaku' => 'Perilaku',
+                    'kedisiplinan' => 'Kedisiplinan',
+                    'tanggung_jawab_loyalitas' => 'Tanggung Jawab & Loyalitas',
+                    'ketaatan_instruksi' => 'Ketaatan Terhadap Instruksi Kerja',
+                    'koordinasi_bawahan' => 'Koordinasi Bawahan',
+                    'kontrol_bawahan' => 'Kontrol / Pengendalian Bawahan',
+                    'evaluasi_pembinaan' => 'Evaluasi dan Pembinaan Bawahan',
+                    'delegasi_tanggung_jawab' => 'Delegasi Tanggung Jawab dan Wewenang',
+                    'kecepatan_keputusan' => 'Kecepatan & Ketepatan Pengambilan Keputusan',
+                ];
+
+                foreach ($fields as $fieldName => $aspekName) {
+                    if (isset($evaluation[$fieldName]) && $evaluation[$fieldName] !== null && $evaluation[$fieldName] !== '') {
+                        // $value = $evaluation[$fieldName];
+                        // $category = EvaluationMonth::calculateCategory($value);
+                        
+                        EvaluationMonth::Create(
+                            [
+                                'user_id'      => Auth::user()->id,
+                                'value'        => $evaluation[$fieldName],
+                                'name'           => $aspekName,
+                                'event_id'       => $event->id,
+                                'participant_id' => $participantId,
+                                'trainer_id'     => $trainer->id,
+                            ]
+                        );
+                        $totalSaved++;
+                    }
                 }
             }
 
             DB::commit();
 
             return response()->json([
-                'status' => 'success',
-                'message' => 'Evaluation submitted successfully.',
+                'status' => true,
+                'message' => 'Evaluasi berhasil disimpan.',
+                'data' => [
+                    'total_saved' => $totalSaved,
+                    'event_name' => $event->workshop->name ?? 'N/A',
+                ],
+                'redirect_url' => route('evaluation.month.result', ['token' => $token])
             ]);
         } catch (Exception $e) {
             DB::rollBack();
@@ -269,24 +476,61 @@ class EvaluationController extends DefaultController
 
     protected function generatePDF(Request $request)
     {
-        // $participantId = request('participant_id');
-        // $type = request('type');
-        // if (!$participantId) {
-        //     abort(404, 'Result Question Not Found.');
-        // }
+        $eventId = $request->event_id;
+        $participantId = $request->participant_id;
+        $penyelenggara = User::where('id', 2)->first();
+        $resultQuestion = ResultQuestion::where('participant_id', $participantId)->first();
 
-        // $participant = Participant::where('id', $participantId)->first();
-        // $certification = Certification::where('participant_id', $participantId)->first();
+        $trainer = Trainer::where('event_id', $eventId)->first();
 
-        // $data = [
-        //     'participant' => $participant,
-        //     'certification' => $certification,
-        // ];
+        if (!$eventId) {
+            abort(403, 'Event ID tidak ditemukan.');
+        }
 
-        $pdf = PDF::loadView('pdf.evaluation')
+        $event = Event::with(['workshop', 'user'])->find($eventId);
+        if (!$event) {
+            abort(403, 'Event tidak ditemukan.');
+        }
+
+        // Jika ada participant_id, ambil evaluasi untuk peserta tertentu
+        if ($participantId) {
+            $participant = Participant::with('user')->find($participantId);
+            if (!$participant) {
+                abort(403, 'Participant tidak ditemukan.');
+            }
+            $participants = collect([$participant]);
+        } else {
+            // Ambil semua peserta pada event ini
+            $participants = Participant::with('user')->where('event_id', $eventId)->get();
+        }
+
+        // Ambil evaluasi berdasarkan peserta dan event
+        $evaluationsData = [];
+        foreach ($participants as $participant) {
+            $evaluations = Evaluation::where('event_id', $eventId)
+                ->where('participant_id', $participant->id)
+                ->get()
+                ->keyBy('name');
+
+            $evaluationsData[$participant->id] = [
+                'participant' => $participant,
+                'evaluations' => $evaluations,
+            ];
+        }
+
+        $data = [
+            'event' => $event,
+            'participants' => $participants,
+            'evaluationsData' => $evaluationsData,
+            'trainer' => $trainer,
+            'penyelenggara' => $penyelenggara,
+            'resultQuestion' => $resultQuestion,
+        ];
+
+        $pdf = PDF::loadView('pdf.evaluation', $data)
             ->setPaper('A4', 'portrait');
 
-        return $pdf->stream("Evaluation" . ($request->year ?? date('Y')) . ".pdf");
+        return $pdf->stream("Evaluation_" . ($event->workshop->name ?? 'Event') . "_" . date('Y') . ".pdf");
     }
 
 
@@ -320,9 +564,9 @@ class EvaluationController extends DefaultController
             });
 
         // Cek role user
-        if (Auth::user()->role->name !== 'admin') {
-            $dataQueries = $dataQueries->where('evaluations.user_id', Auth::user()->id);
-        }
+        // if (Auth::user()->role->name !== 'admin') {
+        //     $dataQueries = $dataQueries->where('evaluations.user_id', Auth::user()->id);
+        // }
 
         $dataQueries = $dataQueries
             ->select('evaluations.*', 'workshops.name as workshop', 'participants.name as participant')

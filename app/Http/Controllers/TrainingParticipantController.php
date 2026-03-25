@@ -199,22 +199,33 @@ class TrainingParticipantController extends DefaultController
             $response = Http::acceptJson()->get('https://simco.sampharindogroup.com/api/pegawai');
 
             if ($response->successful()) {
-                $apiEmployees = $response->json();
+                $responseData = $response->json();
 
-                if (!is_array($apiEmployees)) {
+                // Ekstrak data dari response API dengan format {success, message, data}
+                if (!isset($responseData['data']) || !is_array($responseData['data'])) {
+                    Log::warning("API response tidak memiliki key 'data' atau bukan array", [
+                        'response' => $responseData
+                    ]);
                     return ['data' => [], 'total' => 0];
                 }
+
+                // Ambil array pegawai dari key 'data'
+                $apiEmployees = $responseData['data'];
 
                 // Ambil parameter search
                 $search = request()->get('search', null);
 
-                // Jika ada search, filter data manual
+                // Jika ada search, filter data manual dengan field yang sesuai struktur baru
                 if ($search && strlen($search) > 3) {
                     $apiEmployees = array_filter($apiEmployees, function ($item) use ($search) {
-                        return stripos($item['nama'], $search) !== false
-                            || stripos($item['divisi'], $search) !== false
-                            || stripos($item['unit_kerja'], $search) !== false
-                            || stripos($item['nik'], $search) !== false;
+                        return stripos($item['nama'] ?? '', $search) !== false
+                            || stripos($item['nik'] ?? '', $search) !== false
+                            || stripos($item['dept_name'] ?? '', $search) !== false
+                            || stripos($item['division_name'] ?? '', $search) !== false
+                            || stripos($item['section_name'] ?? '', $search) !== false
+                            || stripos($item['company_name'] ?? '', $search) !== false
+                            || stripos($item['email'] ?? '', $search) !== false
+                            || stripos($item['jabatan'] ?? '', $search) !== false;
                     });
                     // reset index array setelah filter
                     $apiEmployees = array_values($apiEmployees);

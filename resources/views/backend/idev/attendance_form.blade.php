@@ -71,7 +71,7 @@
                                 <p class="text-muted mb-0">Instruktur</p>
                                 <p class="fw-semibold text-dark mb-0">
                                   @foreach($data_query->event->trainers as $trainer)
-                                    {{ ucwords(strtolower($trainer->user->name)) }}
+                                    {{ ucwords(strtolower($trainer->user?->name ?? $trainer->external ?? '-')) }}
                                       @if(!$loop->last) 
                                         ,
                                       @endif

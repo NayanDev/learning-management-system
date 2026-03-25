@@ -163,8 +163,15 @@ class AttendanceController extends DefaultController
             });
 
         // Cek role user
-        if (Auth::user()->role->name !== 'admin') {
-            $dataQueries = $dataQueries->where('participants.user_id', Auth::user()->id);
+        $user = Auth::user();
+
+        if ($user->role->name === 'participant') {
+            $dataQueries->where('participants.nik', $user->nik);
+        } elseif ($user->role->name !== 'admin') {
+            $dataQueries->where(function ($q) use ($user) {
+                $q->where('participants.user_id', $user->id)
+                ->orWhere('participants.nik', $user->nik);
+            });
         }
 
         $dataQueries = $dataQueries
@@ -237,7 +244,7 @@ class AttendanceController extends DefaultController
         $data = [
             'title' => 'Surat Perintah Pelatihan',
             'date' => now()->format('d M Y'),
-            'participants' => Participant::with(['event', 'attendance'])->where('event_id', $request->event_id)->get(),
+            'participants' => Participant::with(['event', 'attendance'])->where('event_id', $request->event_id)->orderBy('divisi', 'asc')->get(),
             'event' => Event::find($request->event_id)
         ];
 
@@ -253,7 +260,7 @@ class AttendanceController extends DefaultController
         $data = [
             'title' => 'Kehadiran Peserta',
             'date' => now()->format('d M Y'),
-            'participants' => Participant::with(['event', 'attendance'])->where('event_id', $request->event_id)->get(),
+            'participants' => Participant::with(['event', 'attendance'])->where('event_id', $request->event_id)->orderBy('divisi', 'asc')->get(),
             'event' => Event::find($request->event_id),
             'trainer' => Trainer::where('event_id', $request->event_id)->get()
         ];

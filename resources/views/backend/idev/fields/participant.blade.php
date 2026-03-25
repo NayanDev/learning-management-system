@@ -58,11 +58,11 @@
             $.each(bodies.data, function(index, item) {
                 mHtml += "<tr>";
                 mHtml += "<td><input type='checkbox' class='check-{{$field['name']}}' " +
-                         "data-company='" + (item.company || '') + "' " +
+                         "data-company='" + (item.company_name || '') + "' " +
                          "data-nik='" + (item.nik || '') + "' " +
                          "data-nama='" + (item.nama || '') + "' " +
-                         "data-divisi='" + (item.divisi || '') + "' " +
-                         "data-unit_kerja='" + (item.unit_kerja || '') + "' " +
+                         "data-divisi='" + (item.dept_name || '') + "' " +
+                         "data-unit_kerja='" + (item.division_name || '') + "' " +
                          "data-status='" + (item.status || '') + "' " +
                          "data-jk='" + (item.jk || '') + "' " +
                          "data-email='" + (item.email || '') + "' " +

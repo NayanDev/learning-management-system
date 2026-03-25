@@ -161,16 +161,21 @@
                 <h3 class="fw-bold mb-1">Evaluasi Peserta Pelatihan</h3>
                 <p class="text-muted mb-0">Pelatihan: <strong>{{ $event->workshop->name ?? 'N/A' }}</strong> | Total Peserta: {{ $totalPeserta }}</p>
             </div>
-            <div class="legend-box">
-                <i class="ti ti-info-circle me-2 fs-5"></i>
-                <strong>Skala:</strong>&nbsp; A (Sangat Baik) - D (Kurang)
+            <div class="d-flex gap-2 align-items-center">
+                <div class="legend-box">
+                    <i class="ti ti-info-circle me-2 fs-5"></i>
+                    <strong>Skala:</strong>&nbsp; 0-5(D) | 6-10(C) | 11-15(B) | 16-20(A)
+                </div>
+                {{-- <a href="{{ route('evaluation.month.result') }}?token={{ request('token') }}" class="btn btn-info text-white">
+                    <i class="ti ti-chart-bar me-1"></i> Lihat Hasil
+                </a> --}}
             </div>
         </div>
 
         <div class="card evaluation-card">
             
             <!-- Form Utama -->
-            <form id="formEvaluationBulk" action="{{ route('submit.evaluation.bulk') }}" method="POST">
+            <form id="formEvaluationBulk" action="{{ route('submit.evaluation.month') }}" method="POST">
                 @csrf
                 
                 <input type="hidden" name="token" value="{{ request('token') }}">
@@ -222,69 +227,107 @@
                                         {{-- Hidden Input: Participant ID --}}
                                         <input type="hidden" name="evaluations[{{ $index }}][participant_id]" value="{{ $participant->id }}">
 
-                                        {{-- Tabel Evaluasi --}}
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered table-hover table-evaluation">
-                                                <thead>
-                                                    <tr>
-                                                        <th style="width: 40%; text-align: left;">Aspek Penilaian</th>
-                                                        <th style="width: 15%;">A</th>
-                                                        <th style="width: 15%;">B</th>
-                                                        <th style="width: 15%;">C</th>
-                                                        <th style="width: 15%;">D</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {{-- ← LOOP: Generate Row untuk Setiap Field --}}
-                                                    @foreach($fields as $label => $values)
-                                                        @php
-                                                            // Buat field name yang unik per peserta
-                                                            $fieldName = strtolower(str_replace([' ', '&'], ['_', 'dan'], $label));
-                                                            
-                                                            // Ambil nilai yang sudah ada (jika ada)
-                                                            $existingScore = null;
-                                                            if (isset($existingEvaluations[$participant->id][$label])) {
-                                                                $existingScore = $existingEvaluations[$participant->id][$label]->score;
-                                                            }
-                                                        @endphp
-                                                        <tr>
-                                                            <td class="row-label">{{ $label }}</td>
-                                                            @foreach($values as $value)
-                                                                <td class="radio-cell">
-                                                                    {{-- ← NAME UNIK PER PESERTA: evaluations[index][field_name] --}}
-                                                                    <input 
-                                                                        class="form-check-input custom-radio-input evaluation-radio" 
-                                                                        type="radio" 
-                                                                        name="evaluations[{{ $index }}][{{ $fieldName }}]" 
-                                                                        value="{{ $value }}"
-                                                                        data-participant-id="{{ $participant->id }}"
-                                                                        {{ $existingScore === $value ? 'checked' : '' }}
-                                                                        required
-                                                                    >
-                                                                </td>
-                                                            @endforeach
-                                                        </tr>
-                                                    @endforeach
-                                                    
-                                                    {{-- Row Tambahan --}}
-                                                    <tr>
-                                                        <td class="row-label">Evaluasi Implementasi</td>
-                                                        <td colspan="4" class="text-center text-muted">Form. Lampiran 1</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                                        {{-- Formulir Penilaian Kinerja --}}
+                                        <div class="mb-4">
+                                            <h6 class="fw-bold text-secondary mb-3 pb-2 border-bottom">
+                                                <i class="ti ti-clipboard-check me-2"></i>Formulir Penilaian Kinerja
+                                            </h6>
+
+                                            {{-- Aspek Kinerja --}}
+                                            <div class="card border mb-3">
+                                                <div class="card-header bg-light py-2">
+                                                    <small class="fw-semibold text-uppercase">Aspek Teknis Pekerjaan</small>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-medium">Efektivitas & Efisiensi Kerja</label>
+                                                            <input type="number" name="evaluations[{{ $index }}][efektivitas_efisiensi]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-medium">Ketepatan Waktu Dalam Menyelesaikan Tugas</label>
+                                                            <input type="number" name="evaluations[{{ $index }}][ketepatan_waktu]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-medium">Kemampuan Mencapai Target </label>
+                                                            <input type="number" name="evaluations[{{ $index }}][kemampuan_target]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-medium">Tertib Administrasi</label>
+                                                            <input type="number" name="evaluations[{{ $index }}][tertib_administrasi]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-medium">Inisiatif</label>
+                                                            <input type="number" name="evaluations[{{ $index }}][inisiatif]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-medium">Kerjasama / Koordinasi Antar Bagian</label>
+                                                            <input type="number" name="evaluations[{{ $index }}][kerjasama_koordinasi]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Aspek Perilaku --}}
+                                            <div class="card border mb-3">
+                                                <div class="card-header bg-light py-2">
+                                                    <small class="fw-semibold text-uppercase">Aspek Kepribadian</small>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-medium">Perilaku</label>
+                                                            <input type="number" name="evaluations[{{ $index }}][perilaku]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-medium">Kedisiplinan</label>
+                                                            <input type="number" name="evaluations[{{ $index }}][kedisiplinan]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-medium">Tanggung Jawab & Loyalitas</label>
+                                                            <input type="number" name="evaluations[{{ $index }}][tanggung_jawab_loyalitas]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-medium">Ketaatan Terhadap Instruksi Kerja</label>
+                                                            <input type="number" name="evaluations[{{ $index }}][ketaatan_instruksi]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Aspek Kepemimpinan --}}
+                                            <div class="card border mb-3">
+                                                <div class="card-header bg-light py-2">
+                                                    <small class="fw-semibold text-uppercase">Aspek Kepemimpinan</small>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-medium">Koordinasi Bawahan</label>
+                                                            <input type="number" name="evaluations[{{ $index }}][koordinasi_bawahan]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-medium">Kontrol / Pengendalian Bawahan</label>
+                                                            <input type="number" name="evaluations[{{ $index }}][kontrol_bawahan]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-medium">Evaluasi dan Pembinaan Bawahan</label>
+                                                            <input type="number" name="evaluations[{{ $index }}][evaluasi_pembinaan]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-medium">Delegasi Tanggung Jawab dan Wewenang</label>
+                                                            <input type="number" name="evaluations[{{ $index }}][delegasi_tanggung_jawab]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-medium">Kecepatan & Ketepatan Pengambilan Keputusan</label>
+                                                            <input type="number" name="evaluations[{{ $index }}][kecepatan_keputusan]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
 
-                                        {{-- Catatan Tambahan --}}
-                                        {{-- <div class="mt-3">
-                                            <label class="form-label fw-medium">Catatan Tambahan (Opsional)</label>
-                                            <textarea 
-                                                class="form-control" 
-                                                name="evaluations[{{ $index }}][catatan]" 
-                                                rows="3" 
-                                                placeholder="Berikan catatan khusus untuk {{ $participant->name }}..."
-                                            ></textarea>
-                                        </div> --}}
+                                        
                                     </div>
                                 @endforeach
                             </div>
@@ -329,34 +372,28 @@
             function checkParticipantCompletion(participantId) {
                 const tabContent = $(`#content-participant-${participantId}`);
                 
-                // Ambil semua unique radio name dalam tab ini
-                const radioNames = [];
-                tabContent.find('input[type="radio"]').each(function() {
-                    const name = $(this).attr('name');
-                    if (radioNames.indexOf(name) === -1) {
-                        radioNames.push(name);
-                    }
-                });
-                
-                const totalRadioGroups = radioNames.length;
-                let filledGroups = 0;
+                // Ambil semua input number dalam tab ini
+                const numberInputs = tabContent.find('input[type="number"]');
+                const totalInputs = numberInputs.length;
+                let filledInputs = 0;
 
-                // Cek setiap radio group apakah sudah ada yang checked
-                radioNames.forEach(function(name) {
-                    if ($(`input[name="${name}"]:checked`).length > 0) {
-                        filledGroups++;
+                // Cek setiap input apakah sudah diisi
+                numberInputs.each(function() {
+                    const value = $(this).val();
+                    if (value !== '' && value !== null && value !== undefined) {
+                        filledInputs++;
                     }
                 });
 
                 // Update status dot
                 const navLink = $(`#tab-participant-${participantId}`);
-                if (filledGroups === totalRadioGroups && totalRadioGroups > 0) {
+                if (filledInputs === totalInputs && totalInputs > 0) {
                     navLink.addClass('filled');
                 } else {
                     navLink.removeClass('filled');
                 }
 
-                return filledGroups === totalRadioGroups && totalRadioGroups > 0;
+                return filledInputs === totalInputs && totalInputs > 0;
             }
 
             // ← FUNCTION: Update progress counter
@@ -370,53 +407,77 @@
                 $('#filledCount').text(filledCount);
             }
 
-            // ← EVENT: Ketika radio button di-click
-            $('.evaluation-radio').on('change', function() {
-                const participantId = $(this).data('participant-id');
-                checkParticipantCompletion(participantId);
-                updateProgress();
+            // ← EVENT: Ketika input number diubah
+            $(document).on('input change', 'input[type="number"]', function() {
+                const participantId = $(this).closest('.tab-pane').data('participant-id');
+                if (participantId) {
+                    checkParticipantCompletion(participantId);
+                    updateProgress();
+                }
             });
 
             // ← EVENT: Form Submit
             $('#formEvaluationBulk').on('submit', function(e) {
                 e.preventDefault();
 
-                // Validasi: Cek apakah semua peserta sudah dinilai
+                // Validasi: Cek apakah ada peserta yang sudah dinilai
                 const totalParticipants = {{ $totalPeserta }};
                 const filledParticipants = $('.nav-link.filled').length;
 
-                if (filledParticipants < totalParticipants) {
+                // Jika belum ada yang dinilai sama sekali
+                if (filledParticipants === 0) {
                     Swal.fire({
-                        title: 'Evaluasi Belum Lengkap',
+                        title: 'Belum Ada Penilaian',
                         html: `
-                            <p>Hanya <strong>${filledParticipants}</strong> dari <strong>${totalParticipants}</strong> peserta yang sudah dinilai.</p>
-                            <p class="text-danger">Harap lengkapi penilaian untuk semua peserta.</p>
+                            <p class="text-danger">Anda belum mengisi penilaian untuk satupun peserta.</p>
+                            <p>Silakan isi minimal satu peserta terlebih dahulu.</p>
                         `,
                         icon: 'warning',
                         confirmButtonColor: '#0891B2',
-                        confirmButtonText: 'Lengkapi Penilaian'
+                        confirmButtonText: 'OK'
                     });
                     return;
                 }
 
-                // Konfirmasi sebelum submit
-                Swal.fire({
-                    title: 'Konfirmasi Simpan',
-                    html: `
-                        <p>Anda akan menyimpan evaluasi untuk <strong>${totalParticipants} peserta</strong>.</p>
-                        <p>Pastikan semua penilaian sudah benar.</p>
-                    `,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#0891B2',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Ya, Simpan!',
-                    cancelButtonText: 'Cek Lagi'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        submitEvaluations();
-                    }
-                });
+                // Jika belum semua dinilai, berikan peringatan dengan opsi lanjut
+                if (filledParticipants < totalParticipants) {
+                    Swal.fire({
+                        title: 'Evaluasi Belum Lengkap',
+                        html: `
+                            <p>Hanya <strong>${filledParticipants}</strong> dari <strong>${totalParticipants}</strong> peserta yang sudah dinilai lengkap.</p>
+                            <p>Apakah Anda ingin menyimpan data yang sudah diisi?</p>
+                        `,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#0891B2',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Ya, Simpan',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            submitEvaluations();
+                        }
+                    });
+                } else {
+                    // Semua sudah lengkap, konfirmasi normal
+                    Swal.fire({
+                        title: 'Konfirmasi Simpan',
+                        html: `
+                            <p>Anda akan menyimpan evaluasi untuk <strong>${totalParticipants} peserta</strong>.</p>
+                            <p>Pastikan semua penilaian sudah benar.</p>
+                        `,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#0891B2',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Ya, Simpan!',
+                        cancelButtonText: 'Cek Lagi'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            submitEvaluations();
+                        }
+                    });
+                }
             });
 
             // ← FUNCTION: Submit via AJAX
@@ -505,9 +566,11 @@
             }
 
             // Initial check saat load
-            $('.evaluation-radio').each(function() {
+            $('.tab-pane').each(function() {
                 const participantId = $(this).data('participant-id');
-                checkParticipantCompletion(participantId);
+                if (participantId) {
+                    checkParticipantCompletion(participantId);
+                }
             });
             updateProgress();
         });

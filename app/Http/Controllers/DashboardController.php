@@ -68,6 +68,45 @@ class DashboardController extends DefaultController
     {
         $data['title'] = $this->title;
         $data['eventsAttendance'] = $this->takeTrainingAttendance();
+        
+        // Get current year
+        $currentYear = Carbon::now()->year;
+        
+        // Get all events from current year
+        $data['totalEvents'] = Event::whereYear('start_date', $currentYear)->count();
+        
+        // Events yang sudah terlaksana (end_date sudah lewat)
+        $data['completedEvents'] = Event::whereYear('start_date', $currentYear)
+            ->where('end_date', '<', Carbon::now())
+            ->count();
+        
+        // Events yang belum terlaksana (end_date belum lewat)
+        $data['upcomingEvents'] = Event::whereYear('start_date', $currentYear)
+            ->where('end_date', '>=', Carbon::now())
+            ->count();
+        
+        // Get TNA data from TrainingWorkshop
+        $data['totalTNA'] = \App\Models\TrainingWorkshop::whereHas('trainingNeed', function($q) use ($currentYear) {
+            $q->whereHas('training', function($q2) use ($currentYear) {
+                $q2->where('year', $currentYear);
+            });
+        })->count();
+        
+        // TNA yang sudah terlaksana (ada event yang sudah selesai)
+        $data['completedTNA'] = \App\Models\TrainingWorkshop::whereHas('trainingNeed', function($q) use ($currentYear) {
+            $q->whereHas('training', function($q2) use ($currentYear) {
+                $q2->where('year', $currentYear);
+            });
+        })->whereHas('workshop', function($q) {
+            $q->whereHas('events', function($q2) {
+                $q2->where('end_date', '<', Carbon::now());
+            });
+        })->count();
+        
+        // Calculate percentage
+        $data['tnaPercentage'] = $data['totalTNA'] > 0 
+            ? round(($data['completedTNA'] / $data['totalTNA']) * 100, 2) 
+            : 0;
 
         $layout = 'backend.idev.participant_dashboard';
 

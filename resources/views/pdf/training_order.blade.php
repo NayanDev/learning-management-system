@@ -89,7 +89,7 @@
     <table class="no-border" style="width:100%;">
         <tr>
             <td class="no-border text-center"style="width:25%;">
-                {{ $event->created_date ? \Carbon\Carbon::parse($event->created_date)->translatedFormat('d F Y') : now()->translatedFormat('d F Y') }}
+                Semarang, {{ $event->created_date ? \Carbon\Carbon::parse($event->created_date)->translatedFormat('d F Y') : now()->translatedFormat('d F Y') }}
                 <br>
                 Dibuat Oleh,
                 <br><br>

@@ -204,7 +204,17 @@ class UserController extends DefaultController
             $response = Http::acceptJson()->get('https://simco.sampharindogroup.com/api/pegawai');
 
             if ($response->successful()) {
-                $employees = $response->json();
+                $responseData = $response->json();
+                
+                // Ekstrak data dari response API dengan format {success, message, data}
+                if (!isset($responseData['data']) || !is_array($responseData['data'])) {
+                    Log::warning("API response tidak memiliki key 'data' atau bukan array", [
+                        'response' => $responseData
+                    ]);
+                    return [];
+                }
+                
+                $employees = $responseData['data'];
                 $options = [];
 
                 if (is_array($employees)) {
@@ -215,12 +225,17 @@ class UserController extends DefaultController
                                 'text'  => $employee['nama'] . ' (' . $employee['nik'] . ')',
                                 'email' => $employee['email'] ?? '',
                                 'name'  => $employee['nama'] ?? '',
-                                'company' => $employee['company'] ?? '',
-                                'divisi' => $employee['divisi'] ?? '',
-                                'unit_kerja' => $employee['unit_kerja'] ?? '',
+                                'company' => $employee['company_name'] ?? '',
+                                'dept_name' => $employee['dept_name'] ?? '',
+                                'division_name' => $employee['division_name'] ?? '',
+                                'section_name' => $employee['section_name'] ?? '',
                                 'status' => $employee['status'] ?? '',
                                 'jk' => $employee['jk'] ?? '',
                                 'telp' => $employee['telp'] ?? '',
+                                'jabatan' => $employee['jabatan'] ?? '',
+                                // Backward compatibility untuk field lama
+                                'divisi' => $employee['division_name'] ?? $employee['dept_name'] ?? '',
+                                'unit_kerja' => $employee['section_name'] ?? '',
                             ];
                         }
                     }
@@ -915,16 +930,26 @@ class UserController extends DefaultController
 
     protected function signatureVerified()
     {
+        $eventId = request('event_id');
+        if(!$eventId) {
+            abort(403, 'Event Not Found');
+        }
+
+        $event = Event::where('id', $eventId)->first();
+        if(!$event) {
+            abort(404, 'Event Not Found');
+        }   
+
         // $id = request('id');
         // $user = User::find($id);
         // if (!$user) {
         //     abort(404, 'User Not Found');
         // }
 
-        // $data = [
-        //     'user' => $user,
-        // ];
+        $data = [
+            'event' => $event,
+        ];
 
-        return view('backend.idev.signature_verified');
+        return view('backend.idev.signature_verified', $data);
     }
 }

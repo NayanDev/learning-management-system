@@ -2,44 +2,32 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Participant extends Model
+class EvaluationMonth extends Model
 {
-    use HasFactory;
-
-    protected $table = 'participants';
+    protected $table = 'evaluation_months';
     protected $primaryKey = 'id';
-    protected $fillable = ["company", "nik", "name", "divisi", "unit_kerja", "status", "jk", "email", "telp", "event_id", "user_id"];
+    protected $fillable = ["name","user_id","value","category","event_id","trainer_id","participant_id"];
     protected $appends = ['btn_delete', 'btn_edit', 'btn_show'];
-
-
-    public function nik()
+    
+    /**
+     * Get category based on value
+     * 0-5 = D, 6-10 = C, 11-15 = B, 16-20 = A
+     */
+    public static function calculateCategory($value)
     {
-        return $this->belongsTo(User::class, 'nik', 'nik');
+        if ($value >= 0 && $value <= 5) {
+            return 'D';
+        } elseif ($value >= 6 && $value <= 10) {
+            return 'C';
+        } elseif ($value >= 11 && $value <= 15) {
+            return 'B';
+        } elseif ($value >= 16 && $value <= 20) {
+            return 'A';
+        }
+        return null;
     }
-
-    public function trainers()
-    {
-        return $this->hasMany(Trainer::class);
-    }
-
-    public function event()
-    {
-        return $this->belongsTo(Event::class);
-    }
-
-    public function attendance()
-    {
-        return $this->hasOne(Attendance::class, 'participant_id', 'id');
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
 
     public function getBtnDeleteAttribute()
     {
@@ -49,7 +37,6 @@ class Participant extends Model
 
         return $html;
     }
-
 
     public function getBtnEditAttribute()
     {
@@ -67,17 +54,5 @@ class Participant extends Model
                 <i class='ti ti-eye'></i>
                 </button>";
         return $html;
-    }
-
-
-    public function getUpdatedAtAttribute($value)
-    {
-        return $value ? date("Y-m-d H:i:s", strtotime($value)) : "-";
-    }
-
-
-    public function getCreatedAtAttribute($value)
-    {
-        return $value ? date("Y-m-d H:i:s", strtotime($value)) : "-";
     }
 }

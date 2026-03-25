@@ -158,12 +158,15 @@ class ResultQuestionController extends DefaultController
             });
 
         // Cek role user
-        if (Auth::user()->role->name === 'participant') {
-            $dataQueries = $dataQueries->where('participants.nik', Auth::user()->nik);
-        }
+        $user = Auth::user();
 
-        if (Auth::user()->role->name !== 'admin') {
-            $dataQueries = $dataQueries->where('participants.user_id', Auth::user()->id);
+        if ($user->role->name === 'participant') {
+            $dataQueries->where('participants.nik', $user->nik);
+        } elseif ($user->role->name !== 'admin') {
+            $dataQueries->where(function ($q) use ($user) {
+                $q->where('participants.user_id', $user->id)
+                ->orWhere('participants.nik', $user->nik);
+            });
         }
 
         $dataQueries = $dataQueries

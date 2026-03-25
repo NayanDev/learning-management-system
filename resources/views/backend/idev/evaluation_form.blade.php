@@ -89,6 +89,12 @@ $token = request('token');
             font-size: 0.9rem;
             color: #0369a1;
         }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -141,7 +147,7 @@ $token = request('token');
                     </div>
 
                     <div class="mt-4 text-end">
-                        <button type="submit" class="btn btn-primary btn-lg px-4">
+                        <button type="submit" class="btn btn-primary btn-md px-4">
                             <i class="ti ti-send me-2"></i> Kirim Evaluasi
                         </button>
                     </div>

@@ -83,6 +83,10 @@ if ($totalRows == 0) {
         .no-border {
             border: none !important;
         }
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
 
     .th {
         border: 1px solid black;

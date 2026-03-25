@@ -19,6 +19,240 @@
         </div>
     </div>
 
+    <!-- Dashboard Statistics -->
+    <div class="row mb-4">
+        <!-- Total Pelatihan Diikuti -->
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="avtar avtar-s bg-light-primary">
+                                <i class="ti ti-school fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0 text-muted">Total Pelatihan</h6>
+                            <h3 class="mb-0 fw-bold">{{ $eventsAttendance->count() }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pelatihan Selesai -->
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="avtar avtar-s bg-light-success">
+                                <i class="ti ti-checks fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0 text-muted">Pelatihan Selesai</h6>
+                            <h3 class="mb-0 fw-bold">{{ $eventsAttendance->where('out_present', '!=', null)->count() }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menunggu Konfirmasi -->
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="avtar avtar-s bg-light-warning">
+                                <i class="ti ti-clock-hour-4 fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0 text-muted">Menunggu Konfirmasi</h6>
+                            <h3 class="mb-0 fw-bold">{{ $eventsAttendance->whereNull('attendance.date_ready')->count() }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sertifikat -->
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="avtar avtar-s bg-light-info">
+                                <i class="ti ti-certificate fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0 text-muted">Sertifikat</h6>
+                            <h3 class="mb-0 fw-bold">{{ $eventsAttendance->whereNotNull('certification_id')->count() }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Overview & TNA Progress -->
+    <div class="row mb-4">
+        <!-- Pelatihan Terlaksana vs Belum Terlaksana -->
+        <div class="col-lg-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="ti ti-calendar-stats me-2"></i>Status Pelatihan {{ \Carbon\Carbon::now()->year }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center mb-3">
+                        <div class="col-4">
+                            <div class="mb-2">
+                                <i class="ti ti-clipboard-list fs-1 text-primary"></i>
+                            </div>
+                            <h4 class="mb-1 text-primary">{{ $totalEvents ?? 0 }}</h4>
+                            <p class="text-muted mb-0 small">Total Pelatihan</p>
+                        </div>
+                        <div class="col-4">
+                            <div class="mb-2">
+                                <i class="ti ti-circle-check fs-1 text-success"></i>
+                            </div>
+                            <h4 class="mb-1 text-success">{{ $completedEvents ?? 0 }}</h4>
+                            <p class="text-muted mb-0 small">Sudah Terlaksana</p>
+                        </div>
+                        <div class="col-4">
+                            <div class="mb-2">
+                                <i class="ti ti-clock fs-1 text-warning"></i>
+                            </div>
+                            <h4 class="mb-1 text-warning">{{ $upcomingEvents ?? 0 }}</h4>
+                            <p class="text-muted mb-0 small">Belum Terlaksana</p>
+                        </div>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        @php
+                            $completedPercentage = $totalEvents > 0 ? round(($completedEvents / $totalEvents) * 100, 1) : 0;
+                        @endphp
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ $completedPercentage }}%;" aria-valuenow="{{ $completedPercentage }}" aria-valuemin="0" aria-valuemax="100">
+                            <strong>{{ $completedPercentage }}% Selesai</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TNA Realization Progress -->
+        <div class="col-lg-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="ti ti-report-analytics me-2"></i>Realisasi TNA {{ \Carbon\Carbon::now()->year }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center mb-3">
+                        <div class="col-4">
+                            <div class="mb-2">
+                                <i class="ti ti-target fs-1 text-info"></i>
+                            </div>
+                            <h4 class="mb-1 text-info">{{ $totalTNA ?? 0 }}</h4>
+                            <p class="text-muted mb-0 small">Target TNA</p>
+                        </div>
+                        <div class="col-4">
+                            <div class="mb-2">
+                                <i class="ti ti-circle-check-filled fs-1 text-success"></i>
+                            </div>
+                            <h4 class="mb-1 text-success">{{ $completedTNA ?? 0 }}</h4>
+                            <p class="text-muted mb-0 small">Terealisasi</p>
+                        </div>
+                        <div class="col-4">
+                            <div class="mb-2">
+                                <i class="ti ti-percentage fs-1 text-primary"></i>
+                            </div>
+                            <h4 class="mb-1 text-primary">{{ $tnaPercentage ?? 0 }}%</h4>
+                            <p class="text-muted mb-0 small">Persentase</p>
+                        </div>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-gradient-primary" role="progressbar" style="width: {{ $tnaPercentage ?? 0 }}%;" aria-valuenow="{{ $tnaPercentage ?? 0 }}" aria-valuemin="0" aria-valuemax="100">
+                            <strong>{{ $tnaPercentage ?? 0 }}% Terealisasi</strong>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        @if(($tnaPercentage ?? 0) >= 80)
+                            <div class="alert alert-success mb-0 py-2">
+                                <i class="ti ti-thumb-up me-2"></i>Excellent! Target TNA tercapai dengan baik.
+                            </div>
+                        @elseif(($tnaPercentage ?? 0) >= 50)
+                            <div class="alert alert-info mb-0 py-2">
+                                <i class="ti ti-info-circle me-2"></i>Good progress! Terus tingkatkan realisasi TNA.
+                            </div>
+                        @else
+                            <div class="alert alert-warning mb-0 py-2">
+                                <i class="ti ti-alert-triangle me-2"></i>Perlu peningkatan realisasi TNA.
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="ti ti-chart-bar me-2"></i>Ringkasan Aktivitas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="border-end">
+                                <h4 class="mb-1 text-primary">{{ $eventsAttendance->where('in_present', '!=', null)->count() }}</h4>
+                                <p class="text-muted mb-0">Hadir Masuk</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="border-end">
+                                <h4 class="mb-1 text-success">{{ $eventsAttendance->where('out_present', '!=', null)->count() }}</h4>
+                                <p class="text-muted mb-0">Hadir Keluar</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="border-end">
+                                <h4 class="mb-1 text-info">
+                                    @php
+                                        $attendanceRate = $eventsAttendance->count() > 0 
+                                            ? round(($eventsAttendance->where('in_present', '!=', null)->count() / $eventsAttendance->count()) * 100) 
+                                            : 0;
+                                    @endphp
+                                    {{ $attendanceRate }}%
+                                </h4>
+                                <p class="text-muted mb-0">Tingkat Kehadiran</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <h4 class="mb-1 text-warning">
+                                @php
+                                    $totalJam = 0;
+                                    foreach($eventsAttendance as $event) {
+                                        if($event->in_present && $event->out_present) {
+                                            $start = \Carbon\Carbon::parse($event->event->start_date);
+                                            $end = \Carbon\Carbon::parse($event->event->end_date);
+                                            $totalJam += $start->diffInHours($end);
+                                        }
+                                    }
+                                @endphp
+                                {{ $totalJam }}
+                            </h4>
+                            <p class="text-muted mb-0">Total Jam Pelatihan</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
 
         <div class="col-12">
@@ -36,11 +270,11 @@
                     Surat Perintah Pelatihan
                 </button>
             </li>
-            <li class="nav-item" role="presentation">
+            {{-- <li class="nav-item" role="presentation">
                 <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed-training" type="button" role="tab" aria-controls="completed-training" aria-selected="false">
                     Riwayat Pelatihan Selesai
                 </button>
-            </li>
+            </li> --}}
         </ul>
         </div>
         
@@ -99,7 +333,7 @@
                                             <h5 class="fw-bold text-dark mb-1">{{ $event->event->workshop->name ?? '-' }}</h5>
                                             <p class="card-subtitle text-muted">Instruktur: 
                                                 @foreach($event->event->trainers as $trainer)
-                                                {{ ucwords(strtolower($trainer->user->name)) }}
+                                                {{ ucwords(strtolower($trainer->user?->name ?? $trainer->external ?? '-')) }}
                                                     @if(!$loop->last) 
                                                         ,
                                                     @endif

@@ -71,7 +71,7 @@
                                 <p class="text-muted mb-0">Instruktur</p>
                                 <p class="fw-semibold text-dark mb-0">
                                   @foreach($data_query->event->trainers as $trainer)
-                                    {{ ucwords(strtolower($trainer->user->name)) }}
+                                    {{ ucwords(strtolower($trainer->user?->name ?? $trainer->external ?? '-')) }}
                                       @if(!$loop->last) 
                                         ,
                                       @endif
@@ -129,7 +129,7 @@
                             <h5 class="alert-heading">Terima kasih!</h5>
                             <p class="mb-0">Kehadiran Anda telah berhasil dikonfirmasi. silahkan lanjutkan untuk mengisi evaluasi</p>
                             <br>
-                            <a href="assesment?token={{ request('token') }}" class="btn btn-primary btn-lg fw-bold py-3">
+                            <a href="evaluation-form?token={{ request('token') }}" class="btn btn-primary btn-lg fw-bold py-3">
                               <i class="ti ti-send me-2"></i> Go to Evaluation
                             </a>
                         </div>

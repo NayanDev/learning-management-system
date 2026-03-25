@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
+
 class TrainingUnplanController extends DefaultController
 {
     protected $modelClass = TrainingUnplan::class;
@@ -96,6 +97,8 @@ class TrainingUnplanController extends DefaultController
             ['value' => 'internal', 'text' => 'Internal'],
             ['value' => 'external', 'text' => 'External'],
         ];
+
+        $rooms = rooms();
 
         $trainingId = request('training_id');
         if ($trainingId) {
@@ -174,12 +177,13 @@ class TrainingUnplanController extends DefaultController
                 'options' => $instructor
             ],
             [
-                'type' => 'text',
+                'type' => 'select',
                 'label' => 'Location',
                 'name' =>  'location',
                 'class' => 'col-md-12 my-2',
                 'required' => $this->flagRules('location', $id),
-                'value' => (isset($edit)) ? $edit->location : ''
+                'value' => (isset($edit)) ? $edit->location : '',
+                'options' => $rooms
             ],
             [
                 'type' => 'hidden',

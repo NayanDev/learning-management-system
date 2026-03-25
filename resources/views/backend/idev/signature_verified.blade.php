@@ -59,7 +59,7 @@
         }
 
         .signature-img {
-            height: 90px;
+            height: 100px;
             object-fit: contain;
             display: block;
             /* Efek tinta biru gelap */
@@ -139,10 +139,10 @@
                     <span>Digital<br>Verified<br>LMS</span>
                 </div>
                 <!-- Gambar Tanda Tangan -->
-                <img src="{{ asset('storage/signature/'.($participant->attendance?->signpresent->signature ?? 'default.svg')) }}" alt="Tanda Tangan" class="signature-img">
+                <img src="{{ asset('storage/signature/'.( $event->approver->signature  ?? 'default.svg')) }}" alt="Tanda Tangan" class="signature-img">
             </div>
 
-            <h4 class="fw-bold text-dark mb-1">Bapak Budi Hartono</h4>
+            <h4 class="fw-bold text-dark mb-1">{{ $event->approver->name ?? '-' }}</h4>
             <div class="d-flex align-items-center justify-content-center text-primary">
                 {{-- <i class="ti ti-certificate me-1"></i> --}}
                 {{-- <span class="fw-medium">Senior Safety Trainer</span> --}}
@@ -159,14 +159,14 @@
                 <i class="ti ti-file-certificate text-secondary me-2 mt-1"></i>
                 <div>
                     <small class="text-muted d-block">Judul Pelatihan</small>
-                    <span class="fw-medium text-dark">Pelatihan K3 Fundamental</span>
+                    <span class="fw-medium text-dark">{{ $event->workshop->name }}</span>
                 </div>
             </div>
             <div class="d-flex">
                 <i class="ti ti-building text-secondary me-2 mt-1"></i>
                 <div>
                     <small class="text-muted d-block">Penyelenggara</small>
-                    <span class="fw-medium text-dark">PT Sampharindo Perdana</span>
+                    <span class="fw-medium text-dark">{{ $event->organizer }}</span>
                 </div>
             </div>
         </div>

@@ -30,6 +30,19 @@ use App\Http\Controllers\WorkshopController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [AuthController::class, 'login'])->name('login')->middleware('web');
+// Route Signature Verified
+Route::get('signature-verified', [UserController::class, 'signatureVerified'])->name('signature.verified');
+Route::get('apitest', [TrainingParticipantController::class, 'getFilteredApiData']);
+
+// Halaman development - jangan dihapus
+Route::get('/silabus', function() {
+    return view('pdf.silabus');
+})->name('silabus.view');
+
+// Route::get('/silabus-pdf', function() {
+//     $pdf = Pdf::loadView('pdf.silabus')->setPaper('a4', 'portrait');;
+//     return $pdf->stream('silabus.pdf'); // <-- ini untuk tampil di browser
+// })->name('silabus.view');
 
 Route::group(['middleware' => ['web', 'auth', 'middlewareByAccess']], function () {
     // Route Dashboard
@@ -293,12 +306,14 @@ Route::group(['middleware' => ['web', 'auth']], function () {
     Route::get('/evaluation-pdf', [EvaluationController::class, 'generatePDF'])->name('evaluation.pdf');
     Route::get('/evaluation-form', [EvaluationController::class, 'evaluationForm'])->name('evaluation.form');
     Route::get('/evaluation-bulk', [EvaluationController::class, 'evaluationBulk'])->name('evaluation.bulk');
+    Route::get('/evaluation-month', [EvaluationController::class, 'evaluationMonth'])->name('evaluation.month');
+    Route::get('/evaluation-month-result', [EvaluationController::class, 'evaluationMonthResult'])->name('evaluation.month.result');
     Route::post('/submit-evaluation', [EvaluationController::class, 'submitEvaluation'])->name('submit.evaluation');
     Route::post('/submit-evaluation-bulk', [EvaluationController::class, 'submitEvaluationBulk'])->name('submit.evaluation.bulk');
+    Route::post('/submit-evaluation-month', [EvaluationController::class, 'submitEvaluationMonth'])->name('submit.evaluation.month');
 
     // Route Documentation
     Route::get('documentation-pdf', [DocumentationController::class, 'generatePDF'])->name('documentation.pdf');
 
-    // Route Signature Verified
-    Route::get('signature-verified', [UserController::class, 'signatureVerified'])->name('signature.verified');
+    
 });
