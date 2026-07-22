@@ -85,7 +85,6 @@
             Untuk mengikuti "{{ $workshop }}" pada hari {{ $day }}, {{ $date }}, Pukul {{ $clock }} WIB - Selesai, bertempat di {{ $location }} <br>
             Demikian Surat Perintah Pelatihan ini dibuat agar dilaksanakan dengan penuh tanggung jawab. Atas perhatiannya kami ucapkan terima kasih.
         </p>
-    <br>
     <table class="no-border" style="width:100%;">
         <tr>
             <td class="no-border text-center"style="width:25%;">
@@ -96,7 +95,16 @@
                 @if($event->status === 'approve')
                 <div style="display: flex; justify-content: center;">
                     <div style="display: inline-block;">
-                        {!! DNS2D::getBarcodeHTML( $event->approver->name . "\n" . 'Manager ' . $event->approver->divisi . "\n" . '(ini adalah dokumen resmi dan sah)', 'QRCODE', 1, 1 ) !!}
+                        {!! DNS2D::getBarcodeHTML(
+                            route('signature.verified', [
+                                'model' => class_basename($event),
+                                'id'    => $event->id,
+                                'user'  => $event->approver->id,
+                            ]),
+                            'QRCODE',
+                            2,
+                            2
+                        ) !!}
                     </div>
                 </div>
                 <br>
@@ -106,7 +114,16 @@
                 @elseif($event->status === 'submit')
                 <div style="display: flex; justify-content: center;">
                     <div style="display: inline-block;">
-                        {!! DNS2D::getBarcodeHTML( $event->approver->name . "\n" . 'Manager ' . $event->approver->divisi . "\n" . '(ini adalah dokumen resmi dan sah)', 'QRCODE', 1, 1 ) !!}
+                        {!! DNS2D::getBarcodeHTML(
+                            route('signature.verified', [
+                                'model' => class_basename($event),
+                                'id'    => $event->id,
+                                'user'  => $event->approver->id ?? 'not-available',
+                            ]),
+                            'QRCODE',
+                            2,
+                            2
+                        ) !!}
                     </div>
                 </div>
                 <br>
@@ -114,32 +131,49 @@
                 <br>
                 <span>Manager {{ optional($event->approver)->divisi ?? '-' }}</span>
                 @else
-                <div style="height: 50px"></div>
-                <u><strong>{{ $event->approver->name ?? '-' }}</strong></u>
+                <div style="display: flex; justify-content: center;">
+                    <div style="display: inline-block;">
+                        {!! DNS2D::getBarcodeHTML(
+                            route('signature.verified', [
+                                'model' => class_basename($event),
+                                'id'    => $event->id,
+                                'user'  => $event->approver->id ?? 'not-available',
+                            ]),
+                            'QRCODE',
+                            2,
+                            2
+                        ) !!}
+                    </div>
+                </div>
                 <br>
-                <span>Manager {{ optional($event->approver)->divisi ?? '-' }}</span>
+                <u><strong>{{ $event->approver->name ?? 'SARJONO' }}</strong></u>
+                <br>
+                <span>Manager {{ optional($event->approver)->divisi ?? 'Umum & SDM' }}</span>
                 @endif
             </td>
             <td class="no-border" style="width:25%;"></td>
             <td class="no-border" style="width:25%;"></td>
             <td class="no-border text-center"style="width:25%;">
-                <br>
+                <br><br>
                 Mengetahui,
                 <br><br>
-                @if($event->status === 'approve')
                 <div style="display: flex; justify-content: center;">
                     <div style="display: inline-block;">
-                        {!! DNS2D::getBarcodeHTML("MAKMURI YUSIN\nDirektur Umum & SDM\n(ini adalah dokumen resmi dan sah)", 'QRCODE', 1, 1) !!}
+                        {!! DNS2D::getBarcodeHTML(
+                            route('director.signature.verified', [
+                                'model' => class_basename($event),
+                                'id'    => $event->id
+                            ]),
+                            'QRCODE',
+                            2,
+                            2
+                        ) !!}
                     </div>
                 </div>
                 <br>
                 <u><strong>MAKMURI YUSIN</strong></u>
                 <br>
                 <span>Direktur Umum & SDM</span>
-                @else
-                <div style="height: 50px"></div>
-                <em>Data belum tersedia</em>
-                @endif
             </td>
         </tr>
     </table>

@@ -50,6 +50,15 @@ class Sidebar
           'childrens' => []
         ],
         [
+            'name' => 'Approval',
+            'icon' => 'ti ti-checkup-list',
+            'key' => 'approval',
+            'base_key' => 'approval',
+            'visibility' => true,
+            'ajax_load' => false,
+            'childrens' => []
+          ],
+        [
           'name' => 'Workshop',
           'icon' => 'ti ti-tools',
           'key' => 'workshop',
@@ -240,6 +249,15 @@ class Sidebar
           'childrens' => []
         ],
         [
+            'name' => 'Certification External',
+            'icon' => 'ti ti-certificate',
+            'key' => 'certification-external',
+            'base_key' => 'certification-external',
+            'visibility' => true,
+            'ajax_load' => false,
+            'childrens' => []
+          ],
+        [
           'name' => 'Evaluation',
           'icon' => 'ti ti-pencil',
           'key' => 'evaluation',
@@ -257,6 +275,42 @@ class Sidebar
           'ajax_load' => false,
           'childrens' => []
         ],
+        [
+            'name' => 'Report Training',
+            'icon' => 'ti ti-file',
+            'key' => 'report-training',
+            'base_key' => 'report-training',
+            'visibility' => true,
+            'ajax_load' => false,
+            'childrens' => []
+          ],
+        [
+            'name' => 'Resume Materi',
+            'icon' => 'ti ti-file-text',
+            'key' => 'resume-materi',
+            'base_key' => 'resume-materi',
+            'visibility' => true,
+            'ajax_load' => false,
+            'childrens' => []
+          ],
+        [
+            'name' => 'Matrik',
+            'icon' => 'ti ti-sparkles',
+            'key' => 'matrik',
+            'base_key' => 'matrik',
+            'visibility' => true,
+            'ajax_load' => false,
+            'childrens' => []
+          ],
+        [
+            'name' => 'Director Signature',
+            'icon' => 'ti ti-menu',
+            'key' => 'director-signature',
+            'base_key' => 'director-signature',
+            'visibility' => true,
+            'ajax_load' => false,
+            'childrens' => []
+          ],
         [
           'name' => 'Role',
           'icon' => 'ti ti-key',

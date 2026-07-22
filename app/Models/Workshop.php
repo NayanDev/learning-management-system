@@ -11,7 +11,7 @@ class Workshop extends Model
 
     protected $table = 'workshops';
     protected $primaryKey = 'id';
-    protected $fillable = ["name","user_id"];
+    protected $fillable = ["name","user_id","kode","competency"];
     protected $appends = ['btn_delete', 'btn_edit', 'btn_show'];
 
 

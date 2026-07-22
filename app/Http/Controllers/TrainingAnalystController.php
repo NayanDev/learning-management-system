@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Approval;
 use App\Models\Training;
 use App\Models\TrainingAnalyst;
 use App\Models\TrainingAnalystData;
+use App\Services\SignatureService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Idev\EasyAdmin\app\Helpers\Constant;
@@ -284,8 +286,18 @@ class TrainingAnalystController extends DefaultController
             });
 
         // Cek role user
-        if (Auth::user()->role->name !== 'admin') {
-            $dataQueries = $dataQueries->where('training_analysts.user_id', Auth::user()->id);
+        $user = Auth::user();
+
+        if ($user->role->name === 'manager') {
+            $dataQueries = $dataQueries->where(
+                'training_analysts.divisi',
+                $user->divisi
+            );
+        } elseif ($user->role->name !== 'admin') {
+            $dataQueries = $dataQueries->where(
+                'training_analysts.user_id',
+                $user->id
+            );
         }
 
         $dataQueries = $dataQueries
@@ -480,10 +492,10 @@ class TrainingAnalystController extends DefaultController
         $queryString = request('training_analyst');
         $user = Auth::user()->divisi;
 
-        $access = TrainingAnalyst::where('divisi', $user)->find($queryString);
-        if (!$access) {
-            abort(404);
-        }
+        // $access = TrainingAnalyst::where('divisi', $user)->find($queryString);
+        // if (!$access) {
+        //     abort(404);
+        // }
 
         $trainingAnalyst = TrainingAnalyst::with(['training'])->where('id', $queryString)->first();
         $trainingAnalystData = TrainingAnalystData::where('training_analyst_id', $queryString)->get();
@@ -500,7 +512,7 @@ class TrainingAnalystController extends DefaultController
         return $pdf->stream($this->title . '.pdf');
     }
 
-    protected function approve(Request $request, $id)
+    protected function approve(Request $request, $id, SignatureService $signatureService)
     {
         $training = TrainingAnalyst::findOrFail($id);
 
@@ -512,6 +524,9 @@ class TrainingAnalystController extends DefaultController
         $training->notes = $request->notes ?: '-';
         $training->updated_at = now();
         $training->save();
+
+         // panggil service
+        $signatureService->create($training);
 
         return response()->json([
             'status' => true,

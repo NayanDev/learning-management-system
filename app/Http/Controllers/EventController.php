@@ -4,10 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\Workshop;
+use App\Services\DirectorSignatureService;
+use App\Services\SignatureService;
+use Exception;
 use Idev\EasyAdmin\app\Helpers\Constant;
 use Idev\EasyAdmin\app\Http\Controllers\DefaultController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class EventController extends DefaultController
 {
@@ -25,7 +31,7 @@ class EventController extends DefaultController
         $this->title = 'Event';
         $this->generalUri = 'event';
         $this->arrPermissions = [];
-        $this->actionButtons = ['btn_edit', 'btn_multilink', 'btn_delete'];
+        $this->actionButtons = ['btn_approve', 'btn_edit', 'btn_multilink', 'btn_delete'];
 
         $this->tableHeaders = [
             ['name' => 'No', 'column' => '#', 'order' => true],
@@ -39,6 +45,7 @@ class EventController extends DefaultController
             ['name' => 'Location', 'column' => 'location', 'order' => true],
             ['name' => 'Start date', 'column' => 'start_date', 'order' => true],
             ['name' => 'End date', 'column' => 'end_date', 'order' => true],
+            ['name' => 'Status', 'column' => 'status', 'order' => true],
             ['name' => 'Divisi', 'column' => 'divisi', 'order' => true],
             ['name' => 'Instructor', 'column' => 'instructor', 'order' => true],
             ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
@@ -96,12 +103,12 @@ class EventController extends DefaultController
 
         $fields = [
             [
-                'type' => 'onlyview',
+                'type' => 'text',
                 'label' => 'Divisi',
                 'name' =>  'divisi',
                 'class' => 'col-md-12 my-2',
                 'required' => $this->flagRules('name', $id),
-                'value' => (isset($edit)) ? $edit->divisi : Auth::user()->divisi
+                'value' => (isset($edit)) ? $edit->divisi : ''
             ],
             [
                 'type' => 'select2',
@@ -127,6 +134,30 @@ class EventController extends DefaultController
                 'class' => 'col-md-12 my-2',
                 'required' => $this->flagRules('organizer', $id),
                 'value' => (isset($edit)) ? $edit->organizer : ''
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Year',
+                'name' =>  'year',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('year', $id),
+                'value' => (isset($edit)) ? $edit->year : date('Y')
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Token',
+                'name' =>  'token',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('token', $id),
+                'value' => (isset($edit)) ? $edit->token : Str::random(32)
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Token Expired',
+                'name' =>  'token_expired',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('token_expired', $id),
+                'value' => (isset($edit)) ? $edit->token_expired : '-'
             ],
             [
                 'type' => 'datetime',
@@ -155,6 +186,21 @@ class EventController extends DefaultController
             ],
             [
                 'type' => 'select',
+                'label' => 'Status Pelatihan',
+                'name' =>  'status',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('status', $id),
+                'value' => (isset($edit)) ? $edit->status : '',
+                'options' => [
+                    ['value' => 'open', 'text' => 'Open'],
+                    ['value' => 'close', 'text' => 'Selesai'],
+                    // ['value' => 'submit', 'text' => 'Approved'],
+                    // ['value' => 'approve', 'text' => 'Rejected'],
+                    // ['value' => 'reject', 'text' => 'Rejected'],
+                ]
+            ],
+            [
+                'type' => 'select',
                 'label' => 'Location',
                 'name' =>  'location',
                 'class' => 'col-md-12 my-2',
@@ -168,7 +214,7 @@ class EventController extends DefaultController
                 'name' =>  'user_id',
                 'class' => 'col-md-12 my-2',
                 'required' => $this->flagRules('user_id', $id),
-                'value' => (isset($edit)) ? $edit->user_id : ''
+                'value' => (isset($edit)) ? $edit->user_id : Auth::user()->id
             ],
         ];
 
@@ -197,6 +243,9 @@ class EventController extends DefaultController
             $orderBy = request('order');
             $orderState = request('order_state');
         }
+        if (request('year')) {
+            $filters[] = ['events.year', '=', request('year')];
+        }
 
         $dataQueries = Event::leftJoin('participants', 'participants.event_id', '=', 'events.id')
             ->leftJoin('trainers', 'trainers.event_id', '=', 'events.id')
@@ -213,13 +262,45 @@ class EventController extends DefaultController
                 $query->orWhere('events.location', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('events.divisi', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('events.instructor', 'LIKE', '%' . $orThose . '%');
+                $query->orWhere('events.status', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('workshops.name', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('users.name', 'LIKE', '%' . $orThose . '%');
             });
 
-        // Cek role user
-        if (Auth::user()->role->name !== ('admin')) {
-            $dataQueries = $dataQueries->where('events.user_id', Auth::user()->id);
+        $user = Auth::user();
+
+        $isAdmin = $user->role->name === 'admin' || ($user->role->name === 'manager' && $user->divisi === 'Umum & SDM');
+        $isManager = $user->role->name === 'manager';
+
+        $isTrainer = DB::table('trainers')
+            ->where('user_id', $user->id)
+            ->exists();
+
+        if (! $isAdmin) {
+
+            if ($isManager) {
+
+                $dataQueries = $dataQueries->where(function ($q) use ($user) {
+                    $q->where('events.divisi', $user->divisi)
+                    ->orWhere('events.user_id', $user->id);
+                });
+
+            } elseif ($isTrainer) {
+
+                $dataQueries = $dataQueries->where(function ($q) use ($user) {
+                    $q->whereExists(function ($sub) use ($user) {
+                        $sub->select(DB::raw(1))
+                            ->from('trainers')
+                            ->whereColumn('trainers.event_id', 'events.id')
+                            ->where('trainers.user_id', $user->id);
+                    })
+                    ->orWhere('events.user_id', $user->id);
+                });
+
+            } else {
+
+                $dataQueries = $dataQueries->where('events.user_id', $user->id);
+            }
         }
 
         $dataQueries = $dataQueries
@@ -232,6 +313,7 @@ class EventController extends DefaultController
                 'events.organizer',
                 'events.location',
                 'events.divisi',
+                'events.status',
                 'events.instructor',
                 'events.created_at',
                 'events.updated_at',
@@ -254,6 +336,7 @@ class EventController extends DefaultController
                 'events.organizer',
                 'events.location',
                 'events.divisi',
+                'events.status',
                 'events.instructor',
                 'events.created_at',
                 'events.updated_at',
@@ -277,6 +360,7 @@ class EventController extends DefaultController
 
         $permission = (new Constant)->permissionByMenu($this->generalUri);
         $permission[] = 'multilink';
+        $permission[] = 'approve';
 
         $eb = [];
         $data_columns = [];
@@ -331,7 +415,7 @@ class EventController extends DefaultController
         if ($this->dynamicPermission) {
             $permissions = (new Constant())->permissionByMenu($this->generalUri);
         }
-        $layout = (request('from_ajax') && request('from_ajax') == true) ? 'easyadmin::backend.idev.list_drawer_ajax' : 'easyadmin::backend.idev.list_drawer';
+        $layout = (request('from_ajax') && request('from_ajax') == true) ? 'easyadmin::backend.idev.list_drawer_ajax' : 'backend.idev.list_drawer';
         if (isset($this->drawerLayout)) {
             $layout = $this->drawerLayout;
         }
@@ -352,6 +436,8 @@ class EventController extends DefaultController
             'easyadmin::backend.idev.buttons.show',
             'easyadmin::backend.idev.buttons.import_default',
             'backend.idev.buttons.multilink',
+            'backend.idev.buttons.approve',
+            'backend.idev.buttons.director_signature',
         ];
         $data['templateImportExcel'] = "#";
         $data['import_scripts'] = $this->importScripts;
@@ -404,5 +490,87 @@ class EventController extends DefaultController
             ];
 
         return $fields;
+    }
+
+
+    public function importPdf(Request $request)
+    {
+        $request->validate([
+            'event_id' => 'required|exists:events,id',
+            'pdf' => 'required|mimes:pdf|max:10240',
+        ]);
+
+        $event = Event::findOrFail($request->event_id);
+
+        $directory = public_path('command_attachment');
+
+        // Buat folder jika belum ada
+        if (!File::exists($directory)) {
+            File::makeDirectory($directory, 0755, true);
+        }
+
+        $file = $request->file('pdf');
+
+        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+        $file->move($directory, $filename);
+
+        // Hapus file lama jika ada
+        if (
+            $event->command_attachment &&
+            File::exists($directory . '/' . $event->command_attachment)
+        ) {
+            File::delete($directory . '/' . $event->command_attachment);
+        }
+
+        $event->update([
+            'command_attachment' => $filename
+        ]);
+
+        return back()->with('success', 'PDF berhasil diupload.');
+    }
+
+
+    protected function approve(Request $request, $id, SignatureService $signatureService, DirectorSignatureService $directorSignatureService)
+    {
+        try {
+            DB::beginTransaction();
+
+            $event = Event::findOrFail($id);
+
+            if ($request->status === 'approve') {
+                $event->created_date = now();
+                $event->approve_by = $request->approve_by;
+            }
+
+            $event->status = $request->status;
+            $event->notes = $request->notes ?: '-';
+            $event->updated_at = now();
+            $event->save();
+
+            if ($request->status === 'close' && $request->filled('director_signature')) {
+                $directorSignatureService->create(
+                    $event,
+                    $request->director_signature
+                );
+            } elseif ($request->status !== 'close') {
+                $signatureService->create($event);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Status updated successfully'
+            ]);
+
+        } catch (Exception $e) {
+            DB::rollback();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

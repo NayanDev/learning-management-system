@@ -11,13 +11,25 @@ class Trainer extends Model
 
     protected $table = 'trainers';
     protected $primaryKey = 'id';
-    protected $fillable = ["event_id", "user_id", "external"];
-    protected $appends = ['btn_delete', 'btn_edit', 'btn_show'];
+    protected $fillable = ["event_id", "user_id", "external", "signature"];
+    protected $appends = ['btn_signature', 'btn_delete', 'btn_edit', 'btn_show'];
 
 
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+
+    public function getBtnSignatureAttribute()
+    {
+        if($this->external !== null) {
+            $html = "<a id='export-pdf' class='btn btn-sm btn-outline-success radius-6' target='_blank' href='trainer-signature?trainer_id=" . $this->id . "' title='Link Signature'><i class='ti ti-link'></i></a>";
+        } else {
+            $html = "";
+        }
+
+        return $html;
     }
 
 

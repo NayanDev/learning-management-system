@@ -172,20 +172,136 @@
     $evalPenguasaanPraktek = $participantEvaluations->get('Penguasaan Praktek');
     $evalKedisiplinan = $participantEvaluations->get('Kedisiplinan & Prilaku');
     
-    // Evaluasi Monthly dari EvaluationMonth
+    // Evaluasi Monthly dari EvaluationMonth, dikelompokkan per aspek
     $monthlyEvaluations = \App\Models\EvaluationMonth::where('event_id', $event->id)
         ->where('participant_id', $participant->id)
+        ->orderBy('id', 'asc')
         ->get()
-        ->keyBy('name');
-    
-    // Helper function untuk mendapatkan nilai sesuai kategori
-    $getValue = function($evalName, $category) use ($monthlyEvaluations) {
-        $eval = $monthlyEvaluations->get($evalName);
-        if ($eval && $eval->category == $category) {
-            return $eval->value;
+        ->groupBy('name');
+
+    // Ambil nilai per aspek sesuai kategori skor dan posisi penilai (P.I / P.II)
+    $getMonthlyScore = function($evalName, $category, $penilaiIndex = 1) use ($monthlyEvaluations) {
+        $evaluations = $monthlyEvaluations->get($evalName, collect())->values();
+        $evaluation = $evaluations->get($penilaiIndex - 1);
+
+        if (!$evaluation) {
+            return '';
         }
-        return '';
+
+        $calculatedCategory = \App\Models\EvaluationMonth::calculateCategory((int) $evaluation->value);
+        if ($calculatedCategory !== $category) {
+            return '';
+        }
+
+        return $evaluation->value;
     };
+
+    $getMonthlyValue = function($evalName, $penilaiIndex = 1) use ($monthlyEvaluations) {
+        $evaluations = $monthlyEvaluations->get($evalName, collect())->values();
+        $evaluation = $evaluations->get($penilaiIndex - 1);
+
+        return $evaluation ? (int) $evaluation->value : null;
+    };
+
+    $evaluationMonthSections = [
+        [
+            'title' => 'I. Aspek Teknis Pekerjaan',
+            'items' => [
+                ['db_name' => 'Efektivitas & Efisiensi Kerja', 'label' => 'Efektivitas & Efisiensi Kerja'],
+                ['db_name' => 'Ketepatan Waktu Dalam Menyelesaikan Tugas', 'label' => 'Ketepatan Waktu Dalam Menyelesaikan Tugas'],
+                ['db_name' => 'Kemampuan Mencapai Target', 'label' => 'Kemampuan Mencapai Target / Standar Perusahaan'],
+            ],
+        ],
+        [
+            'title' => 'II. Aspek Non Teknis',
+            'items' => [
+                ['db_name' => 'Tertib Administrasi', 'label' => 'Tertib Administrasi'],
+                ['db_name' => 'Inisiatif', 'label' => 'Inisiatif'],
+                ['db_name' => 'Kerjasama / Koordinasi Antar Bagian', 'label' => 'Kerjasama / Koordinasi Antar Bagian'],
+            ],
+        ],
+        [
+            'title' => 'III. Aspek Kepribadian',
+            'items' => [
+                ['db_name' => 'Perilaku', 'label' => 'Perilaku'],
+                ['db_name' => 'Kedisiplinan', 'label' => 'Kedisiplinan'],
+                ['db_name' => 'Tanggung Jawab & Loyalitas', 'label' => 'Tanggung Jawab & Loyalitas'],
+                ['db_name' => 'Ketaatan Terhadap Instruksi Kerja', 'label' => 'Ketaatan Terhadap Instruksi Kerja'],
+            ],
+        ],
+        [
+            'title' => 'IV. Aspek Kepemimpinan',
+            'items' => [
+                ['db_name' => 'Koordinasi Bawahan', 'label' => 'Koordinasi Bawahan'],
+                ['db_name' => 'Kontrol / Pengendalian Bawahan', 'label' => 'Kontrol / Pengendalian Bawahan'],
+                ['db_name' => 'Evaluasi dan Pembinaan Bawahan', 'label' => 'Evaluasi dan Pembinaan Bawahan'],
+                ['db_name' => 'Delegasi Tanggung Jawab dan Wewenang', 'label' => 'Delegasi Tanggung Jawab dan Wewenang'],
+                ['db_name' => 'Kecepatan & Ketepatan Pengambilan Keputusan', 'label' => 'Kecepatan & Ketepatan Pengambilan Keputusan'],
+            ],
+        ],
+    ];
+
+    $totalNilaiPI = 0;
+    $totalNilaiPII = 0;
+    $countNilaiPI = 0;
+    $hasNilaiPI = false;
+    $hasNilaiPII = false;
+
+    foreach ($evaluationMonthSections as $section) {
+        foreach ($section['items'] as $item) {
+            $valuePI = $getMonthlyValue($item['db_name'], 1);
+            if ($valuePI !== null) {
+                $totalNilaiPI += $valuePI;
+                $countNilaiPI++;
+                $hasNilaiPI = true;
+            }
+
+            $valuePII = $getMonthlyValue($item['db_name'], 2);
+            if ($valuePII !== null) {
+                $totalNilaiPII += $valuePII;
+                $hasNilaiPII = true;
+            }
+        }
+    }
+
+    if($countNilaiPI === 10){
+        if ($hasNilaiPI && $hasNilaiPII) {
+            // $nilaiAkhirAngka = $totalNilaiPI + $totalNilaiPII;
+            $nilaiAkhirAngkaFirst = round(($totalNilaiPI + $totalNilaiPII) / 2, 2);
+            $nilaiAkhirAngka = round($nilaiAkhirAngkaFirst / 200 * 100 * 3, 2); // Konversi ke skala 100
+        } elseif ($hasNilaiPI) {
+            $nilaiAkhirAngka = round($totalNilaiPI / 200 * 100 * 3, 2);
+        } elseif ($hasNilaiPII) {
+            $nilaiAkhirAngka = round($totalNilaiPII / 200 * 100 * 3, 2);
+        } else {
+            $nilaiAkhirAngka = null;
+        }
+    } else {
+        if ($hasNilaiPI && $hasNilaiPII) {
+            // $nilaiAkhirAngka = $totalNilaiPI + $totalNilaiPII;
+            $nilaiAkhirAngkaFirst = round(($totalNilaiPI + $totalNilaiPII) / 2, 2);
+            $nilaiAkhirAngka = round($nilaiAkhirAngkaFirst / 300 * 100 * 3, 2); // Konversi ke skala 100
+        } elseif ($hasNilaiPI) {
+            $nilaiAkhirAngka = round($totalNilaiPI / 300 * 100 * 3, 2);
+        } elseif ($hasNilaiPII) {
+            $nilaiAkhirAngka = round($totalNilaiPII / 300 * 100 * 3, 2);
+        } else {
+            $nilaiAkhirAngka = null;
+        }
+    }
+    
+
+    if ($nilaiAkhirAngka === null) {
+        $nilaiAkhir = null;
+    } elseif ($nilaiAkhirAngka >= 226 && $nilaiAkhirAngka <= 300) {
+        $nilaiAkhir = 'A';
+    } elseif ($nilaiAkhirAngka >= 151 && $nilaiAkhirAngka <= 225) {
+        $nilaiAkhir = 'B';
+    } elseif ($nilaiAkhirAngka >= 76 && $nilaiAkhirAngka <= 150) {
+        $nilaiAkhir = 'C';
+    } else {
+        $nilaiAkhir = 'D';
+    }
     
     // Query ResultQuestion untuk participant ini
     $currentResultQuestion = \App\Models\ResultQuestion::where('participant_id', $participant->id)->first();
@@ -196,7 +312,13 @@
                 <td class="no-border"><img src="{{ asset('easyadmin/idev/img/kop-dokumen.png') }}" alt="PT Sampharindo" width="40px"></td>
                 <td class="no-border">
                     <h3 style="text-align:right">EVALUASI PELATIHAN</h3>
-                    <p style="text-align:right">Internal / <del>Eksternal</del></p>
+                    <p style="text-align:right">
+                        @if($event->instructor === 'internal')
+                            Internal / <del>Eksternal</del>
+                        @else
+                            <del>Internal</del> / Eksternal
+                        @endif
+                    </p>
                 </td>
             </tr>
         </table>
@@ -306,7 +428,7 @@
                         </tr>
                     </table>
                 </td>
-                <td rowspan="6"><p style="font-size: 40px;text-align:center;">{{ intval($currentResultQuestion->pretest_score) ?? '-' }}</p></td>
+                <td rowspan="6"><p style="font-size: 40px;text-align:center;">{{ intval($currentResultQuestion?->pretest_score) ?? '-' }}</p></td>
             </tr>
             <tr>
                 <td class="text-center border-lr">2</td>
@@ -426,7 +548,7 @@
                         @endphp
                         Peserta Pelatihan,<br>
                         @if($participant->nik)
-                            <img style="position:absolute" src="{{ asset('storage/signature/' . $user->signature) }}" alt="Tanda Tangan Peserta" height="70px"><br><br><br><br>
+                            <img style="position:absolute" src="{{ asset('storage/signature/' . $user?->signature ?? 'default.svg') }}" alt="Tanda Tangan Peserta" height="70px"><br><br><br><br>
                         @else
                             <br><br><br>
                         @endif
@@ -530,9 +652,23 @@
                     <br><br>
                     {{ $penyelenggara->name }} <br><br><br>
                     Pembicara, / Pimpinan<br><br>
-                    <img src="{{ asset('storage/signature/' . $trainer->user->signature) }}" style="position:absolute;top:130px" alt="signature" height="70px">
-                    <br><br>
-                    {{ $trainer->user->name }}
+                    @if($event->instructor === 'external' && $trainer && !empty($trainer->signature))
+                        {{-- Pelatihan External: Ambil dari trainer external --}}
+                        <img src="{{ asset('signature_external/' . $trainer->signature) }}" 
+                            style="position:absolute;top:130px" 
+                            alt="signature" 
+                            height="70px">
+                        <br><br>
+                        {{ $trainer->external ?? '-' }}
+                    @else
+                        {{-- Pelatihan Internal: Ambil dari user trainer --}}
+                        <img src="{{ asset('storage/signature/' . ($trainer?->user?->signature ?? '-')) }}" 
+                            style="position:absolute;top:130px" 
+                            alt="signature" 
+                            height="70px">
+                        <br><br>
+                        {{ $trainer?->user->name ?? '-' }}
+                    @endif
                 </td>
                 <td colspan="2" valign="top">
                     Catatan : <br><br><br><br><br><br><br><br><br><br><br>
@@ -546,7 +682,14 @@
 
     <div class="page-break"></div>
 
-    <div class="container">
+    @php
+        $pesertaPelatihan = App\Models\User::where('nik', $participant->nik)->first();
+    @endphp
+
+    <div class="container" style="position:relative;">
+        @if(!$pesertaPelatihan->is_leader)
+            <img src="{{ asset('custom/evaluation/blue-scribble.svg') }}" alt="" aria-hidden="true" style="position:absolute; left:305; top:465px; width:310px; height:200px; z-index:1; display:block; pointer-events:none;transform: scaleY(-1);" />
+        @endif
         <p style="text-align: right;">Form. Lampiran 1</p>
         <table>
             <tr>
@@ -587,206 +730,47 @@
                 <td class="text-center" colspan="2">6 - 10</td>
                 <td class="text-center" colspan="2">0 - 5</td>
             </tr>
-            <tr>
-                <td colspan="2">I. Aspek Teknis Pekerjaan</td>
-                <td class="text-center" width="5%">P.I</td>
-                <td class="text-center" width="5%">P.II</td>
-                <td class="text-center" width="5%">P.I</td>
-                <td class="text-center" width="5%">P.II</td>
-                <td class="text-center" width="5%">P.I</td>
-                <td class="text-center" width="5%">P.II</td>
-                <td class="text-center" width="5%">P.I</td>
-                <td class="text-center" width="5%">P.II</td>
-            </tr>
-            <tr>
-                <td class="text-center">1</td>
-                <td>Efektivitas & Efesiensi Kerja</td>
-                <td>20</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td class="text-center">2</td>
-                <td>Ketepatan Waktu Dalam Menyelesaikan Tugas</td>
-                <td>20</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td class="text-center">3</td>
-                <td>Kemampuan Mencapai Target / Standar Perusahaan</td>
-                <td>20</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td colspan="10">II. Aspek Non Teknis</td>
-            </tr>
-            <tr>
-                <td class="text-center">1</td>
-                <td>Tertib Administrasi</td>
-                <td>20</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td class="text-center">2</td>
-                <td>Inisiatif</td>
-                <td>20</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td class="text-center">3</td>
-                <td>Kerjasama / Koordinasi Antar Bagian</td>
-                <td>20</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td colspan="10">III. Aspek Kepribadian</td>
-            </tr>
-            <tr>
-                <td class="text-center">1</td>
-                <td>Perilaku</td>
-                <td>20</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td class="text-center">2</td>
-                <td>Kedisiplinan</td>
-                <td>20</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td class="text-center">3</td>
-                <td>Tanggung Jawab & Loyalitas</td>
-                <td>20</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td class="text-center">4</td>
-                <td>Ketaatan Terhadap Instruksi Kerja</td>
-                <td>20</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td colspan="10">IV. Aspek Kepemimpinan</td>
-            </tr>
-            <tr>
-                <td class="text-center">1</td>
-                <td>Koordinasi Bawahan</td>
-                <td>20</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td class="text-center">2</td>
-                <td>Kontrol / Pengendalian Bawahan</td>
-                <td>20</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td class="text-center">3</td>
-                <td>Evaluasi dan Pembinaan Bawahan</td>
-                <td>20</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td class="text-center">4</td>
-                <td>Delegasi Tanggung Jawab dan Wewenang</td>
-                <td>20</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td class="text-center">5</td>
-                <td>Kecepatan & Ketepatan Pengambilan Keputusan</td>
-                <td>20</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
+            
+            @foreach($evaluationMonthSections as $section)
+                <tr>
+                    <td colspan="2" style="position:relative; z-index:2;">
+                        {{ $section['title'] }}
+                    </td>
+                    @if($loop->first)
+                        <td class="text-center" width="5%">P.I</td>
+                        <td class="text-center" width="5%">P.II</td>
+                        <td class="text-center" width="5%">P.I</td>
+                        <td class="text-center" width="5%">P.II</td>
+                        <td class="text-center" width="5%">P.I</td>
+                        <td class="text-center" width="5%">P.II</td>
+                        <td class="text-center" width="5%">P.I</td>
+                        <td class="text-center" width="5%">P.II</td>
+                    @else
+                        <td class="text-center" width="5%"></td>
+                        <td class="text-center" width="5%"></td>
+                        <td class="text-center" width="5%"></td>
+                        <td class="text-center" width="5%"></td>
+                        <td class="text-center" width="5%"></td>
+                        <td class="text-center" width="5%"></td>
+                        <td class="text-center" width="5%"></td>
+                        <td class="text-center" width="5%"></td>
+                    @endif
+                </tr>
+                @foreach($section['items'] as $itemIndex => $item)
+                    <tr>
+                        <td class="text-center">{{ $itemIndex + 1 }}</td>
+                        <td>{{ $item['label'] }}</td>
+                        <td class="text-center">{{ $getMonthlyScore($item['db_name'], 'A', 1) }}</td>
+                        <td class="text-center">{{ $getMonthlyScore($item['db_name'], 'A', 2) }}</td>
+                        <td class="text-center">{{ $getMonthlyScore($item['db_name'], 'B', 1) }}</td>
+                        <td class="text-center">{{ $getMonthlyScore($item['db_name'], 'B', 2) }}</td>
+                        <td class="text-center">{{ $getMonthlyScore($item['db_name'], 'C', 1) }}</td>
+                        <td class="text-center">{{ $getMonthlyScore($item['db_name'], 'C', 2) }}</td>
+                        <td class="text-center">{{ $getMonthlyScore($item['db_name'], 'D', 1) }}</td>
+                        <td class="text-center">{{ $getMonthlyScore($item['db_name'], 'D', 2) }}</td>
+                    </tr>
+                @endforeach
+            @endforeach
             <tr>
                 {{-- Klasifikasi Nilai & Total nilai --}}
                 <td colspan="10">
@@ -804,17 +788,17 @@
                                     </tr>
                                     <tr>
                                         <td class="text-center">A</td>
-                                        <td class="text-center">240 - 800</td>
+                                        <td class="text-center">226 - 300</td>
                                         <td class="text-center">Sangat Baik</td>
                                     </tr>
                                     <tr>
                                         <td class="text-center">B</td>
-                                        <td class="text-center">165 - 239</td>
+                                        <td class="text-center">151 - 225</td>
                                         <td class="text-center">Baik</td>
                                     </tr>
                                     <tr>
                                         <td class="text-center">C</td>
-                                        <td class="text-center">75 - 164</td>
+                                        <td class="text-center">76 - 150</td>
                                         <td class="text-center">Cukup</td>
                                     </tr>
                                     <tr>
@@ -832,17 +816,26 @@
                                     <tr>
                                         <td valign="top" class="text-center">
                                             P.I <br>
-                                            &nbsp; <br><br>
+                                            @if($countNilaiPI === 10)
+                                                {{ $hasNilaiPI ? $totalNilaiPI * 15 / 10 : '-' }} <br><br>
+                                            @else
+                                                {{ $hasNilaiPI ? $totalNilaiPI * 15 / 15 : '-' }} <br><br>
+                                            @endif
                                         </td>
                                         <td valign="top" class="text-center">
                                             P.II <br>
+                                            @if($countNilaiPI === 10)
+                                                {{ $hasNilaiPII ? $totalNilaiPII * 15 / 10 : '-' }}
+                                            @else
+                                                {{ $hasNilaiPII ? $totalNilaiPII * 15 / 15 : '-' }}
+                                            @endif
                                         </td>
                                     </tr>
                                     <tr>
                                         <td colspan="2" class="text-center">Nilai Akhir</td>
                                     </tr>
                                     <tr>
-                                        <td colspan="2"> &nbsp; </td>
+                                        <td colspan="2" class="text-center">{{ $nilaiAkhir ?? '-' }}</td>
                                     </tr>
                                 </table>
                             </td>
@@ -853,22 +846,57 @@
             <tr>
                 <td colspan="10" style="position: relative">
                     POST TEST: <br><br><br>
-                    <span style="font-size:40px;position:absolute;top:20px;">{{ intval($currentResultQuestion->posttest_score1) ?? '-' }}</span>
+                    <span style="font-size:40px;position:absolute;top:20px;">{{ intval($currentResultQuestion?->posttest1_score) ?? '-' }}</span>
                     <br><br><br> 
                 </td>
             </tr>
             <tr>
                 <td colspan="10" style="padding: 0; margin:0">
+                    @php
+                        $penilai1 = null;
+                        $penilai2 = null;
+
+                        if(isset($evaluator[0])) {
+                            $penilai1 = \App\Models\User::find($evaluator[0]->user_id);
+                        }
+
+                        if(isset($evaluator[1])) {
+                            $penilai2 = \App\Models\User::find($evaluator[1]->user_id);
+                        }
+                    @endphp
+
                     <table style="padding: 0px; margin:0px">
                         <tr>
-                            <td width="33%" class="text-center no-border">
-                                Penilai I <br><br><br><br><br>
+                            <td width="33%" class="text-center no-border" style="position: relative;">
+                                Penilai I <br>
+
+                                @if($penilai1 && $penilai1->signature)
+                                    <img src="{{ asset('storage/signature/' . $penilai1->signature) }}"
+                                        style="position:absolute;left:50px;"
+                                        height="70px">
+                                @endif
+
+                                <br><br><br>
+                                {{ $penilai1->name ?? '-' }}
                             </td>
-                            <td width="33%" class="text-center new-border">
-                                Penilai II <br><br><br><br><br>
+
+                            <td width="33%" class="text-center new-border" style="position: relative;">
+                                Penilai II <br>
+
+                                @if($penilai2 && $penilai2->signature)
+                                    <img src="{{ asset('storage/signature/' . $penilai2->signature) }}"
+                                        style="position:absolute;left:50px;"
+                                        height="70px">
+                                @endif
+
+                                <br><br><br>
+                                {{ $penilai2->name ?? '-' }}
                             </td>
-                            <td width="33%" class="text-center no-border">
-                                Mengetahui, <br><br><br><br><br>
+                            <td width="33%" class="text-center no-border" style="position: relative;">
+                                Mengetahui, <br>
+                                <img src="{{ asset('storage/signature/signature_180_1774603290_69c64c1af1abb.svg') }}" style="position:absolute;left:50px;" alt="signature" height="70px">
+                                <br><br><br>
+                                SARJONO
                             </td>
                         </tr>
                     </table>

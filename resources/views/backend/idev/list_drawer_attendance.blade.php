@@ -18,15 +18,89 @@
                         @if (in_array('create', $permissions))
                         
                             @if(request('event_id'))
-                                <a class="btn btn-warning float-end text-white mx-1" href="{{ url('attendance-ready-pdf') }}?event_id={{ request('event_id') }}">
-                                    <i class="ti ti-file"></i> Command
-                                </a>
-                                <a class="btn btn-success float-end text-white mx-1" href="{{ url('attendance-present-pdf') }}?event_id={{ request('event_id') }}">
-                                    <i class="ti ti-file"></i> Attendance
-                                </a>
-                                <a class="btn btn-primary float-end text-white mx-1" href="{{ route('set.attendance', ['id' => request('event_id')]) }}">
-                                    <i class="ti ti-qrcode"></i> Access
-                                </a>
+                                @if($event_data->instructor === 'external')
+                                    <a class="btn btn-warning float-end text-white mx-1" href="{{ url('attendance-ready-pdf') }}?event_id={{ request('event_id') }}">
+                                        <i class="ti ti-file"></i> Command
+                                    </a>
+                                    @if($event_data->command_attachment === null)
+                                        <a class="btn btn-success float-end text-white mx-1"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#pdfImportModal">
+                                            <i class="ti ti-file"></i> Attachment
+                                        </a>
+                                    @else
+                                        <a href="{{ asset('command_attachment/' . $event_data->command_attachment) }}"
+                                        target="_blank"
+                                        class="btn btn-primary float-end text-white mx-1">
+                                            Lihat PDF
+                                        </a>
+                                    @endif
+
+                                    <div class="modal fade" id="pdfImportModal" tabindex="-1" aria-labelledby="pdfImportModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+
+                                            <form action="{{ route('attachments.importPdf') }}" method="POST" enctype="multipart/form-data">
+                                                @csrf
+
+                                                <input type="hidden"
+                                                name="event_id"
+                                                value="{{ request('event_id') }}">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="pdfImportModalLabel">
+                                                        Import PDF Attachment
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+
+                                                <div class="modal-body">
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label">File PDF</label>
+                                                        <input type="file"
+                                                            name="pdf"
+                                                            class="form-control"
+                                                            accept="application/pdf"
+                                                            required>
+                                                    </div>
+
+                                                    <small class="text-muted">
+                                                        * Hanya file PDF yang diperbolehkan
+                                                    </small>
+
+                                                </div>
+
+                                                <div class="modal-footer">
+                                                    <button type="button"
+                                                            class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">
+                                                        Batal
+                                                    </button>
+
+                                                    <button type="submit" class="btn btn-success">
+                                                        <i class="ti ti-upload"></i> Import
+                                                    </button>
+                                                </div>
+
+                                            </form>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                @else
+                                    <a class="btn btn-warning float-end text-white mx-1" href="{{ url('attendance-ready-pdf') }}?event_id={{ request('event_id') }}">
+                                        <i class="ti ti-file"></i> Command
+                                    </a>
+                                    <a class="btn btn-success float-end text-white mx-1" href="{{ url('attendance-present-pdf') }}?event_id={{ request('event_id') }}">
+                                        <i class="ti ti-file"></i> Attendance
+                                    </a>
+                                    <a class="btn btn-primary float-end text-white mx-1" href="{{ route('set.attendance', ['id' => request('event_id')]) }}">
+                                        <i class="ti ti-qrcode"></i> Access
+                                    </a>
+                                    <a class="btn btn-danger float-end text-white mx-1" href="{{ route('set.checkout', ['id' => request('event_id')]) }}">
+                                        <i class="ti ti-qrcode"></i> Checkout Access
+                                    </a>
+                                @endif
                             @endif
                         
                         @endif

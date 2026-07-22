@@ -25,19 +25,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #F0F7F8;
-            padding: 2rem;
+            padding: 1rem;
         }
+
         .evaluation-card {
             border: none;
             border-radius: 0.75rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             background-color: #fff;
             overflow: hidden;
-            min-height: 600px; /* Tinggi minimal agar terlihat proporsional */
+            min-height: auto;
         }
+
         .evaluation-card .card-header {
             background-color: #fff;
             border-bottom: 1px solid #e9ecef;
@@ -48,9 +54,9 @@
         .participant-sidebar {
             background-color: #f8f9fa;
             border-right: 1px solid #e9ecef;
-            height: 100%;
-            max-height: 600px; /* Batas tinggi agar bisa di-scroll */
-            overflow-y: auto; /* Scroll vertikal jika data banyak */
+            border-bottom: 1px solid #e9ecef;
+            max-height: 300px;
+            overflow-y: auto;
         }
         
         .nav-pills-custom .nav-link {
@@ -58,7 +64,7 @@
             border-left: 4px solid transparent;
             color: #495057;
             font-weight: 500;
-            padding: 1rem 1.5rem;
+            padding: 0.75rem 1rem;
             text-align: left;
             transition: all 0.2s ease;
             background-color: transparent;
@@ -66,20 +72,32 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            font-size: 0.9rem;
         }
+
         .nav-pills-custom .nav-link:hover {
             background-color: #e9ecef;
             color: #0891B2;
         }
+
         .nav-pills-custom .nav-link.active {
-            background-color: #E6F4F1; /* Warna latar aktif (Cyan muda) */
-            color: #0891B2; /* Teks aktif (Cyan) */
-            border-left-color: #0891B2; /* Border kiri aktif */
+            background-color: #E6F4F1;
+            color: #0891B2;
+            border-left-color: #0891B2;
             font-weight: 600;
         }
+
         .nav-pills-custom .nav-link .icon-wrapper {
             display: flex;
             align-items: center;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .nav-pills-custom .nav-link .participant-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         /* Status Indicator di List */
@@ -89,66 +107,316 @@
             background-color: #dee2e6;
             border-radius: 50%;
             display: inline-block;
+            flex-shrink: 0;
+            margin-left: 0.5rem;
         }
+
         .nav-link.filled .status-dot {
-            background-color: #198754; /* Hijau jika sudah diisi */
+            background-color: #198754;
         }
 
         /* Area Konten Kanan */
         .content-area {
-            padding: 1.5rem;
-            height: 100%;
-            max-height: 600px;
+            padding: 1rem;
+            max-height: 400px;
             overflow-y: auto;
         }
 
-        /* Tabel Evaluasi */
+        /* Tabel Evaluasi - Responsive */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table-evaluation {
+            font-size: 0.9rem;
+        }
+
         .table-evaluation th {
             text-align: center;
             vertical-align: middle;
             font-weight: 600;
             color: #495057;
             background-color: #f8f9fa;
-            padding: 0.8rem;
+            padding: 0.6rem 0.4rem;
+            font-size: 0.85rem;
         }
+
         .table-evaluation td {
             vertical-align: middle;
-            padding: 0.8rem;
+            padding: 0.6rem 0.4rem;
         }
+
         .radio-cell {
             text-align: center;
         }
+
         .custom-radio-input {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             cursor: pointer;
             accent-color: #0891B2;
         }
+
         .row-label {
             font-weight: 500;
             color: #212529;
+            font-size: 0.9rem;
         }
+
         .legend-box {
             background-color: #e0f2fe;
             border: 1px solid #bae6fd;
             border-radius: 0.5rem;
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
+            padding: 0.5rem 0.8rem;
+            font-size: 0.75rem;
             color: #0369a1;
             display: inline-flex;
             align-items: center;
+            white-space: nowrap;
         }
         
         /* Scrollbar halus */
         ::-webkit-scrollbar {
             width: 6px;
+            height: 6px;
         }
+
         ::-webkit-scrollbar-track {
             background: #f1f1f1;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #ccc;
             border-radius: 3px;
+        }
+
+        /* Header Layout */
+        .d-flex.justify-content-between {
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        /* Mobile & Tablet Responsive Styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .container-fluid {
+                max-width: 100% !important;
+            }
+
+            h3 {
+                font-size: 1.25rem !important;
+            }
+
+            .participant-sidebar {
+                max-height: 250px;
+                display: flex;
+                overflow-x: auto;
+                overflow-y: hidden;
+                flex-direction: row;
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+                padding: 0.5rem 0;
+            }
+
+            .nav-pills-custom {
+                flex-direction: row !important;
+                flex-wrap: nowrap;
+            }
+
+            .nav-pills-custom .nav-link {
+                padding: 0.6rem 0.8rem;
+                min-width: fit-content;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+            }
+
+            .nav-pills-custom .nav-link.active {
+                border-left: none;
+                border-bottom-color: #0891B2;
+                background-color: transparent;
+            }
+
+            .nav-pills-custom .nav-link .icon-wrapper {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.25rem;
+            }
+
+            .nav-pills-custom .nav-link .participant-name {
+                font-size: 0.75rem;
+            }
+
+            .content-area {
+                padding: 0.75rem;
+                max-height: 500px;
+            }
+
+            .table-evaluation {
+                font-size: 0.8rem;
+            }
+
+            .table-evaluation th {
+                padding: 0.4rem 0.2rem;
+                font-size: 0.75rem;
+            }
+
+            .table-evaluation td {
+                padding: 0.4rem 0.2rem;
+            }
+
+            .custom-radio-input {
+                width: 16px;
+                height: 16px;
+            }
+
+            .row-label {
+                font-size: 0.8rem;
+                padding-right: 0.5rem;
+            }
+
+            .legend-box {
+                font-size: 0.7rem;
+                padding: 0.35rem 0.6rem;
+            }
+
+            .badge {
+                font-size: 0.7rem !important;
+            }
+
+            .btn {
+                font-size: 0.85rem;
+                padding: 0.5rem 1rem !important;
+            }
+
+            h5 {
+                font-size: 1rem !important;
+            }
+
+            small {
+                font-size: 0.75rem !important;
+            }
+
+            .sticky-bottom {
+                position: static !important;
+                padding: 1rem !important;
+            }
+
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .progress-info {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 0.25rem;
+            }
+
+            h3 {
+                font-size: 1.1rem !important;
+            }
+
+            .participant-sidebar {
+                max-height: 200px;
+            }
+
+            .nav-pills-custom .nav-link {
+                padding: 0.5rem 0.6rem;
+            }
+
+            .nav-pills-custom .nav-link .participant-name {
+                display: none;
+            }
+
+            .content-area {
+                padding: 0.5rem;
+                max-height: 450px;
+            }
+
+            .table-evaluation {
+                font-size: 0.75rem;
+            }
+
+            .table-evaluation th {
+                padding: 0.3rem 0.15rem;
+                font-size: 0.7rem;
+            }
+
+            .table-evaluation td {
+                padding: 0.3rem 0.15rem;
+            }
+
+            .custom-radio-input {
+                width: 14px;
+                height: 14px;
+            }
+
+            .row-label {
+                font-size: 0.75rem;
+            }
+
+            .legend-box {
+                font-size: 0.65rem;
+                padding: 0.3rem 0.5rem;
+            }
+
+            .btn {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem !important;
+            }
+
+            h5 {
+                font-size: 0.95rem !important;
+            }
+
+            small {
+                font-size: 0.7rem !important;
+            }
+
+            .progress-info {
+                font-size: 0.8rem;
+            }
+
+            .mb-4 {
+                margin-bottom: 1rem !important;
+            }
+
+            .legend-box {
+                display: none;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .nav-pills-custom .nav-link .icon-wrapper i {
+                margin-right: 0.3rem !important;
+            }
+
+            .table-evaluation th {
+                font-size: 0.65rem;
+                padding: 0.2rem 0.1rem;
+            }
+
+            .table-evaluation td {
+                padding: 0.2rem 0.1rem;
+            }
+
+            .custom-radio-input {
+                width: 12px;
+                height: 12px;
+            }
+
+            .btn {
+                font-size: 0.75rem;
+                padding: 0.35rem 0.6rem !important;
+            }
         }
     </style>
 </head>
@@ -176,11 +444,11 @@
                 <input type="hidden" name="token" value="{{ request('token') }}">
                 <input type="hidden" name="event_id" value="{{ $event->id }}">
 
-                <div class="row g-0 h-100">
+                <div class="row g-0">
                     
                     <!-- KOLOM KIRI: DAFTAR PESERTA (SIDEBAR) -->
-                    <div class="col-md-3 participant-sidebar">
-                        <div class="nav flex-column nav-pills nav-pills-custom" id="participantTabs" role="tablist" aria-orientation="vertical">
+                    <div class="col-12 col-md-3 participant-sidebar">
+                        <div class="nav flex-column flex-md-column flex-lg-column nav-pills nav-pills-custom" id="participantTabs" role="tablist" aria-orientation="vertical">
                             @foreach($participants as $index => $participant)
                                 <button class="nav-link {{ $index === 0 ? 'active' : '' }}" id="tab-participant-{{ $participant->id }}" data-bs-toggle="pill" data-bs-target="#content-participant-{{ $participant->id }}" data-participant-id="{{ $participant->id }}" type="button" role="tab">
                                     <div class="icon-wrapper">
@@ -194,7 +462,7 @@
                     </div>
 
                     <!-- KOLOM KANAN: KONTEN EVALUASI -->
-                    <div class="col-md-9">
+                    <div class="col-12 col-md-9">
                         <div class="content-area">
                             <div class="tab-content" id="participantTabsContent">
 

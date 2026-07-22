@@ -8,10 +8,15 @@ use App\Models\Participant;
 use App\Models\Question;
 use App\Models\ResultQuestion;
 use App\Models\TemplateCertification;
-use Idev\EasyAdmin\app\Helpers\Constant;
-use Illuminate\Support\Facades\Auth;
+use App\Services\DirectorSignatureService;
+use App\Services\SignatureService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Idev\EasyAdmin\app\Helpers\Constant;
 use Idev\EasyAdmin\app\Http\Controllers\DefaultController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Exception;
 
 class CertificationController extends DefaultController
 {
@@ -30,6 +35,15 @@ class CertificationController extends DefaultController
         $this->generalUri = 'certification';
         $this->arrPermissions = [];
         $this->actionButtons = ['btn_print', 'btn_edit', 'btn_show', 'btn_delete'];
+        $this->actionButtonViews = [
+            'easyadmin::backend.idev.buttons.delete',
+            'easyadmin::backend.idev.buttons.edit',
+            'easyadmin::backend.idev.buttons.show',
+            'easyadmin::backend.idev.buttons.import_default',
+            'easyadmin::backend.idev.buttons.multilink',
+            'easyadmin::backend.idev.buttons.approve',
+            'easyadmin::backend.idev.buttons.director_signature',
+        ];
 
         $this->tableHeaders = [
             ['name' => 'No', 'column' => '#', 'order' => true],
@@ -254,6 +268,9 @@ class CertificationController extends DefaultController
             $orderBy = request('order');
             $orderState = request('order_state');
         }
+        if (request('event_id')) {
+            $filters[] = ['certifications.event_id', '=', request('event_id')];
+        }
 
         $dataQueries = Certification::join('events', 'events.id', '=', 'certifications.event_id')
             ->join('workshops', 'workshops.id', '=', 'events.workshop_id',)
@@ -268,9 +285,17 @@ class CertificationController extends DefaultController
                 $query->orWhere('participants.name', 'LIKE', '%' . $orThose . '%');
             });
 
-            if (Auth::user()->role->name !== 'admin') {
-                $dataQueries = $dataQueries->whereHas('participant', function ($query) {
-                    $query->where('nik', Auth::user()->nik);
+            $user = Auth::user();
+
+            $adminRoles = ['admin'];
+            $isAdmin = in_array($user->role->name, $adminRoles);
+
+            $isManagerUmumSDM = $user->role->name === 'manager'
+                && $user->divisi === 'UMUM & SDM';
+
+            if (!($isAdmin || $isManagerUmumSDM)) {
+                $dataQueries = $dataQueries->whereHas('participant', function ($query) use ($user) {
+                    $query->where('nik', $user->nik);
                 });
             }
 
@@ -304,4 +329,65 @@ class CertificationController extends DefaultController
 
         return $pdf->stream("Certification" . ($request->year ?? date('Y')) . ".pdf");
     }
+
+
+    protected function filters()
+    {
+        $fields = [
+            [
+                'type' => 'select2',
+                'label' => 'Event',
+                'name' => 'event_id',
+                'class' => 'col-md-4',
+                'options' => collect([
+                    [
+                        'value' => '',
+                        'text' => 'All Events',
+                    ]
+                ])->merge(
+                    Event::with(['workshop'])->get()->map(function ($item) {
+                        return [
+                            'value' => $item->id,
+                            'text' => $item->workshop->name ?? '-',
+                        ];
+                    })
+                )->toArray(),
+            ],
+        ];
+
+        return $fields;
+    }
+
+
+    public function approve(Request $request, $id, SignatureService $signatureService, DirectorSignatureService $directorSignatureService)
+    {
+        try {
+            DB::beginTransaction();
+
+            $certification = Certification::findOrFail($id);
+
+            $certification->approve_by = $request->approve_by;
+            $certification->status = 'approve';
+            $certification->save();
+            $signatureService->create($certification);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Approve Certification successfully'
+            ]);
+
+        } catch (Exception $e) {
+            DB::rollback();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    
 }

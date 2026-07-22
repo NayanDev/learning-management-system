@@ -7,6 +7,7 @@ use App\Models\Trainer;
 use App\Models\User;
 use Idev\EasyAdmin\app\Helpers\Constant;
 use Idev\EasyAdmin\app\Http\Controllers\DefaultController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TrainerController extends DefaultController
@@ -16,16 +17,16 @@ class TrainerController extends DefaultController
     protected $generalUri;
     protected $tableHeaders;
     // protected $actionButtons;
-    protected $arrPermissions = ['list', 'show', 'create', 'edit', 'delete', 'export-excel-default', 'export-pdf-default', 'import-excel-default'];
-    protected $dynamicPermission = true;
+    // protected $arrPermissions = ['signature', 'list', 'show', 'create', 'edit', 'delete', 'export-excel-default', 'export-pdf-default', 'import-excel-default'];
+    // protected $dynamicPermission = true;
     protected $importExcelConfig;
 
     public function __construct()
     {
         $this->title = 'Trainer';
         $this->generalUri = 'trainer';
-        $this->arrPermissions = [];
-        $this->actionButtons = ['btn_edit', 'btn_show', 'btn_delete'];
+        $this->arrPermissions = ['signature', 'list', 'show', 'create', 'edit', 'delete', 'export-excel-default', 'export-pdf-default', 'import-excel-default'];
+        $this->actionButtons = ['btn_signature', 'btn_edit', 'btn_show', 'btn_delete'];
 
         $this->tableHeaders = [
             ['name' => 'No', 'column' => '#', 'order' => true],
@@ -65,6 +66,7 @@ class TrainerController extends DefaultController
         }
 
         $user = User::select(['id as value', 'name as text'])
+            ->where('is_trainer', true)
             ->get()
             ->prepend([
                 'value' => '',
@@ -265,5 +267,62 @@ class TrainerController extends DefaultController
         $layout = (request('from_ajax') && request('from_ajax') == true) ? 'easyadmin::backend.idev.list_drawer_ajax' : 'easyadmin::backend.idev.list_drawer';
 
         return view($layout, $data);
+    }
+
+
+    public function signatureExternal(Request $request)
+    {
+        $trainerId = $request->query('trainer_id');
+        abort_if(empty($trainerId), 404);
+
+        $trainer = Trainer::findOrFail($trainerId);
+
+        return view('frontend.signaturepad', compact('trainer'));
+    }
+
+
+    public function storeSignature(Request $request)
+    {
+        $validated = $request->validate([
+            'trainer_id' => ['required', 'integer', 'exists:trainers,id'],
+            'signature_svg' => ['required', 'string'],
+        ]);
+
+        $trainer = Trainer::findOrFail($validated['trainer_id']);
+        $signatureSvg = trim($validated['signature_svg']);
+
+        if (! str_starts_with($signatureSvg, '<svg')) {
+            return back()
+                ->withInput()
+                ->with('error', 'Format tanda tangan tidak valid.');
+        }
+
+        // Tentukan path folder public/signature_external
+        $signaturePath = public_path('signature_external');
+        
+        // Buat folder jika belum ada
+        if (!is_dir($signaturePath)) {
+            mkdir($signaturePath, 0755, true);
+        }
+
+        // Generate nama file SVG: signature_[timestamp]_[uniqid].svg
+        $signatureFileName = 'signature_' . time() . '_' . uniqid() . '.svg';
+        $filePath = $signaturePath . '/' . $signatureFileName;
+
+        // Simpan SVG ke file
+        file_put_contents($filePath, $signatureSvg);
+
+        // Hapus file lama jika ada
+        if ($trainer->signature && file_exists($signaturePath . '/' . $trainer->signature)) {
+            @unlink($signaturePath . '/' . $trainer->signature);
+        }
+
+        // Simpan nama file ke database
+        $trainer->signature = $signatureFileName;
+        $trainer->save();
+
+        return redirect()
+            ->route('trainer.signature.external', ['trainer_id' => $trainer->id])
+            ->with('success', 'Tanda tangan berhasil disimpan dalam format SVG.');
     }
 }

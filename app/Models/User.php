@@ -13,8 +13,17 @@ class User extends Authenticatable
 
     protected $table = 'users';
     protected $primaryKey = 'id';
-    protected $fillable = ["name", "email", "company", "divisi", "unit_kerja", "status", "jk", "telp", "nik", "signature", "role_id", "password"];
+    protected $fillable = ["name", "email", "company", "divisi", "unit_kerja", "status", "jk", "telp", "nik", "signature", "role_id", "password", "qualification", "is_leader", "is_trainer"];
     protected $appends = ['btn_delete', 'btn_edit', 'btn_show', 'view_image'];
+    protected $casts = [
+        'is_leader' => 'boolean',
+        'is_trainer' => 'boolean',
+    ];
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class, 'sign_present', 'id');
+    }
 
 
     public function getViewImageAttribute()

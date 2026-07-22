@@ -29,7 +29,7 @@ class AnswerParticipantController extends DefaultController
         $this->actionButtons = ['btn_edit', 'btn_show', 'btn_delete'];
 
         $this->tableHeaders = [
-            ['name' => 'No', 'column' => '#', 'order' => true],
+            ['name' => 'No', 'column' => 'id', 'order' => true],
             ['name' => 'Training', 'column' => 'workshop', 'order' => true],
             ['name' => 'User', 'column' => 'user', 'order' => true],
             ['name' => 'Question', 'column' => 'question', 'order' => true],

@@ -213,7 +213,7 @@ class QuestionController extends DefaultController
         $data['filters'] = $this->filters();
         $data['drawerExtraClass'] = 'w-100';
 
-        $layout = (request('from_ajax') && request('from_ajax') == true) ? 'easyadmin::backend.idev.list_drawer_ajax' : 'easyadmin::backend.idev.list_drawer';
+        $layout = (request('from_ajax') && request('from_ajax') == true) ? 'easyadmin::backend.idev.list_drawer_ajax' : 'easyadmin::backend.idev.list_drawer_question';
 
         return view($layout, $data);
     }

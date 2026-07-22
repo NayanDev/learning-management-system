@@ -8,13 +8,10 @@ use App\Models\TrainingNeed;
 use App\Models\TrainingSchedule;
 use App\Models\TrainingWorkshop;
 use App\Models\Workshop;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Exception;
 use Idev\EasyAdmin\app\Helpers\Constant;
 use Idev\EasyAdmin\app\Http\Controllers\DefaultController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class TrainingScheduleController extends DefaultController
 {
@@ -327,7 +324,8 @@ class TrainingScheduleController extends DefaultController
                     // Determine which weeks/months to highlight based on start_date
                     $schedule = $this->generateScheduleArray($workshop->start_date, $workshop->end_date);
 
-                    $workshopData[$workshop->workshop->name] = [
+                    $workshopData[] = [
+                        'judul' => $workshop->workshop->name,
                         'personil' => $participantText,
                         'schedule' => $schedule
                     ];
@@ -349,10 +347,7 @@ class TrainingScheduleController extends DefaultController
 
         ];
 
-        $pdf = PDF::loadView('pdf.training_schedule', $data)
-            ->setPaper('A4', 'landscape');
-
-        return $pdf->stream("Jadwal_Training_" . ($request->year ?? date('Y')) . ".pdf");
+        return view('pdf.training_schedule', $data);
     }
 
     /**

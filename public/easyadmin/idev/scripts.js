@@ -161,7 +161,6 @@ function idevTable(formId, attrs = []) {
                         1 +
                         key +
                         (dataQueries.current_page - 1) * dataQueries.per_page;
-                    
                     if ($(window).width() <= 765) {
                         $(idTable + " thead").html("");
                         $(idTable).addClass("table-striped");

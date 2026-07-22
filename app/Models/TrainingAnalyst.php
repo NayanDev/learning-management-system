@@ -30,6 +30,11 @@ class TrainingAnalyst extends Model
         return $this->belongsTo(Training::class);
     }
 
+    public function approval()
+    {
+        return $this->morphOne(Approval::class, 'approvable');
+    }
+
 
     public function getBadgeStatusAttribute()
     {
@@ -81,11 +86,11 @@ class TrainingAnalyst extends Model
             </button>";
         $pdf = "<a id='export-pdf' class='btn btn-sm btn-outline-success radius-6' target='_blank' href='" . url('training-analyst-pdf') . "?training_analyst=" . $this->id . "' title='Export PDF'><i class='ti ti-file'></i></a>";
 
-        if ($this->status === "open" && ($roleName === "staff" || $roleName === "admin")) {
+        if ($this->status === "open" && ($roleName === "officer" || $roleName === "admin")) {
             $html = $btn;
             return $html;
         } else if ($this->status === "submit") {
-            if ($roleName === "staff" || $roleName === "admin") {
+            if ($roleName === "officer" || $roleName === "admin") {
                 $html = $btnOff;
                 return $html;
             } else if ($roleName === "manager") {

@@ -27,7 +27,7 @@ class AnswerController extends DefaultController
         $this->actionButtons = ['btn_edit', 'btn_show', 'btn_delete'];
 
         $this->tableHeaders = [
-            ['name' => 'No', 'column' => '#', 'order' => true],
+            ['name' => 'No', 'column' => 'id', 'order' => true],
             ['name' => 'Name', 'column' => 'name', 'order' => true],
             ['name' => 'Question', 'column' => 'question', 'order' => true],
             ['name' => 'Point', 'column' => 'point', 'order' => true],

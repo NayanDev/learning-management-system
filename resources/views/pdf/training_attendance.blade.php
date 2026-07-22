@@ -43,7 +43,11 @@
                     <td width="3%" style="vertical-align: top" class="no-border">:</td>
                     <td class="text-start no-border no-border">
                         @foreach($trainer as $trainer)
-                            {{ ucwords(strtolower($trainer->user->name ?? '-')) }}<br>
+                            @if(!empty($trainer->external))
+                                {{ $trainer->external }}<br>
+                            @else
+                                {{ ucwords(strtolower($trainer->user->name ?? '-')) }}<br>
+                            @endif
                         @endforeach
                     </td>
                 </tr>
@@ -98,18 +102,22 @@
             @if($event->instructor === 'internal')
                 @if($event?->trainers->count() === 1)
                     @foreach($event->trainers as $trainer)
-                        <td class="no-border text-left" style="width:25%;">
+                        <td class="no-border text-left" style="width:25%;position:relative;">
                             @if($loop->iteration === 1)
                                 Semarang, {{ $event->created_date ? \Carbon\Carbon::parse($event->created_date)->translatedFormat('d F Y') : now()->translatedFormat('d F Y') }}
                             @endif
                             <br>
                             Pembicara
                             <br><br>
-                            <div style="display: flex; justify-content: center;">
+                            {{-- <div style="display: flex; justify-content: center;">
                                 <div style="display: inline-block;">
                                     {!! DNS2D::getBarcodeHTML( $trainer?->user->name . "\n" . 'STAFF ' . $trainer->user->divisi . "\n" . '(ini adalah dokumen resmi dan sah)', 'QRCODE', 1, 1 ) !!}
                                 </div>
-                            </div>
+                            </div> --}}
+                            <img src="{{ asset('storage/signature/' . ($trainer?->user?->signature ?? '-')) }}" 
+                            style="position:absolute;top:10;
+                            alt="signature" 
+                            height="90px">
                             <br>
                             <u><strong>{{ $trainer->user->name ?? '-' }}</strong></u>
                             <br>
@@ -119,18 +127,22 @@
                     @endforeach
                 @elseif($event?->trainers->count() === 2)
                     @foreach($event->trainers as $trainer)
-                        <td class="no-border text-center" style="width:50%;">
+                        <td class="no-border text-center" style="width:50%;position:relative;">
                             @if($loop->iteration === 1)
                                 Semarang, {{ $event->created_date ? \Carbon\Carbon::parse($event->created_date)->translatedFormat('d F Y') : now()->translatedFormat('d F Y') }}
                             @endif
                             <br>
                             Pembicara {{ $loop->iteration }}
                             <br><br>
-                            <div style="display: flex; justify-content: center;">
+                            {{-- <div style="display: flex; justify-content: center;">
                                 <div style="display: inline-block;">
                                     {!! DNS2D::getBarcodeHTML( $trainer->user->name . "\n" . 'STAFF ' . $trainer->user->divisi . "\n" . '(ini adalah dokumen resmi dan sah)', 'QRCODE', 1, 1 ) !!}
                                 </div>
-                            </div>
+                            </div> --}}
+                            <img src="{{ asset('storage/signature/' . ($trainer?->user?->signature ?? '-')) }}" 
+                            style="position:absolute;top:10;left:100px;"
+                            alt="signature" 
+                            height="90px">
                             <br>
                             <u><strong>{{ $trainer->user->name ?? '-' }}</strong></u>
                             <br>
@@ -159,17 +171,23 @@
                     @endforeach
                 @endif
             @else
+                @php
+                    $trainerCount = $event->trainers->count();
+                    $width = $trainerCount == 1 ? '25%' : '50%';
+                @endphp
+
                 @foreach($event->trainers as $trainer)
-                    <td class="no-border text-left" style="width:25%;">
+                    <td class="no-border text-left" style="width: {{ $width }};">
                         <br>
                         Pembicara
                         <br>
-                        <br>
-                        <br>
+                        <img src="{{ asset('signature_external/'.($trainer->signature ?? 'default.svg')) }}" alt="Signature" height="70">
                         <br>
                         <u><strong>{{ $trainer->external ?? '-' }}</strong></u>
                     </td>
-                    <td class="no-border" style="width:75%;"></td>
+                    @if($width === '25%')
+                        <td class="no-border" style="width:75%;"></td>
+                    @endif
                 @endforeach
             @endif
         </tr>

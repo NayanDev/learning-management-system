@@ -290,7 +290,7 @@ class MateriController extends DefaultController
         $data['templateImportExcel'] = "#";
         $data['filters'] = $this->filters();
 
-        $layout = (request('from_ajax') && request('from_ajax') == true) ? 'easyadmin::backend.idev.list_drawer_ajax' : 'easyadmin::backend.idev.list_drawer';
+        $layout = (request('from_ajax') && request('from_ajax') == true) ? 'easyadmin::backend.idev.list_drawer_ajax' : 'easyadmin::backend.idev.list_drawer_materi';
 
         return view($layout, $data);
     }

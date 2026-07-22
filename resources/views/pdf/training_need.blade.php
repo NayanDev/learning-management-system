@@ -259,7 +259,16 @@ $trainings = $transformedTrainings;
                 @if($created->status === 'approve')
                 <div style="display: flex; justify-content: center;">
                     <div style="display: inline-block;">
-                        {!! DNS2D::getBarcodeHTML( $created->user->name . "\n" . 'Staff ' . $created->user->divisi . "\n" . '(ini adalah dokumen resmi dan sah)', 'QRCODE', 1, 1 ) !!}
+                        {!! DNS2D::getBarcodeHTML(
+                            route('signature.verified', [
+                                'model' => class_basename($created),
+                                'id'    => $created->id,
+                                'user'  => $created->user->id,
+                            ]),
+                            'QRCODE',
+                            2,
+                            2
+                        ) !!}
                     </div>
                 </div>
                 <br>
@@ -292,7 +301,16 @@ $trainings = $transformedTrainings;
                 @if($created->status === 'approve')
                 <div style="display: flex; justify-content: center;">
                     <div style="display: inline-block;">
-                        {!! DNS2D::getBarcodeHTML( $created->approver->name . "\n" . 'Manager ' . $created->approver->divisi . "\n" . '(ini adalah dokumen resmi dan sah)', 'QRCODE', 1, 1 ) !!}
+                        {!! DNS2D::getBarcodeHTML(
+                            route('signature.verified', [
+                                'model' => class_basename($created),
+                                'id'    => $created->id,
+                                'user'  => $created->approver->id,
+                            ]),
+                            'QRCODE',
+                            2,
+                            2
+                        ) !!}
                     </div>
                 </div>
                 <br>

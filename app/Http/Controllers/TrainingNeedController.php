@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Log;
 use App\Models\Training;
 use App\Models\TrainingNeed;
+use App\Services\SignatureService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Idev\EasyAdmin\app\Helpers\Constant;
 use Idev\EasyAdmin\app\Http\Controllers\DefaultController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class TrainingNeedController extends DefaultController
 {
@@ -184,8 +185,18 @@ class TrainingNeedController extends DefaultController
             });
 
         // Cek role user
-        if (Auth::user()->role->name !== 'admin') {
-            $dataQueries = $dataQueries->where('training_needs.user_id', Auth::user()->id);
+        $user = Auth::user();
+
+        if ($user->role->name === 'manager') {
+            $dataQueries = $dataQueries->where(
+                'training_needs.divisi',
+                $user->divisi
+            );
+        } elseif ($user->role->name !== 'admin') {
+            $dataQueries = $dataQueries->where(
+                'training_needs.user_id',
+                $user->id
+            );
         }
 
         $dataQueries = $dataQueries
@@ -286,7 +297,7 @@ class TrainingNeedController extends DefaultController
     }
 
 
-    public function approve(Request $request, $id)
+    public function approve(Request $request, $id, SignatureService $signatureService)
     {
         $training = TrainingNeed::findOrFail($id);
 
@@ -298,6 +309,9 @@ class TrainingNeedController extends DefaultController
         $training->notes = $request->notes ?: '-';
         $training->updated_at = now();
         $training->save();
+
+         // panggil service
+        $signatureService->create($training);
 
         return response()->json([
             'status' => true,

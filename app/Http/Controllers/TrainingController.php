@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Training;
-use App\Models\TrainingWorkshop;
+use App\Services\SignatureService;
+use App\Services\DirectorSignatureService;
 use Carbon\Carbon;
-use Illuminate\Support\Str;
 use Exception;
 use Idev\EasyAdmin\app\Helpers\Constant;
 use Idev\EasyAdmin\app\Http\Controllers\DefaultController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class TrainingController extends DefaultController
 {
@@ -21,7 +22,7 @@ class TrainingController extends DefaultController
     protected $tableHeaders;
     // protected $actionButtons;
     protected $importExcelConfig;
-    protected $arrPermissions = ['list', 'show', 'create', 'edit', 'delete', 'export-excel-default', 'export-pdf-default', 'import-excel-default'];
+    protected $arrPermissions = ['approve', 'list', 'show', 'create', 'edit', 'delete', 'export-excel-default', 'export-pdf-default', 'import-excel-default'];
     protected $dynamicPermission = true;
 
     public function __construct()
@@ -29,7 +30,7 @@ class TrainingController extends DefaultController
         $this->title = 'Training';
         $this->generalUri = 'training';
         $this->arrPermissions = [];
-        $this->actionButtons = ['btn_edit', 'btn_multilink', 'btn_delete'];
+        $this->actionButtons = ['btn_approve', 'btn_edit', 'btn_multilink', 'btn_delete'];
 
         $this->tableHeaders = [
             ['name' => 'No', 'column' => '#', 'order' => true],
@@ -143,32 +144,34 @@ class TrainingController extends DefaultController
         $orThose = null;
         $orderBy = 'id';
         $orderState = 'DESC';
+
         if (request('search')) {
             $orThose = request('search');
         }
+
         if (request('order')) {
             $orderBy = request('order');
             $orderState = request('order_state');
         }
 
-            $dataQueries = Training::join('users', 'users.id', '=', 'trainings.user_id')
-                ->when(Auth::user()->role->name !== 'admin', function ($query) {
-                    $query->where('trainings.status', 'open');
-                })
-                ->where($filters)
-                ->where(function ($query) use ($orThose) {
-                    $query->where('trainings.year', 'LIKE', '%' . $orThose . '%');
-                    $query->orWhere('trainings.end_date', 'LIKE', '%' . $orThose . '%');
-                    $query->orWhere('trainings.description', 'LIKE', '%' . $orThose . '%');
-                    $query->orWhere('trainings.divisi', 'LIKE', '%' . $orThose . '%');
-                    $query->orWhere('trainings.status', 'LIKE', '%' . $orThose . '%');
-                    $query->orWhere('users.name', 'LIKE', '%' . $orThose . '%');
-                })
-                ->orderBy($orderBy, $orderState)
-                ->select('trainings.*', 'users.name as user');
+        $dataQueries = Training::join('users', 'users.id', '=', 'trainings.user_id')
+            ->when(!in_array(Auth::user()->role->name, ['admin', 'manager']), function ($query) {
+                $query->where('trainings.status', 'open');
+            })
+            ->where($filters)
+            ->where(function ($query) use ($orThose) {
+                $query->where('trainings.year', 'LIKE', '%' . $orThose . '%')
+                    ->orWhere('trainings.end_date', 'LIKE', '%' . $orThose . '%')
+                    ->orWhere('trainings.description', 'LIKE', '%' . $orThose . '%')
+                    ->orWhere('trainings.divisi', 'LIKE', '%' . $orThose . '%')
+                    ->orWhere('trainings.status', 'LIKE', '%' . $orThose . '%')
+                    ->orWhere('users.name', 'LIKE', '%' . $orThose . '%');
+            })
+            ->orderBy($orderBy, $orderState)
+            ->select('trainings.*', 'users.name as user');
 
-            return $dataQueries;
-        }
+        return $dataQueries;
+    }
 
 
     public function indexApi()
@@ -252,6 +255,7 @@ class TrainingController extends DefaultController
             'easyadmin::backend.idev.buttons.import_default',
             'backend.idev.buttons.multilink',
             'backend.idev.buttons.approve',
+            'backend.idev.buttons.director_signature',
         ];
         $data['templateImportExcel'] = "#";
         $data['import_scripts'] = $this->importScripts;
@@ -261,7 +265,7 @@ class TrainingController extends DefaultController
         return view($layout, $data);
     }
 
-    protected function approve(Request $request, $id)
+    protected function approve(Request $request, $id, SignatureService $signatureService, DirectorSignatureService $directorSignatureService)
     {
         try {
             DB::beginTransaction();
@@ -271,10 +275,6 @@ class TrainingController extends DefaultController
             if ($request->status === 'approve') {
                 $training->created_date = now();
             }
-            if ($request->status === 'close') {
-                // Input Event / Copy data from training need workshop
-                $this->copyTrainingDataToEvents($id);
-            }
 
             $training->status = $request->status;
             $training->approve_by = $request->approve_by;
@@ -282,20 +282,31 @@ class TrainingController extends DefaultController
             $training->updated_at = now();
             $training->save();
 
+            if ($request->status === 'close' && $request->filled('director_signature')) {
+                $directorSignatureService->create(
+                    $training,
+                    $request->director_signature
+                );
+            } elseif ($request->status !== 'close') {
+                $signatureService->create($training);
+            }
+
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'message' => 'Status updated successfully'
             ]);
+
         } catch (Exception $e) {
             DB::rollback();
+
             return response()->json([
                 'status' => false,
                 'message' => 'Error: ' . $e->getMessage()
             ], 500);
         }
     }
-
 
     protected function copyTrainingDataToEvents($trainingId)
     {

@@ -2,19 +2,25 @@
 
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\AnswerParticipantController;
+use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\AssesmentController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CertificationController;
+use App\Http\Controllers\CertificationExternalController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DirectorSignatureController;
 use App\Http\Controllers\DocumentationController;
 use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\MateriController;
 use App\Http\Controllers\MateriLogController;
+use App\Http\Controllers\MatrikController;
 use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\ReportTrainingController;
 use App\Http\Controllers\ResultQuestionController;
+use App\Http\Controllers\ResumeMateriController;
 use App\Http\Controllers\TemplateCertificationController;
 use App\Http\Controllers\TrainerController;
 use App\Http\Controllers\TrainingAnalystController;
@@ -31,20 +37,33 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [AuthController::class, 'login'])->name('login')->middleware('web');
 // Route Signature Verified
-Route::get('signature-verified', [UserController::class, 'signatureVerified'])->name('signature.verified');
+Route::get('signature-verified-x', [UserController::class, 'signatureVerified'])->name('signature.verified');
 Route::get('apitest', [TrainingParticipantController::class, 'getFilteredApiData']);
 
 // Halaman development - jangan dihapus
-Route::get('/silabus', function() {
-    return view('pdf.silabus');
-})->name('silabus.view');
+Route::get('/matrik-view', function() {
+    return view('pdf.matrik_karyawan');
+})->name('matrik.view');
 
 // Route::get('/silabus-pdf', function() {
 //     $pdf = Pdf::loadView('pdf.silabus')->setPaper('a4', 'portrait');;
 //     return $pdf->stream('silabus.pdf'); // <-- ini untuk tampil di browser
 // })->name('silabus.view');
 
-Route::group(['middleware' => ['web', 'auth', 'middlewareByAccess']], function () {
+
+Route::get('/api-riwayat-pelatihan', [AttendanceController::class, 'TrainingHistoryApi'])->name('api.pegawai');
+
+Route::get('trainer-signature', [TrainerController::class, 'signatureExternal'])->name('trainer.signature.external');
+Route::post('trainer-signature', [TrainerController::class, 'storeSignature'])->name('trainer.signature.store');
+
+Route::get('/evaluation-bulk-public', [EvaluationController::class, 'evaluationBulk'])->name('evaluation.bulk');
+Route::post('/submit-evaluation-bulk', [EvaluationController::class, 'submitEvaluationBulk'])->name('submit.evaluation.bulk');
+
+
+    Route::get('signature-verified/{model}/{id}/{user}', [ApprovalController::class, 'signatureVerified'])->name('signature.verified');
+    Route::get('director-signature-verified/{model}/{id}', [DirectorSignatureController::class, 'signatureVerified'])->name('director.signature.verified');
+
+Route::group(['middleware' => ['web', 'auth']], function () {
     // Route Dashboard
     Route::resource('dashboard', DashboardController::class);
     Route::get('dashboard-api', [DashboardController::class, 'indexApi'])->name('dashboard.listapi');
@@ -128,6 +147,7 @@ Route::group(['middleware' => ['web', 'auth', 'middlewareByAccess']], function (
     Route::get('event-export-pdf-default', [EventController::class, 'exportPdf'])->name('event.export-pdf-default');
     Route::get('event-export-excel-default', [EventController::class, 'exportExcel'])->name('event.export-excel-default');
     Route::post('event-import-excel-default', [EventController::class, 'importExcel'])->name('event.import-excel-default');
+    Route::post('/attendance/import-pdf', [EventController::class, 'importPdf'])->name('attachments.importPdf');
 
     // Route Trainer
     Route::resource('trainer', TrainerController::class);
@@ -219,6 +239,50 @@ Route::group(['middleware' => ['web', 'auth', 'middlewareByAccess']], function (
     Route::get('documentation-export-pdf-default', [DocumentationController::class, 'exportPdf'])->name('documentation.export-pdf-default');
     Route::get('documentation-export-excel-default', [DocumentationController::class, 'exportExcel'])->name('documentation.export-excel-default');
     Route::post('documentation-import-excel-default', [DocumentationController::class, 'importExcel'])->name('documentation.import-excel-default');
+
+    // Route Report Training
+    Route::resource('report-training', ReportTrainingController::class);
+    Route::get('report-training-api', [ReportTrainingController::class, 'indexApi'])->name('report-training.listapi');
+    Route::get('report-training-export-pdf-default', [ReportTrainingController::class, 'exportPdf'])->name('report-training.export-pdf-default');
+    Route::get('report-training-export-excel-default', [ReportTrainingController::class, 'exportExcel'])->name('report-training.export-excel-default');
+    Route::post('report-training-import-excel-default', [ReportTrainingController::class, 'importExcel'])->name('report-training.import-excel-default');
+    Route::get('director-report-signature', [ReportTrainingController::class, 'signatureExternal'])->name('director.signature.external');
+    Route::post('director-report-signature', [ReportTrainingController::class, 'storeSignature'])->name('director.signature.store');
+
+    // Route Resume Materi
+    Route::resource('resume-materi', ResumeMateriController::class);
+    Route::get('resume-materi-api', [ResumeMateriController::class, 'indexApi'])->name('resume-materi.listapi');
+    Route::get('resume-materi-export-pdf-default', [ResumeMateriController::class, 'exportPdf'])->name('resume-materi.export-pdf-default');
+    Route::get('resume-materi-export-excel-default', [ResumeMateriController::class, 'exportExcel'])->name('resume-materi.export-excel-default');
+    Route::post('resume-materi-import-excel-default', [ResumeMateriController::class, 'importExcel'])->name('resume-materi.import-excel-default');
+
+    // Route Certification External
+    Route::resource('certification-external', CertificationExternalController::class);
+    Route::get('certification-external-api', [CertificationExternalController::class, 'indexApi'])->name('certification-external.listapi');
+    Route::get('certification-external-export-pdf-default', [CertificationExternalController::class, 'exportPdf'])->name('certification-external.export-pdf-default');
+    Route::get('certification-external-export-excel-default', [CertificationExternalController::class, 'exportExcel'])->name('certification-external.export-excel-default');
+    Route::post('certification-external-import-excel-default', [CertificationExternalController::class, 'importExcel'])->name('certification-external.import-excel-default');
+
+    // Route Matrik Pelatihan
+    Route::resource('matrik', MatrikController::class);
+    Route::get('matrik-api', [MatrikController::class, 'indexApi'])->name('matrik.listapi');
+    Route::get('matrik-export-pdf-default', [MatrikController::class, 'exportPdf'])->name('matrik.export-pdf-default');
+    Route::get('matrik-export-excel-default', [MatrikController::class, 'exportExcel'])->name('matrik.export-excel-default');
+    Route::post('matrik-import-excel-default', [MatrikController::class, 'importExcel'])->name('matrik.import-excel-default');
+
+    // Route Approval
+    Route::resource('approval', ApprovalController::class);
+    Route::get('approval-api', [ApprovalController::class, 'indexApi'])->name('approval.listapi');
+    Route::get('approval-export-pdf-default', [ApprovalController::class, 'exportPdf'])->name('approval.export-pdf-default');
+    Route::get('approval-export-excel-default', [ApprovalController::class, 'exportExcel'])->name('approval.export-excel-default');
+    Route::post('approval-import-excel-default', [ApprovalController::class, 'importExcel'])->name('approval.import-excel-default');
+    
+    // Route Director Signature
+    Route::resource('director-signature', DirectorSignatureController::class);
+    Route::get('director-signature-api', [DirectorSignatureController::class, 'indexApi'])->name('director-signature.listapi');
+    Route::get('director-signature-export-pdf-default', [DirectorSignatureController::class, 'exportPdf'])->name('director-signature.export-pdf-default');
+    Route::get('director-signature-export-excel-default', [DirectorSignatureController::class, 'exportExcel'])->name('director-signature.export-excel-default');
+    Route::post('director-signature-import-excel-default', [DirectorSignatureController::class, 'importExcel'])->name('director-signature.import-excel-default');
 });
 
 
@@ -243,6 +307,11 @@ Route::group(['middleware' => ['web', 'auth']], function () {
     Route::get('training-analyst-pdf', [TrainingAnalystController::class, 'generatePDF'])->name('training-analyst.pdf');
     Route::post('training-analyst/{id}', [TrainingAnalystController::class, 'approve'])->name('training.analyst.approve');
 
+
+    
+    Route::post('approval-data/{id}', [ApprovalController::class, 'approve'])->name('approval.data');
+
+
     // Route Training Participant
     Route::get('participant-ajax', [TrainingParticipantController::class, 'participantAjax']);
 
@@ -250,8 +319,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
     Route::post('training-need/{id}', [TrainingNeedController::class, 'approve'])->name('training.need.approve');
     Route::get('training-need-pdf', [TrainingNeedController::class, 'generatePDF'])->name('training-need.pdf');
 
-    // Route Training Schedule
-    Route::get('training-schedule-pdf', [TrainingScheduleController::class, 'generatePDF'])->name('training-schedule.pdf');
+    
 
     // Route Training Unplan
     Route::post('training-unplan/{id}', [TrainingUnplanController::class, 'approve'])->name('training.unplan.approve');
@@ -265,7 +333,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
     Route::post('participant-checkout/{token}', [AttendanceController::class, 'checkoutForm'])->name('participant.checkout.form');
     Route::post('participant-attendance/{token}', [AttendanceController::class, 'attendanceForm'])->name('participant.attendance.form');
     Route::post('participant-attendance-ready/', [AttendanceController::class, 'attendanceFormReady'])->name('participant.attendance.form.ready');
-    Route::get('attendance-ready-pdf', [AttendanceController::class, 'readyPdf'])->name('attendance.ready.pdf');
+    
     Route::get('attendance-present-pdf', [AttendanceController::class, 'presentPdf'])->name('attendance.present.pdf');
 
     // Route Barcode
@@ -309,11 +377,24 @@ Route::group(['middleware' => ['web', 'auth']], function () {
     Route::get('/evaluation-month', [EvaluationController::class, 'evaluationMonth'])->name('evaluation.month');
     Route::get('/evaluation-month-result', [EvaluationController::class, 'evaluationMonthResult'])->name('evaluation.month.result');
     Route::post('/submit-evaluation', [EvaluationController::class, 'submitEvaluation'])->name('submit.evaluation');
-    Route::post('/submit-evaluation-bulk', [EvaluationController::class, 'submitEvaluationBulk'])->name('submit.evaluation.bulk');
     Route::post('/submit-evaluation-month', [EvaluationController::class, 'submitEvaluationMonth'])->name('submit.evaluation.month');
 
     // Route Documentation
     Route::get('documentation-pdf', [DocumentationController::class, 'generatePDF'])->name('documentation.pdf');
 
+    // Route Report Training
+    Route::get('report-training/{report}/pdf', [ReportTrainingController::class, 'generatePDF'])->name('report-training.pdf');
+
+    // Route Event Approve
+    Route::post('event/{id}', [EventController::class, 'approve'])->name('event.approve');
     
+    // Route Certification Approve
+    Route::post('certification/{id}', [CertificationController::class, 'approve'])->name('certification.approve');
+
+    // Route Report Training Approve
+    Route::post('report-training/{id}', [ReportTrainingController::class, 'approve'])->name('report-training.approve');
 });
+
+// Route Training Schedule
+    Route::get('training-schedule-pdf', [TrainingScheduleController::class, 'generatePDF'])->name('training-schedule.pdf');
+    Route::get('attendance-ready-pdf', [AttendanceController::class, 'readyPdf'])->name('attendance.ready.pdf');

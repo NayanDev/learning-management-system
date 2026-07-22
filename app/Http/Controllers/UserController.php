@@ -170,6 +170,13 @@ class UserController extends DefaultController
                 'value' => (isset($edit)) ? $edit->telp : ''
             ],
             [
+                'type' => 'text',
+                'label' => 'Qualification',
+                'name' => 'qualification',
+                'class' => 'col-md-12 my-2',
+                'value' => (isset($edit)) ? $edit->qualification : ''
+            ],
+            [
                 'type' => 'select2',
                 'label' => 'Role',
                 'name' => 'role_id',
@@ -378,6 +385,7 @@ class UserController extends DefaultController
         $jk = $request->jk;
         $telp = $request->telp;
         $nik = $request->nik;
+        $qualification = $request->qualification;
         $roleId = $request->role_id;
         $password = $request->password;
 
@@ -422,6 +430,7 @@ class UserController extends DefaultController
             $insert->status = $status;
             $insert->jk = $jk;
             $insert->telp = $telp;
+            $insert->qualification = $qualification;
             $insert->signature = $signatureFileName;
             $insert->role_id = $roleId;
             $insert->password = bcrypt($password);
@@ -696,6 +705,7 @@ class UserController extends DefaultController
         $jk = $request->jk;
         $telp = $request->telp;
         $roleId = $request->role_id;
+        $qualification = $request->qualification;
         $password = $request->password;
 
         DB::beginTransaction();
@@ -725,6 +735,7 @@ class UserController extends DefaultController
             $user->status = $status;
             $user->jk = $jk;
             $user->telp = $telp;
+            $user->qualification = $qualification;
             $user->role_id = $roleId;
             $user->password = bcrypt($password);
 

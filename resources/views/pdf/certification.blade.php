@@ -106,7 +106,6 @@ $note = $template->note ?? '';
         <h1 class="watermark">
             SAMPHARINDO <br>
             PERDANA <br>
-            INVESTAMA
         </h1>
     @endif
     <h1 class="sertifikat">&nbsp;</h1>
@@ -120,5 +119,20 @@ $note = $template->note ?? '';
         {{ $note }}
     </div>
     <h5 class="tanggal">{{ $eventDate }}</h5>
+    <br>
+    <div style="width:100%; text-align:center;">
+        <span style="display:inline-block;">
+            {!! DNS2D::getBarcodeHTML(
+                route('signature.verified', [
+                    'model' => class_basename($certification),
+                    'id'    => $certification->id,
+                    'user'  => $certification->approve_by ?? 'not-available',
+                ]),
+                'QRCODE',
+                2,
+                2
+            ) !!}
+        </span>
+    </div>
 </body>
 </html>

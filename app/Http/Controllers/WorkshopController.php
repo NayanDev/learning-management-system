@@ -28,6 +28,8 @@ class WorkshopController extends DefaultController
             ['name' => 'No', 'column' => '#', 'order' => true],
             ['name' => 'Name', 'column' => 'name', 'order' => true],
             ['name' => 'User', 'column' => 'user', 'order' => true],
+            ['name' => 'Kode', 'column' => 'kode', 'order' => true],
+            ['name' => 'Competency', 'column' => 'competency', 'order' => true],
             ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
             ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
         ];
@@ -58,6 +60,37 @@ class WorkshopController extends DefaultController
                 'class' => 'col-md-12 my-2',
                 'required' => $this->flagRules('name', $id),
                 'value' => (isset($edit)) ? $edit->name : ''
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Kode',
+                'name' =>  'kode',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('kode', $id),
+                'value' => (isset($edit)) ? $edit->kode : '',
+                'options' => [
+                    ['value' => "", 'text' => "Masukkan Kode"],
+                    ['value' => "A1", 'text' => "Line Clearence"],
+                    ['value' => "A2", 'text' => "CPOB dan Validasi, Registrasi"],
+                    ['value' => "A3", 'text' => "Pemahaman ISO"],
+                    ['value' => "A4", 'text' => "Pelatihan Khusus (Hubungan dengan pekerjaan)"],
+                    ['value' => "A5", 'text' => "K3L"],
+                    ['value' => "A6", 'text' => "GDocP"],
+                    ['value' => "B1", 'text' => "Leadership"],
+                    ['value' => "B2", 'text' => "Pengetahuan Dasar*) Komputer, Product Knowledge, Bahasa Inggris"],
+                    ['value' => "B3", 'text' => "Job Description"],
+                    ['value' => "B4", 'text' => "Communication Skill"],
+                    ['value' => "B5", 'text' => "VUCA"],
+                    ['value' => "B6", 'text' => "AMT"],
+                ]
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Competency',
+                'name' =>  'competency',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('competency', $id),
+                'value' => (isset($edit)) ? $edit->competency : ''
             ],
             [
                 'type' => 'hidden',
@@ -101,6 +134,8 @@ class WorkshopController extends DefaultController
             ->where($filters)
             ->when($orThose,function ($query) use ($orThose) {
                 $query->where('workshops.name', 'LIKE', '%' . $orThose . '%');
+                $query->orWhere('workshops.kode', 'LIKE', '%' . $orThose . '%');
+                $query->orWhere('workshops.competency', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('users.name', 'LIKE', '%' . $orThose . '%');
             })
             ->orderBy($orderBy, $orderState)

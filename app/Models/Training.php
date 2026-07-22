@@ -64,6 +64,12 @@ class Training extends Model
                 onclick='setApproval(" . json_encode($data) . ")'>
                 <i class='ti ti-send'></i>
             </button>";
+        $btnDirector = "<button type='button' class='btn btn-outline-info btn-sm radius-6' style='margin:1px;' 
+                data-bs-toggle='modal'  
+                data-bs-target='#modalDirectorSignature' 
+                onclick='setDirectorSignature(" . json_encode($data) . ")'>
+                <i class='ti ti-send'></i>
+            </button>";
         $btnOff = "<button type='button' class='btn btn-outline-dark btn-sm radius-6' style='margin:1px;'>
                 <i class='ti ti-loader'></i>
             </button>";
@@ -82,13 +88,10 @@ class Training extends Model
             }
         } else if ($this->status === "approve") {
             if ($roleName === "admin") {
-                $html = $btn;
+                $html = $btnDirector;
                 return $html;
             } else if ($roleName === "manager" && $divisiName === "UMUM & SDM") {
                 $html = $btnOff;
-                return $html;
-            } else if ($roleName === "direktur") {
-                $html = $btn;
                 return $html;
             }
         } else if (($this->status === "close" && $roleName === "admin") || ($this->status === "close" && $roleName === "manager" && $divisiName === "UMUM & SDM") || ($this->status === "close" && $roleName === "direktur")) {
@@ -101,25 +104,57 @@ class Training extends Model
     public function getBtnMultilinkAttribute()
     {
         $currentDateTime = date('Y-m-d H:i:s');
+        $role = Auth::user()->role->name;
 
         if ($this->end_date < $currentDateTime || $this->status === "close") {
-            if (Auth::user()->role->name == 'admin' || Auth::user()->role->name == 'programmer') {
+            if (in_array($role, ['admin', 'programmer'])) {
                 $disable = false;
             } else {
-                $disable = 'true';
+                $disable = false;
             }
         } else {
             $disable = false;
         }
 
         $arrLink = [
-            ['label' => 'Analisa Kebutuhan Latihan', 'url' => url('training-analyst') . "?training_id=" . $this->id, 'icon' => 'ti ti-users', 'disabled' => $disable],
-            ['label' => 'Rencana Usulan Pelatihan', 'url' => url('training-need') . "?training_id=" . $this->id, 'icon' => 'ti ti-archive', 'disabled' => $disable],
-            ['label' => 'Training Schedule', 'url' => url('training-schedule-pdf') . "?training_id=" . $this->id, 'icon' => 'ti ti-calendar', 'disabled' => $disable],
-            ['label' => 'Training Unplanned', 'url' => url('training-unplan') . "?training_id=" . $this->id, 'icon' => 'ti ti-help'],
+            [
+                'label' => 'Analisa Kebutuhan Latihan',
+                'url' => url('training-analyst') . '?training_id=' . $this->id,
+                'icon' => 'ti ti-users',
+                'disabled' => $disable
+            ],
+            [
+                'label' => 'Rencana Usulan Pelatihan',
+                'url' => url('training-need') . '?training_id=' . $this->id,
+                'icon' => 'ti ti-archive',
+                'disabled' => $disable
+            ],
         ];
 
-        $html = "<button type='button' data-links='" . json_encode($arrLink) . "' onclick='setMM(this)' title='Navigation' class='btn btn-outline-warning btn-sm radius-6' style='margin:1px;' data-bs-toggle='modal' data-bs-target='#modalMultiLink'>
+        // Hanya role tertentu yang bisa melihat Training Schedule
+        if (in_array($role, ['admin'])) {
+            $arrLink[] = [
+                'label' => 'Training Schedule',
+                'url' => url('training-schedule-pdf') . '?training_id=' . $this->id,
+                'icon' => 'ti ti-calendar',
+                'disabled' => $disable
+            ];
+        }
+
+        // $arrLink[] = [
+        //     'label' => 'Training Unplanned',
+        //     'url' => url('training-unplan') . '?training_id=' . $this->id,
+        //     'icon' => 'ti ti-help'
+        // ];
+
+        $html = "<button type='button'
+                    data-links='" . json_encode($arrLink) . "'
+                    onclick='setMM(this)'
+                    title='Navigation'
+                    class='btn btn-outline-warning btn-sm radius-6'
+                    style='margin:1px;'
+                    data-bs-toggle='modal'
+                    data-bs-target='#modalMultiLink'>
                     <i class='ti ti-list'></i>
                 </button>";
 

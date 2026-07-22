@@ -3,21 +3,132 @@
 @push('mtitle')
 {{$title}}
 @endpush
+<style>
+    .nearby-training-list {
+        max-height: 320px;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+
+    .nearby-training-item {
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        padding: 12px 14px;
+        background: #fff;
+        transition: all 0.2s ease;
+    }
+
+    .nearby-training-item + .nearby-training-item {
+        margin-top: 10px;
+    }
+
+    .nearby-training-item:hover {
+        border-color: #b6d4fe;
+        box-shadow: 0 6px 20px rgba(13, 110, 253, 0.08);
+        transform: translateY(-1px);
+    }
+
+    .nearby-training-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 2px;
+    }
+
+    .nearby-training-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #6c757d;
+        font-size: 0.82rem;
+    }
+
+    .nearby-badge-day {
+        min-width: 64px;
+        text-align: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #e7f1ff;
+        color: #0d6efd;
+        font-weight: 700;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+
+    .nearby-badge-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .nearby-badge-status.overdue {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .nearby-badge-status.filled {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+
+    .nearby-badge-status.empty {
+        background: #f8d7da;
+        color: #842029;
+    }
+
+    .nearby-empty {
+        min-height: 220px;
+        border: 1px dashed #ced4da;
+        border-radius: 12px;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+</style>
 <div class="pc-container">
     <div class="pc-content">
 
     <div class="page-header">
         <div class="page-block">
-        <div class="row align-items-center">
-            <div class="col-md-12">
-            Hi, <b>{{ Auth::user()->name }} </b> 
+        <div class="row align-items-center justify-content-between g-3">
+            <div class="col-md-8">
+            Hi, <b>{{ Auth::user()->name }} </b>
             @if(config('idev.enable_role',true))
-            You are logged in as <i>{{ Auth::user()->role->name }}</i> 
+            You are logged in as <i>{{ Auth::user()->role->name }}</i>
             @endif
+            </div>
+            <div class="col-md-4">
+                <form method="GET" action="{{ url()->current() }}" class="d-flex justify-content-md-end">
+                    <div class="input-group input-group-sm" style="max-width: 220px;">
+                        <span class="input-group-text bg-white">Year</span>
+                        <select name="year" class="form-select" onchange="this.form.submit()">
+                            @foreach(($availableYears ?? [now()->year]) as $year)
+                                <option value="{{ $year }}" {{ (int) ($selectedYear ?? now()->year) === (int) $year ? 'selected' : '' }}>
+                                    {{ $year }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </form>
             </div>
         </div>
         </div>
     </div>
+
+    @php
+        $allowedRoles = ['adminhr', 'admin'];
+        $allowedRoleTwo = ['officer', 'staff', 'manager'];
+        $user = Auth::user();
+    @endphp
+
+    @if(in_array($user->role->name, $allowedRoles))
 
     <!-- Dashboard Statistics -->
     <div class="row mb-4">
@@ -32,8 +143,8 @@
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-0 text-muted">Total Pelatihan</h6>
-                            <h3 class="mb-0 fw-bold">{{ $eventsAttendance->count() }}</h3>
+                            <h6 class="mb-0 text-muted">Total Trainings</h6>
+                            <h3 class="mb-0 fw-bold">{{ $totalEvents ?? '0' }}</h3>
                         </div>
                     </div>
                 </div>
@@ -51,8 +162,8 @@
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-0 text-muted">Pelatihan Selesai</h6>
-                            <h3 class="mb-0 fw-bold">{{ $eventsAttendance->where('out_present', '!=', null)->count() }}</h3>
+                            <h6 class="mb-0 text-muted">Completed Trainings</h6>
+                            <h3 class="mb-0 fw-bold">{{ $completedEvents ?? '0' }}</h3>
                         </div>
                     </div>
                 </div>
@@ -66,12 +177,12 @@
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
                             <div class="avtar avtar-s bg-light-warning">
-                                <i class="ti ti-clock-hour-4 fs-4"></i>
+                                <i class="ti ti-clock fs-4"></i>
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-0 text-muted">Menunggu Konfirmasi</h6>
-                            <h3 class="mb-0 fw-bold">{{ $eventsAttendance->whereNull('attendance.date_ready')->count() }}</h3>
+                            <h6 class="mb-0 text-muted">Open Trainings</h6>
+                            <h3 class="mb-0 fw-bold">{{ $upcomingEvents ?? '0' }}</h3>
                         </div>
                     </div>
                 </div>
@@ -89,169 +200,304 @@
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-0 text-muted">Sertifikat</h6>
-                            <h3 class="mb-0 fw-bold">{{ $eventsAttendance->whereNotNull('certification_id')->count() }}</h3>
+                            <h6 class="mb-0 text-muted">Certificates</h6>
+                            <h3 class="mb-0 fw-bold">{{ $countCertificates ?? '0' }}</h3>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Event Overview & TNA Progress -->
-    <div class="row mb-4">
-        <!-- Pelatihan Terlaksana vs Belum Terlaksana -->
-        <div class="col-lg-6 mb-3">
+        <!-- Total Pelatihan Diikuti -->
+        <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent">
-                    <h5 class="mb-0"><i class="ti ti-calendar-stats me-2"></i>Status Pelatihan {{ \Carbon\Carbon::now()->year }}</h5>
-                </div>
                 <div class="card-body">
-                    <div class="row text-center mb-3">
-                        <div class="col-4">
-                            <div class="mb-2">
-                                <i class="ti ti-clipboard-list fs-1 text-primary"></i>
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="avtar avtar-s bg-light-danger">
+                                <i class="ti ti-stars fs-4"></i>
                             </div>
-                            <h4 class="mb-1 text-primary">{{ $totalEvents ?? 0 }}</h4>
-                            <p class="text-muted mb-0 small">Total Pelatihan</p>
                         </div>
-                        <div class="col-4">
-                            <div class="mb-2">
-                                <i class="ti ti-circle-check fs-1 text-success"></i>
-                            </div>
-                            <h4 class="mb-1 text-success">{{ $completedEvents ?? 0 }}</h4>
-                            <p class="text-muted mb-0 small">Sudah Terlaksana</p>
-                        </div>
-                        <div class="col-4">
-                            <div class="mb-2">
-                                <i class="ti ti-clock fs-1 text-warning"></i>
-                            </div>
-                            <h4 class="mb-1 text-warning">{{ $upcomingEvents ?? 0 }}</h4>
-                            <p class="text-muted mb-0 small">Belum Terlaksana</p>
-                        </div>
-                    </div>
-                    <div class="progress" style="height: 25px;">
-                        @php
-                            $completedPercentage = $totalEvents > 0 ? round(($completedEvents / $totalEvents) * 100, 1) : 0;
-                        @endphp
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ $completedPercentage }}%;" aria-valuenow="{{ $completedPercentage }}" aria-valuemin="0" aria-valuemax="100">
-                            <strong>{{ $completedPercentage }}% Selesai</strong>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0 text-muted">Total Training Requests</h6>
+                            <h3 class="mb-0 fw-bold">{{ $totalTrainingWorkshops ?? '0' }}</h3>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- TNA Realization Progress -->
-        <div class="col-lg-6 mb-3">
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-lg-6 col-12">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent">
-                    <h5 class="mb-0"><i class="ti ti-report-analytics me-2"></i>Realisasi TNA {{ \Carbon\Carbon::now()->year }}</h5>
+                <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0"><i class="ti ti-chart-bar me-2"></i>Comparation Training</h5>
+                    <small class="text-muted">Tahun {{ $selectedYear ?? now()->year }} - Realisasi: {{ number_format((float) ($trainingRealizationPercentage ?? 0), 2, '.', '') }}%</small>
                 </div>
                 <div class="card-body">
-                    <div class="row text-center mb-3">
-                        <div class="col-4">
-                            <div class="mb-2">
-                                <i class="ti ti-target fs-1 text-info"></i>
-                            </div>
-                            <h4 class="mb-1 text-info">{{ $totalTNA ?? 0 }}</h4>
-                            <p class="text-muted mb-0 small">Target TNA</p>
-                        </div>
-                        <div class="col-4">
-                            <div class="mb-2">
-                                <i class="ti ti-circle-check-filled fs-1 text-success"></i>
-                            </div>
-                            <h4 class="mb-1 text-success">{{ $completedTNA ?? 0 }}</h4>
-                            <p class="text-muted mb-0 small">Terealisasi</p>
-                        </div>
-                        <div class="col-4">
-                            <div class="mb-2">
-                                <i class="ti ti-percentage fs-1 text-primary"></i>
-                            </div>
-                            <h4 class="mb-1 text-primary">{{ $tnaPercentage ?? 0 }}%</h4>
-                            <p class="text-muted mb-0 small">Persentase</p>
-                        </div>
+                    <div class="text-muted small mb-2">
+                        ({{ (int) ($totalEvents ?? 0) }} * 100) / {{ (int) ($totalTrainingWorkshops ?? 0) }} =
+                        <strong>{{ number_format((float) ($trainingRealizationPercentage ?? 0), 2, '.', '') }}%</strong>
                     </div>
-                    <div class="progress" style="height: 25px;">
-                        <div class="progress-bar bg-gradient-primary" role="progressbar" style="width: {{ $tnaPercentage ?? 0 }}%;" aria-valuenow="{{ $tnaPercentage ?? 0 }}" aria-valuemin="0" aria-valuemax="100">
-                            <strong>{{ $tnaPercentage ?? 0 }}% Terealisasi</strong>
-                        </div>
+                    <div style="height: 220px;">
+                        <canvas id="trainingComparisonChart"></canvas>
                     </div>
-                    <div class="mt-3">
-                        @if(($tnaPercentage ?? 0) >= 80)
-                            <div class="alert alert-success mb-0 py-2">
-                                <i class="ti ti-thumb-up me-2"></i>Excellent! Target TNA tercapai dengan baik.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-12">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0">
+                        <i class="ti ti-clock me-2"></i>
+                        Upcoming Training - {{ $selectedYear ?? now()->year }}
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <div class="nearby-training-list">
+
+                        @forelse($trainingcoomingsoon as $event)
+                            <div class="nearby-training-item d-flex justify-content-between align-items-start gap-3">
+                                <div>
+                                    <div class="nearby-training-title">
+                                        {{ $event->workshop->name ?? '-' }}
+                                    </div>
+
+                                    <div class="nearby-training-meta mb-1">
+                                        <i class="ti ti-calendar-event"></i>
+                                        <span>{{ \Carbon\Carbon::parse($event->start_date)->format('d M Y') }}</span>
+                                        <span>|</span>
+                                        <span>{{ \Carbon\Carbon::parse($event->start_date)->format('H:i') }} WIB</span>
+                                    </div>
+
+                                    <div class="nearby-training-meta">
+                                        <i class="ti ti-map-pin"></i>
+                                        <span>{{ $event->location ?? '-' }}</span>
+                                    </div>
+                                </div>
                             </div>
-                        @elseif(($tnaPercentage ?? 0) >= 50)
-                            <div class="alert alert-info mb-0 py-2">
-                                <i class="ti ti-info-circle me-2"></i>Good progress! Terus tingkatkan realisasi TNA.
+                        @empty
+                            <div class="text-center py-5">
+                                <i class="ti ti-calendar-off text-muted" style="font-size:4rem;"></i>
+
+                                <h5 class="mt-3 text-muted">
+                                    Tidak Ada Pelatihan Mendatang
+                                </h5>
+
+                                <p class="text-muted mb-0">
+                                    Saat ini tidak ada jadwal pelatihan yang akan datang.
+                                </p>
                             </div>
-                        @else
-                            <div class="alert alert-warning mb-0 py-2">
-                                <i class="ti ti-alert-triangle me-2"></i>Perlu peningkatan realisasi TNA.
+                        @endforelse
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-12">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0">
+                        <i class="ti ti-clock me-2"></i>
+                        Evaluation after 3 month - {{ $selectedYear ?? now()->year }}
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <div class="nearby-training-list">
+
+                        @forelse($evaluationTriMonths as $event)
+                            <a href="javascript:void(0)"
+                            onclick="showEvaluationModal({{ $event->id }}, '{{ $event->token }}')"
+                            class="text-decoration-none text-reset">
+
+                                <div class="nearby-training-item d-flex justify-content-between align-items-start gap-3">
+                                    <div>
+                                        <div class="nearby-training-title">
+                                            {{ $event->workshop->name ?? '-' }}
+                                        </div>
+
+                                        <div class="nearby-training-meta mb-1">
+                                            <i class="ti ti-calendar-event"></i>
+                                            <span>{{ \Carbon\Carbon::parse($event->start_date)->format('d M Y') }}</span>
+                                            <span>|</span>
+                                            <span>{{ \Carbon\Carbon::parse($event->start_date)->format('H:i') }} WIB</span>
+                                        </div>
+
+                                        <div class="nearby-training-meta">
+                                            <i class="ti ti-map-pin"></i>
+                                            <span>{{ $event->location ?? '-' }}</span>
+                                        </div>
+
+                                        <div class="mt-2 d-flex flex-wrap gap-2">
+                                            @foreach($event->evaluation_trainer_statuses ?? [] as $trainerStatus)
+                                                @if($trainerStatus['is_filled'])
+                                                    <span class="nearby-badge-status filled">
+                                                        Sudah diisi oleh {{ $trainerStatus['name'] }}
+                                                    </span>
+                                                @else
+                                                    @if(!empty($trainerStatus['overdue_badge']))
+                                                        <span class="nearby-badge-status overdue">
+                                                            Terlambat {{ $trainerStatus['overdue_badge'] }}
+                                                        </span>
+                                                    @endif
+
+                                                    <span class="nearby-badge-status empty">
+                                                        Belum diisi oleh {{ $trainerStatus['name'] }}
+                                                    </span>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </a>
+                        @empty
+                            <div class="text-center py-5">
+                                <i class="ti ti-clipboard-off text-muted" style="font-size:4rem;"></i>
+
+                                <h5 class="mt-3 text-muted">
+                                    Tidak Ada Evaluasi 3 Bulan
+                                </h5>
+
+                                <p class="text-muted mb-0">
+                                    Saat ini tidak ada evaluasi 3 bulan yang perlu ditindaklanjuti.
+                                </p>
                             </div>
-                        @endif
+                        @endforelse
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Quick Stats -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-transparent">
-                    <h5 class="mb-0"><i class="ti ti-chart-bar me-2"></i>Ringkasan Aktivitas</h5>
+    @endif
+
+
+    @if(in_array($user->role->name, $allowedRoleTwo))
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-lg-6 col-12">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0">
+                        <i class="ti ti-clock me-2"></i>
+                        Upcoming Training
+                    </h5>
                 </div>
+
                 <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-md-3 col-6 mb-3">
-                            <div class="border-end">
-                                <h4 class="mb-1 text-primary">{{ $eventsAttendance->where('in_present', '!=', null)->count() }}</h4>
-                                <p class="text-muted mb-0">Hadir Masuk</p>
+                    <div class="nearby-training-list">
+
+                        @forelse($trainingcoomingsoon as $event)
+                            <div class="nearby-training-item d-flex justify-content-between align-items-start gap-3">
+                                <div>
+                                    <div class="nearby-training-title">
+                                        {{ $event->workshop->name ?? '-' }}
+                                    </div>
+
+                                    <div class="nearby-training-meta mb-1">
+                                        <i class="ti ti-calendar-event"></i>
+                                        <span>{{ \Carbon\Carbon::parse($event->start_date)->format('d M Y') }}</span>
+                                        <span>|</span>
+                                        <span>{{ \Carbon\Carbon::parse($event->start_date)->format('H:i') }} WIB</span>
+                                    </div>
+
+                                    <div class="nearby-training-meta">
+                                        <i class="ti ti-map-pin"></i>
+                                        <span>{{ $event->location ?? '-' }}</span>
+                                    </div>
+                                </div>
+
+                                <span class="nearby-badge-day">
+                                    {{ $event->is_trainer ? 'Trainer' : 'Participant' }}
+                                </span>
                             </div>
-                        </div>
-                        <div class="col-md-3 col-6 mb-3">
-                            <div class="border-end">
-                                <h4 class="mb-1 text-success">{{ $eventsAttendance->where('out_present', '!=', null)->count() }}</h4>
-                                <p class="text-muted mb-0">Hadir Keluar</p>
+                        @empty
+                            <div class="text-center py-5">
+                                <i class="ti ti-calendar-off text-muted" style="font-size:4rem;"></i>
+
+                                <h5 class="mt-3 text-muted">
+                                    Tidak Ada Pelatihan Mendatang
+                                </h5>
+
+                                <p class="text-muted mb-0">
+                                    Saat ini tidak ada jadwal pelatihan yang akan datang.
+                                </p>
                             </div>
-                        </div>
-                        <div class="col-md-3 col-6 mb-3">
-                            <div class="border-end">
-                                <h4 class="mb-1 text-info">
-                                    @php
-                                        $attendanceRate = $eventsAttendance->count() > 0 
-                                            ? round(($eventsAttendance->where('in_present', '!=', null)->count() / $eventsAttendance->count()) * 100) 
-                                            : 0;
-                                    @endphp
-                                    {{ $attendanceRate }}%
-                                </h4>
-                                <p class="text-muted mb-0">Tingkat Kehadiran</p>
+                        @endforelse
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-12">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0">
+                        <i class="ti ti-clock me-2"></i>
+                        Evaluation after 3 month
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <div class="nearby-training-list">
+
+                        @forelse($evaluationTriMonths as $event)
+                            <a href="{{ url('evaluation-month') }}?token={{ $event->token }}"
+                            class="text-decoration-none text-reset">
+
+                                <div class="nearby-training-item d-flex justify-content-between align-items-start gap-3">
+                                    <div>
+                                        <div class="nearby-training-title">
+                                            {{ $event->workshop->name ?? '-' }}
+                                        </div>
+
+                                        <div class="nearby-training-meta mb-1">
+                                            <i class="ti ti-calendar-event"></i>
+                                            <span>{{ \Carbon\Carbon::parse($event->start_date)->format('d M Y') }}</span>
+                                            <span>|</span>
+                                            <span>{{ \Carbon\Carbon::parse($event->start_date)->format('H:i') }} WIB</span>
+                                        </div>
+
+                                        <div class="nearby-training-meta">
+                                            <i class="ti ti-map-pin"></i>
+                                            <span>{{ $event->location ?? '-' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </a>
+                        @empty
+                            <div class="text-center py-5">
+                                <i class="ti ti-clipboard-off text-muted" style="font-size:4rem;"></i>
+
+                                <h5 class="mt-3 text-muted">
+                                    Tidak Ada Evaluasi 3 Bulan
+                                </h5>
+
+                                <p class="text-muted mb-0">
+                                    Saat ini tidak ada evaluasi 3 bulan yang perlu diisi.
+                                </p>
                             </div>
-                        </div>
-                        <div class="col-md-3 col-6 mb-3">
-                            <h4 class="mb-1 text-warning">
-                                @php
-                                    $totalJam = 0;
-                                    foreach($eventsAttendance as $event) {
-                                        if($event->in_present && $event->out_present) {
-                                            $start = \Carbon\Carbon::parse($event->event->start_date);
-                                            $end = \Carbon\Carbon::parse($event->event->end_date);
-                                            $totalJam += $start->diffInHours($end);
-                                        }
-                                    }
-                                @endphp
-                                {{ $totalJam }}
-                            </h4>
-                            <p class="text-muted mb-0">Total Jam Pelatihan</p>
-                        </div>
+                        @endforelse
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    @endif
+
 
     <div class="row">
 
@@ -444,7 +690,85 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof Chart === 'undefined') {
+        return;
+    }
+
+    var chartCanvas = document.getElementById('trainingComparisonChart');
+    if (!chartCanvas) {
+        return;
+    }
+
+    var totalPermintaan = {{ (int) ($totalTrainingWorkshops ?? 0) }};
+    var totalRealisasi = {{ (int) ($totalEvents ?? 0) }};
+
+    new Chart(chartCanvas, {
+        type: 'bar',
+        data: {
+            labels: ['Jumlah Rencana (Training Request)', 'Jumlah Terealisasi (Total Trainings)'],
+            datasets: [{
+                label: 'Jumlah',
+                data: [totalPermintaan, totalRealisasi],
+                backgroundColor: ['rgba(13, 110, 253, 0.70)', 'rgba(25, 135, 84, 0.70)'],
+                borderColor: ['rgba(13, 110, 253, 1)', 'rgba(25, 135, 84, 1)'],
+                borderWidth: 1,
+                borderRadius: 8,
+                maxBarThickness: 80
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return 'Jumlah: ' + context.raw;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+});
+
+    function showEvaluationModal(eventId, token) {
+        Swal.fire({
+            title: 'Evaluasi Pelatihan',
+            text: 'Pilih salah satu aksi berikut:',
+            icon: 'question',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Isi Evaluasi',
+            denyButtonText: 'Lihat Report',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#0d6efd',
+            denyButtonColor: '#6c757d',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Isi Evaluasi
+                window.location.href = '/evaluation-month?token=' + token;
+            } else if (result.isDenied) {
+                // View Report
+                window.location.href = '/evaluation-pdf?event_id=' + eventId;
+            }
+        });
+    }
+
     function confirmAttendance(token) {
     var url = "{{ route('participant.attendance.form.ready') }}";
     var csrf = $('meta[name="csrf-token"]').attr('content') || "{{ csrf_token() }}";

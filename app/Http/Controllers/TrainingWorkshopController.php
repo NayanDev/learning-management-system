@@ -211,7 +211,7 @@ class TrainingWorkshopController extends DefaultController
             $orderState = request('order_state');
         }
         if (request('training_need')) {
-            $filters[] = ['training_need', '=', request('training_need')];
+            $filters[] = ['training_need_id', '=', request('training_need')];
         }
 
         $dataQueries = TrainingWorkshop::join('users', 'users.id', '=', 'training_need_workshops.user_id')
@@ -227,8 +227,18 @@ class TrainingWorkshopController extends DefaultController
             });
 
         // Cek role user
-        if (Auth::user()->role->name !== ('admin')) {
-            $dataQueries = $dataQueries->where('training_need_workshops.user_id', Auth::user()->id);
+        $user = Auth::user();
+
+        if ($user->role->name === 'manager') {
+            $dataQueries = $dataQueries->where(
+                'training_need_workshops.divisi',
+                $user->divisi
+            );
+        } elseif ($user->role->name !== 'admin') {
+            $dataQueries = $dataQueries->where(
+                'training_need_workshops.user_id',
+                $user->id
+            );
         }
 
         $dataQueries = $dataQueries
@@ -267,5 +277,62 @@ class TrainingWorkshopController extends DefaultController
         $datas['uri_key'] = $this->generalUri;
 
         return $datas;
+    }
+
+
+    public function index()
+    {
+        $baseUrlExcel = route($this->generalUri.'.export-excel-default');
+        $baseUrlPdf = route($this->generalUri.'.export-pdf-default');
+
+        $moreActions = [
+            [
+                'key' => 'import-excel-default',
+                'name' => 'Import Excel',
+                'html_button' => "<button id='import-excel' type='button' class='btn btn-sm btn-info radius-6' href='#' data-bs-toggle='modal' data-bs-target='#modalImportDefault' title='Import Excel' ><i class='ti ti-upload'></i></button>"
+            ],
+            [
+                'key' => 'export-excel-default',
+                'name' => 'Export Excel',
+                'html_button' => "<a id='export-excel' data-base-url='".$baseUrlExcel."' class='btn btn-sm btn-success radius-6' target='_blank' href='" . url($this->generalUri . '-export-excel-default') . "'  title='Export Excel'><i class='ti ti-cloud-download'></i></a>"
+            ],
+            [
+                'key' => 'export-pdf-default',
+                'name' => 'Export Pdf',
+                'html_button' => "<a id='export-pdf' data-base-url='".$baseUrlPdf."' class='btn btn-sm btn-danger radius-6' target='_blank' href='" . url($this->generalUri . '-export-pdf-default') . "' title='Export PDF'><i class='ti ti-file'></i></a>"
+            ],
+        ];
+
+        $permissions =  $this->arrPermissions;
+        if ($this->dynamicPermission) {
+            $permissions = (new Constant())->permissionByMenu($this->generalUri);
+        }
+        $layout = (request('from_ajax') && request('from_ajax') == true) ? 'easyadmin::backend.idev.list_drawer_ajax' : 'easyadmin::backend.idev.list_drawer';
+        if(isset($this->drawerLayout)){
+            $layout = $this->drawerLayout;
+        }
+        $params = "";
+        if (request('training_need')) {
+            $params = "?training_need=" . request('training_need');
+        }
+
+        $data['permissions'] = $permissions;
+        $data['more_actions'] = $moreActions;
+        $data['headerLayout'] = $this->pageHeaderLayout;
+        $data['table_headers'] = $this->tableHeaders;
+        $data['title'] = $this->title;
+        $data['uri_key'] = $this->generalUri;
+        $data['uri_list_api'] = route($this->generalUri . '.listapi') . $params;
+        $data['uri_create'] = route($this->generalUri . '.create');
+        $data['url_store'] = route($this->generalUri . '.store');
+        $data['fields'] = $this->fields();
+        $data['edit_fields'] = $this->fields('edit');
+        $data['actionButtonViews'] = $this->actionButtonViews;
+        $data['templateImportExcel'] = "#";
+        $data['import_scripts'] = $this->importScripts;
+        $data['import_styles'] = $this->importStyles;
+        $data['filters'] = $this->filters();
+        
+        return view($layout, $data);
     }
 }

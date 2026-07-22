@@ -315,9 +315,18 @@ class EvaluationController extends DefaultController
             abort(403, 'Event tidak ditemukan.');
         }
         
-        // Validasi bahwa user adalah trainer/pemilik event
-        if ($event->user_id !== Auth::user()->id) {
-            abort(403, 'Anda bukan trainer pada event ini.');
+        // Jika pelatihan external, izinkan submit publik tanpa autentikasi.
+        // Jika internal, pastikan pengirim adalah trainer/pemilik event (harus login).
+        $isExternal = isset($event->instructor) && $event->instructor === 'external';
+
+        if (!$isExternal) {
+            if (!Auth::check()) {
+                abort(403, 'Akses ditolak. Harus login sebagai trainer untuk pelatihan internal.');
+            }
+
+            if ($event->user_id !== Auth::id()) {
+                abort(403, 'Anda bukan trainer pada event ini.');
+            }
         }
 
         DB::beginTransaction();
@@ -363,7 +372,7 @@ class EvaluationController extends DefaultController
                 'total_saved' => $totalSaved,
                 'event_name' => $event->workshop->name ?? 'N/A',
             ],
-            'redirect_url' => url('/evaluation')
+            'redirect_url' => url('/')
         ]);
         } catch (Exception $e) {
             DB::rollBack();
@@ -390,7 +399,12 @@ class EvaluationController extends DefaultController
         }
         
         // Validasi bahwa user adalah trainer/pemilik event
-        if ($event->user_id !== Auth::user()->id) {
+        $user = Auth::user();
+
+        if (
+            !$event->trainers->contains('user_id', $user->id) &&
+            !in_array($user->role->name, ['admin', 'adminhr'])
+        ) {
             abort(403, 'Anda bukan trainer pada event ini.');
         }
 
@@ -411,6 +425,10 @@ class EvaluationController extends DefaultController
 
             foreach ($evaluations as $evaluation) {
                 $participantId = $evaluation['participant_id'];
+                $participant = Participant::with('user.role')->find($participantId);
+
+                $pesertaPelatihan = User::where('nik', $participant->nik)->first();
+                $isParticipantManager = ($pesertaPelatihan->is_leader);
                 
                 // Mapping field name sesuai dengan form
                 $fields = [
@@ -424,12 +442,17 @@ class EvaluationController extends DefaultController
                     'kedisiplinan' => 'Kedisiplinan',
                     'tanggung_jawab_loyalitas' => 'Tanggung Jawab & Loyalitas',
                     'ketaatan_instruksi' => 'Ketaatan Terhadap Instruksi Kerja',
-                    'koordinasi_bawahan' => 'Koordinasi Bawahan',
-                    'kontrol_bawahan' => 'Kontrol / Pengendalian Bawahan',
-                    'evaluasi_pembinaan' => 'Evaluasi dan Pembinaan Bawahan',
-                    'delegasi_tanggung_jawab' => 'Delegasi Tanggung Jawab dan Wewenang',
-                    'kecepatan_keputusan' => 'Kecepatan & Ketepatan Pengambilan Keputusan',
                 ];
+
+                if ($isParticipantManager) {
+                    $fields = array_merge($fields, [
+                        'koordinasi_bawahan' => 'Koordinasi Bawahan',
+                        'kontrol_bawahan' => 'Kontrol / Pengendalian Bawahan',
+                        'evaluasi_pembinaan' => 'Evaluasi dan Pembinaan Bawahan',
+                        'delegasi_tanggung_jawab' => 'Delegasi Tanggung Jawab dan Wewenang',
+                        'kecepatan_keputusan' => 'Kecepatan & Ketepatan Pengambilan Keputusan',
+                    ]);
+                }
 
                 foreach ($fields as $fieldName => $aspekName) {
                     if (isset($evaluation[$fieldName]) && $evaluation[$fieldName] !== null && $evaluation[$fieldName] !== '') {
@@ -460,7 +483,7 @@ class EvaluationController extends DefaultController
                     'total_saved' => $totalSaved,
                     'event_name' => $event->workshop->name ?? 'N/A',
                 ],
-                'redirect_url' => route('evaluation.month.result', ['token' => $token])
+                'redirect_url' => url('/')
             ]);
         } catch (Exception $e) {
             DB::rollBack();
@@ -480,6 +503,11 @@ class EvaluationController extends DefaultController
         $participantId = $request->participant_id;
         $penyelenggara = User::where('id', 2)->first();
         $resultQuestion = ResultQuestion::where('participant_id', $participantId)->first();
+        $evaluator = DB::table('evaluation_months')
+        ->select('user_id')
+        ->where('event_id', $eventId)
+        ->distinct()
+        ->get();
 
         $trainer = Trainer::where('event_id', $eventId)->first();
 
@@ -525,6 +553,7 @@ class EvaluationController extends DefaultController
             'trainer' => $trainer,
             'penyelenggara' => $penyelenggara,
             'resultQuestion' => $resultQuestion,
+            'evaluator' => $evaluator,
         ];
 
         $pdf = PDF::loadView('pdf.evaluation', $data)

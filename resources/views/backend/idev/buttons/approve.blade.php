@@ -2,13 +2,13 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Training Approval</h5>
+                <h5 class="modal-title">Approval</h5>
             </div>
             <div class="modal-body">
-                <div class="my-2">
+                {{-- <div class="my-2">
                     <p id="note"></p>
-                </div>
-                <form id="formApproval" class="m-t-20" method="post">
+                </div> --}}
+                <form id="formApproval" method="post">
                     {{ csrf_field() }}
                     
                     <!-- Hidden input untuk ID -->
@@ -21,14 +21,14 @@
                         <select name="status" id="apprej" class="form-control">
                             <option value="">Pilih Opsi</option>
                             <option value="Approve">Approve</option>
-                            <option value="Reject">Reject</option>
+                            {{-- <option value="Reject">Reject</option> --}}
                         </select>
                     </div>
 
-                    <div class="my-2">
+                    {{-- <div class="my-2">
                         <label for="approval_notes">Notes</label>
                         <textarea name="notes" id="approval_notes" cols="30" rows="4" class="form-control"></textarea>
-                    </div>
+                    </div> --}}
 
                     <hr>
                     <button type="button" class="btn btn-sm btn-outline-primary" onclick="actionApproval()">Ya</button>
@@ -52,12 +52,10 @@
         } else if(response.status === "submit") {
             $select.html(`
             <option value="approve">Approve</option>
-            <option value="reject">Reject</option>
         `);
         } else if(response.status === "approve") {
             $select.html(`
             <option value="close">Approve</option>
-            <option value="reject">Reject</option>
         `);
         } else if(response.status === "close") {
             $select.html(`

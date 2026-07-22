@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Certification extends Model
 {
@@ -11,7 +12,7 @@ class Certification extends Model
 
     protected $table = 'certifications';
     protected $primaryKey = 'id';
-    protected $fillable = ["event_id", "number_certification", "participant_id", "category", "template_certification_id"];
+    protected $fillable = ["event_id", "number_certification", "participant_id", "category", "template_certification_id", "approve_by", "created_date"];
     protected $appends = ['btn_print', 'btn_delete', 'btn_edit', 'btn_show'];
 
     public function participant()
@@ -19,11 +20,43 @@ class Certification extends Model
         return $this->belongsTo(Participant::class, 'participant_id');
     }
 
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id');
+    }
+
     public function getBtnPrintAttribute()
     {
-        $html = "<a id='export-pdf' class='btn btn-sm btn-outline-success radius-6' target='_blank' href='" . url('certification-pdf') . "?participant_id=" . $this->participant_id . "' title='Export PDF'><i class='ti ti-file'></i></a>";
+        $data = [
+            'id' => $this->id,
+            'status' => $this->status,
+            'year' => $this->year,
+            'notes' => $this->notes,
+        ];
 
-        return $html;
+        $roleName = Auth::user()->role->name;
+        $divisiName = Auth::user()->divisi;
+
+        $btn = "<button type='button' class='btn btn-outline-info btn-sm radius-6' style='margin:1px;' 
+                data-bs-toggle='modal'  
+                data-bs-target='#modalApproval' 
+                onclick='setApproval(" . json_encode($data) . ")'>
+                <i class='ti ti-send'></i>
+            </button>";
+        $pdf = "<a id='export-pdf' class='btn btn-sm btn-outline-success radius-6' target='_blank' href='" . url('certification-pdf') . "?participant_id=" . $this->participant_id . "' title='Export PDF'><i class='ti ti-file'></i></a>";
+
+        if (($this->approve_by === null)) {
+            $html = $btn;
+            return $html;
+        } else {
+            $html = $pdf;
+            return $html;
+        }
+    }
+
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approve_by');
     }
 
 

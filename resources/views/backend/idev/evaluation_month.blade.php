@@ -166,9 +166,6 @@
                     <i class="ti ti-info-circle me-2 fs-5"></i>
                     <strong>Skala:</strong>&nbsp; 0-5(D) | 6-10(C) | 11-15(B) | 16-20(A)
                 </div>
-                {{-- <a href="{{ route('evaluation.month.result') }}?token={{ request('token') }}" class="btn btn-info text-white">
-                    <i class="ti ti-chart-bar me-1"></i> Lihat Hasil
-                </a> --}}
             </div>
         </div>
 
@@ -295,39 +292,45 @@
                                                 </div>
                                             </div>
 
+                                            @php
+                                                $pesertaPelatihan = App\Models\User::where('nik', $participant->nik)->first();
+                                            @endphp
+
                                             {{-- Aspek Kepemimpinan --}}
-                                            <div class="card border mb-3">
-                                                <div class="card-header bg-light py-2">
-                                                    <small class="fw-semibold text-uppercase">Aspek Kepemimpinan</small>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="row g-3">
-                                                        <div class="col-md-6">
-                                                            <label class="form-label fw-medium">Koordinasi Bawahan</label>
-                                                            <input type="number" name="evaluations[{{ $index }}][koordinasi_bawahan]" class="form-control" min="0" max="20" placeholder="0-20">
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label fw-medium">Kontrol / Pengendalian Bawahan</label>
-                                                            <input type="number" name="evaluations[{{ $index }}][kontrol_bawahan]" class="form-control" min="0" max="20" placeholder="0-20">
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label fw-medium">Evaluasi dan Pembinaan Bawahan</label>
-                                                            <input type="number" name="evaluations[{{ $index }}][evaluasi_pembinaan]" class="form-control" min="0" max="20" placeholder="0-20">
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label fw-medium">Delegasi Tanggung Jawab dan Wewenang</label>
-                                                            <input type="number" name="evaluations[{{ $index }}][delegasi_tanggung_jawab]" class="form-control" min="0" max="20" placeholder="0-20">
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="form-label fw-medium">Kecepatan & Ketepatan Pengambilan Keputusan</label>
-                                                            <input type="number" name="evaluations[{{ $index }}][kecepatan_keputusan]" class="form-control" min="0" max="20" placeholder="0-20">
+                                            @if($pesertaPelatihan->is_leader)
+                                                <div class="card border mb-3">
+                                                    <div class="card-header bg-light py-2">
+                                                        <small class="fw-semibold text-uppercase">Aspek Kepemimpinan</small>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="row g-3">
+                                                            <div class="col-md-6">
+                                                                <label class="form-label fw-medium">Koordinasi Bawahan</label>
+                                                                <input type="number" name="evaluations[{{ $index }}][koordinasi_bawahan]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label fw-medium">Kontrol / Pengendalian Bawahan</label>
+                                                                <input type="number" name="evaluations[{{ $index }}][kontrol_bawahan]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label fw-medium">Evaluasi dan Pembinaan Bawahan</label>
+                                                                <input type="number" name="evaluations[{{ $index }}][evaluasi_pembinaan]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label fw-medium">Delegasi Tanggung Jawab dan Wewenang</label>
+                                                                <input type="number" name="evaluations[{{ $index }}][delegasi_tanggung_jawab]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label fw-medium">Kecepatan & Ketepatan Pengambilan Keputusan</label>
+                                                                <input type="number" name="evaluations[{{ $index }}][kecepatan_keputusan]" class="form-control" min="0" max="20" placeholder="0-20">
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            @endif
                                         </div>
 
-                                        
+                                    
                                     </div>
                                 @endforeach
                             </div>
@@ -368,10 +371,20 @@
                 }
             });
 
+            const eventPrefix = `evaluation_event_{{ $event->id }}`;
+
+            function participantKey(participantId) {
+                return `${eventPrefix}_participant_${participantId}`;
+            }
+
+            function activeKey() {
+                return `${eventPrefix}_active`;
+            }
+
             // ← FUNCTION: Cek apakah semua field di tab peserta sudah diisi
             function checkParticipantCompletion(participantId) {
                 const tabContent = $(`#content-participant-${participantId}`);
-                
+
                 // Ambil semua input number dalam tab ini
                 const numberInputs = tabContent.find('input[type="number"]');
                 const totalInputs = numberInputs.length;
@@ -407,13 +420,95 @@
                 $('#filledCount').text(filledCount);
             }
 
-            // ← EVENT: Ketika input number diubah
-            $(document).on('input change', 'input[type="number"]', function() {
+            // Save participant inputs to localStorage
+            function saveParticipantToLocal(participantId) {
+                const tabContent = $(`#content-participant-${participantId}`);
+                if (!tabContent.length) return;
+
+                const inputs = {};
+                tabContent.find('input, select, textarea').each(function() {
+                    const name = $(this).attr('name');
+                    if (!name) return;
+                    inputs[name] = $(this).val();
+                });
+
+                try {
+                    localStorage.setItem(participantKey(participantId), JSON.stringify(inputs));
+                } catch (e) {
+                    console.warn('localStorage write failed', e);
+                }
+            }
+
+            // Restore participant inputs from localStorage
+            function restoreParticipantFromLocal(participantId) {
+                const raw = localStorage.getItem(participantKey(participantId));
+                if (!raw) return false;
+
+                try {
+                    const inputs = JSON.parse(raw);
+                    const tabContent = $(`#content-participant-${participantId}`);
+                    if (!tabContent.length) return false;
+
+                    Object.keys(inputs).forEach(function(name) {
+                        const el = tabContent.find(`[name="${name}"]`);
+                        if (el.length) el.val(inputs[name]);
+                    });
+                    return true;
+                } catch (e) {
+                    console.warn('localStorage parse failed', e);
+                    return false;
+                }
+            }
+
+            // Save active participant id
+            function saveActiveParticipant(participantId) {
+                try {
+                    localStorage.setItem(activeKey(), String(participantId));
+                } catch (e) {
+                    console.warn('localStorage write failed', e);
+                }
+            }
+
+            // Restore active participant
+            function restoreActiveParticipant() {
+                const raw = localStorage.getItem(activeKey());
+                if (!raw) return;
+                const id = raw;
+                const btn = $(`#tab-participant-${id}`);
+                if (btn.length) {
+                    // Use Bootstrap 5 show via click
+                    btn.trigger('click');
+                }
+            }
+
+            // Remove all localStorage keys for this event (participants + active)
+            function clearEventLocalStorage() {
+                try {
+                    const keysToRemove = [];
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        if (key && key.indexOf(eventPrefix) === 0) keysToRemove.push(key);
+                    }
+                    keysToRemove.forEach(k => localStorage.removeItem(k));
+                } catch (e) {
+                    console.warn('localStorage clear failed', e);
+                }
+            }
+
+            // ← EVENT: Ketika input diubah (semua tipe)
+            $(document).on('input change', '.tab-pane input, .tab-pane select, .tab-pane textarea', function() {
                 const participantId = $(this).closest('.tab-pane').data('participant-id');
                 if (participantId) {
                     checkParticipantCompletion(participantId);
                     updateProgress();
+                    saveParticipantToLocal(participantId);
                 }
+            });
+
+            // Track tab change (Bootstrap 5)
+            $(document).on('shown.bs.tab', '#participantTabs button[data-bs-toggle="pill"]', function(e) {
+                const participantId = $(e.target).data('participant-id');
+                if (participantId) saveActiveParticipant(participantId);
             });
 
             // ← EVENT: Form Submit
@@ -505,6 +600,9 @@
                     dataType: 'json',
                     success: function(response) {
                         if (response.status) {
+                            // Clear localStorage related to this evaluation
+                            clearEventLocalStorage();
+
                             Swal.fire({
                                 title: 'Berhasil!',
                                 html: `
@@ -537,10 +635,10 @@
                     },
                     error: function(xhr) {
                         let errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
-                        
+
                         if (xhr.responseJSON) {
                             errorMessage = xhr.responseJSON.message || errorMessage;
-                            
+
                             if (xhr.responseJSON.errors) {
                                 let errorsList = '<ul class="text-start">';
                                 $.each(xhr.responseJSON.errors, function(key, value) {
@@ -565,14 +663,18 @@
                 });
             }
 
-            // Initial check saat load
+            // Initial restore & check saat load
             $('.tab-pane').each(function() {
                 const participantId = $(this).data('participant-id');
                 if (participantId) {
+                    // Try restore participant inputs
+                    restoreParticipantFromLocal(participantId);
                     checkParticipantCompletion(participantId);
                 }
             });
             updateProgress();
+            // restore active tab if any
+            restoreActiveParticipant();
         });
     </script>
 </body>
