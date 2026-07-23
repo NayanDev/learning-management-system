@@ -9,18 +9,10 @@ class Materi extends Model
 {
     use HasFactory;
 
-    protected $table = 'materis';
+    protected $table = 'materies';
     protected $primaryKey = 'id';
-    protected $fillable = ["event_id","file_path","file_type","id_youtube","description","user_id","divisi"];
-    protected $appends = ['btn_print', 'btn_delete', 'btn_edit', 'btn_show'];
-
-
-    public function getBtnPrintAttribute()
-    {
-        $html = "<a id='export-pdf' class='btn btn-sm btn-outline-success radius-6' target='_blank' href='" . $this->file_path . "' title='Materi Pelatihan'><i class='ti ti-file'></i></a>";
-
-        return $html;
-    }
+    protected $fillable = ["uuid","name","file","description","workshop_id"];
+    protected $appends = ['btn_delete', 'btn_edit', 'btn_show'];
 
 
     public function getBtnDeleteAttribute()

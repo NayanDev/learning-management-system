@@ -5,20 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Workshop extends Model
+class Employee extends Model
 {
     use HasFactory;
 
-    protected $table = 'workshops';
+    protected $table = 'employees';
     protected $primaryKey = 'id';
-    protected $fillable = ["name","user_id","kode","competency"];
+    protected $fillable = ["uuid","name","email","phone","gender","company_id","division_id","department_id","position_id","section_id","group_id","status","nik","signature","is_trainer","is_leader"];
     protected $appends = ['btn_delete', 'btn_edit', 'btn_show'];
-
-
-    public function events()
-    {
-        return $this->hasMany(Event::class, 'workshop_id');
-    }
 
 
     public function getBtnDeleteAttribute()

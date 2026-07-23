@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Materi;
+use App\Models\MateriResume;
 use Idev\EasyAdmin\app\Http\Controllers\DefaultController;
 
-class MateriController extends DefaultController
+class MateriResumeController extends DefaultController
 {
-    protected $modelClass = Materi::class;
+    protected $modelClass = MateriResume::class;
     protected $title;
     protected $generalUri;
     protected $tableHeaders;
@@ -17,8 +17,8 @@ class MateriController extends DefaultController
 
     public function __construct()
     {
-        $this->title = 'Materi';
-        $this->generalUri = 'materi';
+        $this->title = 'Materi Resume';
+        $this->generalUri = 'materi-resume';
         // $this->arrPermissions = [];
         $this->actionButtons = ['btn_edit', 'btn_show', 'btn_delete'];
 

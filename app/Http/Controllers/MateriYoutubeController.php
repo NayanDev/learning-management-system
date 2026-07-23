@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Materi;
+use App\Models\MateriYoutube;
 use Idev\EasyAdmin\app\Http\Controllers\DefaultController;
 
-class MateriController extends DefaultController
+class MateriYoutubeController extends DefaultController
 {
-    protected $modelClass = Materi::class;
+    protected $modelClass = MateriYoutube::class;
     protected $title;
     protected $generalUri;
     protected $tableHeaders;
@@ -17,8 +17,8 @@ class MateriController extends DefaultController
 
     public function __construct()
     {
-        $this->title = 'Materi';
-        $this->generalUri = 'materi';
+        $this->title = 'Materi Youtube';
+        $this->generalUri = 'materi-youtube';
         // $this->arrPermissions = [];
         $this->actionButtons = ['btn_edit', 'btn_show', 'btn_delete'];
 
@@ -26,7 +26,7 @@ class MateriController extends DefaultController
                     ['name' => 'No', 'column' => '#', 'order' => true],
                     ['name' => 'Uuid', 'column' => 'uuid', 'order' => true],
                     ['name' => 'Name', 'column' => 'name', 'order' => true],
-                    ['name' => 'File', 'column' => 'file', 'order' => true],
+                    ['name' => 'Youtube id', 'column' => 'youtube_id', 'order' => true],
                     ['name' => 'Description', 'column' => 'description', 'order' => true],
                     ['name' => 'Workshop id', 'column' => 'workshop_id', 'order' => true], 
                     ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
@@ -39,7 +39,7 @@ class MateriController extends DefaultController
             'headers' => [
                     ['name' => 'Uuid', 'column' => 'uuid'],
                     ['name' => 'Name', 'column' => 'name'],
-                    ['name' => 'File', 'column' => 'file'],
+                    ['name' => 'Youtube id', 'column' => 'youtube_id'],
                     ['name' => 'Description', 'column' => 'description'],
                     ['name' => 'Workshop id', 'column' => 'workshop_id'], 
             ]
@@ -73,11 +73,11 @@ class MateriController extends DefaultController
                     ],
                     [
                         'type' => 'text',
-                        'label' => 'File',
-                        'name' =>  'file',
+                        'label' => 'Youtube id',
+                        'name' =>  'youtube_id',
                         'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('file', $id),
-                        'value' => (isset($edit)) ? $edit->file : ''
+                        'required' => $this->flagRules('youtube_id', $id),
+                        'value' => (isset($edit)) ? $edit->youtube_id : ''
                     ],
                     [
                         'type' => 'text',
@@ -106,7 +106,7 @@ class MateriController extends DefaultController
         $rules = [
                     'uuid' => 'required|string',
                     'name' => 'required|string',
-                    'file' => 'required|string',
+                    'youtube_id' => 'required|string',
                     'description' => 'required|string',
                     'workshop_id' => 'required|string',
         ];

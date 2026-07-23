@@ -6,31 +6,27 @@
 
 @push('styles')
     <style>
-        /* Membuat pembungkus tabel memiliki scrollbar horizontal jika datanya meluap */
         .table-responsive {
             overflow-x: auto;
             position: relative;
         }
 
-        /* Membuat header dan cell kolom aksi menjadi sticky di sebelah kanan */
         #table-list-{{$uri_key}} th.col-action,
         #table-list-{{$uri_key}} td.col-action {
             position: sticky;
             right: 0;
-            background-color: #fff; /* Memberi background agar text tabel di bawahnya tidak menembus */
-            z-index: 2; /* Menjaga agar tetap berada di layer atas saat di-scroll */
-            box-shadow: -5px 0 5px -5px rgba(0,0,0,0.15); /* Opsional: Efek bayangan tipis di sebelah kiri kolom sticky */
+            background-color: #fff; 
+            z-index: 2; 
+            box-shadow: -5px 0 5px -5px rgba(0,0,0,0.15);
         }
 
-        /* Mengubah background saat baris di-hover agar kolom sticky warnanya serasi */
         #table-list-{{$uri_key}} tr:hover td.col-action {
-            background-color: #f8f9fa; /* Sesuaikan dengan warna hover tema Bootstrap Anda */
+            background-color: #f8f9fa;
         }
 
-        /* Supaya header kolom aksi tetap gelap/terang sesuai tema */
         #table-list-{{$uri_key}} th.col-action {
             background-color: #fff; 
-            z-index: 3; /* Lebih tinggi dari td agar tidak tertutup */
+            z-index: 3;
         }
     </style>
 
@@ -164,7 +160,7 @@
                 </div>
             </div>
         </div>
-        <div class="row mt-4">
+        <div class="row mt-1">
             <div class="col-md-12 content-preview"></div>
         </div>
     </div>

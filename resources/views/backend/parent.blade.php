@@ -129,6 +129,22 @@
   @endforeach
   <div class="push-script-ajax">@stack("scripts")</div>
 
+
+  <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    <!-- DataTables Core -->
+    <script src="https://cdn.datatables.net/2.3.8/js/dataTables.min.js"></script>
+
+
+    <!-- DataTables Bootstrap 5 -->
+    <script src="https://cdn.datatables.net/2.3.8/js/dataTables.bootstrap5.min.js"></script>
+
+
+    <!-- Custom DataTable -->
+    <script src="{{ asset('custom/js/initDataTable.js') }}"></script>
+
 </body>
 
 </html>

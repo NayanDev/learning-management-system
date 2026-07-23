@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Materi;
+use App\Models\JobdescEmployee;
 use Idev\EasyAdmin\app\Http\Controllers\DefaultController;
 
-class MateriController extends DefaultController
+class JobdescEmployeeController extends DefaultController
 {
-    protected $modelClass = Materi::class;
+    protected $modelClass = JobdescEmployee::class;
     protected $title;
     protected $generalUri;
     protected $tableHeaders;
@@ -17,8 +17,8 @@ class MateriController extends DefaultController
 
     public function __construct()
     {
-        $this->title = 'Materi';
-        $this->generalUri = 'materi';
+        $this->title = 'Jobdesc Employee';
+        $this->generalUri = 'jobdesc-employee';
         // $this->arrPermissions = [];
         $this->actionButtons = ['btn_edit', 'btn_show', 'btn_delete'];
 
@@ -27,8 +27,8 @@ class MateriController extends DefaultController
                     ['name' => 'Uuid', 'column' => 'uuid', 'order' => true],
                     ['name' => 'Name', 'column' => 'name', 'order' => true],
                     ['name' => 'File', 'column' => 'file', 'order' => true],
-                    ['name' => 'Description', 'column' => 'description', 'order' => true],
-                    ['name' => 'Workshop id', 'column' => 'workshop_id', 'order' => true], 
+                    ['name' => 'Employee id', 'column' => 'employee_id', 'order' => true],
+                    ['name' => 'Is active', 'column' => 'is_active', 'order' => true], 
                     ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
                     ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
         ];
@@ -40,8 +40,8 @@ class MateriController extends DefaultController
                     ['name' => 'Uuid', 'column' => 'uuid'],
                     ['name' => 'Name', 'column' => 'name'],
                     ['name' => 'File', 'column' => 'file'],
-                    ['name' => 'Description', 'column' => 'description'],
-                    ['name' => 'Workshop id', 'column' => 'workshop_id'], 
+                    ['name' => 'Employee id', 'column' => 'employee_id'],
+                    ['name' => 'Is active', 'column' => 'is_active'], 
             ]
         ];
     }
@@ -81,19 +81,19 @@ class MateriController extends DefaultController
                     ],
                     [
                         'type' => 'text',
-                        'label' => 'Description',
-                        'name' =>  'description',
+                        'label' => 'Employee id',
+                        'name' =>  'employee_id',
                         'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('description', $id),
-                        'value' => (isset($edit)) ? $edit->description : ''
+                        'required' => $this->flagRules('employee_id', $id),
+                        'value' => (isset($edit)) ? $edit->employee_id : ''
                     ],
                     [
                         'type' => 'text',
-                        'label' => 'Workshop id',
-                        'name' =>  'workshop_id',
+                        'label' => 'Is active',
+                        'name' =>  'is_active',
                         'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('workshop_id', $id),
-                        'value' => (isset($edit)) ? $edit->workshop_id : ''
+                        'required' => $this->flagRules('is_active', $id),
+                        'value' => (isset($edit)) ? $edit->is_active : ''
                     ],
         ];
         
@@ -107,8 +107,8 @@ class MateriController extends DefaultController
                     'uuid' => 'required|string',
                     'name' => 'required|string',
                     'file' => 'required|string',
-                    'description' => 'required|string',
-                    'workshop_id' => 'required|string',
+                    'employee_id' => 'required|string',
+                    'is_active' => 'required|string',
         ];
 
         return $rules;

@@ -11,24 +11,64 @@ class Sidebar
 
   public function generate()
   {
-    $menus = $this->menus();
-    $constant = new Constant();
-    $permission = $constant->permissions();
+      $menus = $this->menus();
+      $constant = new Constant();
+      $permission = $constant->permissions();
 
-    $arrMenu = [];
-    foreach ($menus as $key => $menu) {
-      $visibilityMenu = in_array($menu['key'] . ".index", $permission['list_access']);
-      if (isset($menu['override_visibility'])) {
-        $visibilityMenu = $menu['override_visibility'];
+      $arrMenu = [];
+
+      foreach ($menus as $key => $menu) {
+
+          $visibilityMenu = in_array(
+              $menu['key'] . ".index",
+              $permission['list_access']
+          );
+
+          if (isset($menu['override_visibility'])) {
+              $visibilityMenu = $menu['override_visibility'];
+          }
+
+          $menu['visibility'] = $visibilityMenu;
+
+          // URL parent
+          $menu['url'] = Route::has($menu['key'] . ".index")
+              ? route($menu['key'] . ".index")
+              : "#";
+
+          $menu['base_key'] = $menu['key'];
+          $menu['key'] = $menu['key'] . ".index";
+
+          if (isset($menu['childrens']) && count($menu['childrens']) > 0) {
+
+              foreach ($menu['childrens'] as &$child) {
+
+                  $childVisibility = in_array(
+                      $child['key'] . ".index",
+                      $permission['list_access']
+                  );
+
+                  if (isset($child['override_visibility'])) {
+                      $childVisibility = $child['override_visibility'];
+                  }
+
+                  $child['visibility'] = $childVisibility;
+
+                  $child['url'] = Route::has($child['key'] . ".index")
+                      ? route($child['key'] . ".index")
+                      : "#";
+
+                  $child['base_key'] = $child['key'];
+                  $child['key'] = $child['key'] . ".index";
+              }
+
+              unset($child);
+          }
+
+
+          $arrMenu[] = $menu;
       }
-      $menu['visibility'] = $visibilityMenu;
-      $menu['url'] = (Route::has($menu['key'] . ".index")) ? route($menu['key'] . ".index") : "#";
-      $menu['base_key'] = $menu['key'];
-      $menu['key'] = $menu['key'] . ".index";
 
-      $arrMenu[] = $menu;
-    }
-    return $arrMenu;
+      return $arrMenu;
   }
 
 
@@ -49,6 +89,70 @@ class Sidebar
           'ajax_load' => false,
           'childrens' => []
         ],
+        [
+            'name' => 'Master Data',
+            'icon' => 'ti ti-database',
+            'key' => 'company',
+            'base_key' => '#',
+            'visibility' => true,
+            'ajax_load' => false,
+            'childrens' => [
+              [
+                  'name' => 'Company',
+                  'visibility' => false,
+                  'base_key' => 'company',
+                  'key' => 'company',
+              ],
+              [
+                  'name' => 'Division',
+                  'visibility' => true,
+                  'base_key' => 'division',
+                  'key' => 'division',
+              ],
+              [
+                  'name' => 'Department',
+                  'visibility' => true,
+                  'base_key' => 'department',
+                  'key' => 'department',
+              ],
+              [
+                  'name' => 'Position',
+                  'visibility' => true,
+                  'base_key' => 'position',
+                  'key' => 'position',
+              ],
+              [
+                  'name' => 'Section',
+                  'visibility' => true,
+                  'base_key' => 'section',
+                  'key' => 'section',
+              ],
+              [
+                  'name' => 'Group',
+                  'visibility' => true,
+                  'base_key' => 'group',
+                  'key' => 'group',
+              ],
+              [
+                  'name' => 'Employee',
+                  'visibility' => true,
+                  'base_key' => 'employee',
+                  'key' => 'employee',
+              ],
+              [
+                  'name' => 'Workshop',
+                  'visibility' => true,
+                  'base_key' => 'workshop',
+                  'key' => 'workshop',
+              ],
+              [
+                  'name' => 'Training Location',
+                  'visibility' => true,
+                  'base_key' => 'training-location',
+                  'key' => 'training-location',
+              ],
+            ]
+          ],
         [
             'name' => 'Approval',
             'icon' => 'ti ti-checkup-list',

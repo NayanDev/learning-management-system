@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Materi;
+use App\Models\JobdescSection;
 use Idev\EasyAdmin\app\Http\Controllers\DefaultController;
 
-class MateriController extends DefaultController
+class JobdescSectionController extends DefaultController
 {
-    protected $modelClass = Materi::class;
+    protected $modelClass = JobdescSection::class;
     protected $title;
     protected $generalUri;
     protected $tableHeaders;
@@ -17,8 +17,8 @@ class MateriController extends DefaultController
 
     public function __construct()
     {
-        $this->title = 'Materi';
-        $this->generalUri = 'materi';
+        $this->title = 'Jobdesc Section';
+        $this->generalUri = 'jobdesc-section';
         // $this->arrPermissions = [];
         $this->actionButtons = ['btn_edit', 'btn_show', 'btn_delete'];
 
@@ -27,8 +27,8 @@ class MateriController extends DefaultController
                     ['name' => 'Uuid', 'column' => 'uuid', 'order' => true],
                     ['name' => 'Name', 'column' => 'name', 'order' => true],
                     ['name' => 'File', 'column' => 'file', 'order' => true],
-                    ['name' => 'Description', 'column' => 'description', 'order' => true],
-                    ['name' => 'Workshop id', 'column' => 'workshop_id', 'order' => true], 
+                    ['name' => 'Section id', 'column' => 'section_id', 'order' => true],
+                    ['name' => 'Is active', 'column' => 'is_active', 'order' => true], 
                     ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
                     ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
         ];
@@ -40,9 +40,28 @@ class MateriController extends DefaultController
                     ['name' => 'Uuid', 'column' => 'uuid'],
                     ['name' => 'Name', 'column' => 'name'],
                     ['name' => 'File', 'column' => 'file'],
-                    ['name' => 'Description', 'column' => 'description'],
-                    ['name' => 'Workshop id', 'column' => 'workshop_id'], 
+                    ['name' => 'Section id', 'column' => 'section_id'],
+                    ['name' => 'Is active', 'column' => 'is_active'], 
             ]
+        ];
+
+
+        $this->importScripts = [
+            [
+                'source' => 'https://cdn.datatables.net/2.3.8/js/dataTables.min.js'
+            ],
+            [
+                'source' => 'https://cdn.datatables.net/2.3.8/js/dataTables.bootstrap5.min.js'
+            ],
+            [
+                'source' => asset('custom/js/initDataTable.js')
+            ],
+        ];
+
+        $this->importStyles = [
+            [
+                'source' => 'https://cdn.datatables.net/2.3.8/css/dataTables.bootstrap5.min.css'
+            ],
         ];
     }
 
@@ -81,19 +100,19 @@ class MateriController extends DefaultController
                     ],
                     [
                         'type' => 'text',
-                        'label' => 'Description',
-                        'name' =>  'description',
+                        'label' => 'Section id',
+                        'name' =>  'section_id',
                         'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('description', $id),
-                        'value' => (isset($edit)) ? $edit->description : ''
+                        'required' => $this->flagRules('section_id', $id),
+                        'value' => (isset($edit)) ? $edit->section_id : ''
                     ],
                     [
                         'type' => 'text',
-                        'label' => 'Workshop id',
-                        'name' =>  'workshop_id',
+                        'label' => 'Is active',
+                        'name' =>  'is_active',
                         'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('workshop_id', $id),
-                        'value' => (isset($edit)) ? $edit->workshop_id : ''
+                        'required' => $this->flagRules('is_active', $id),
+                        'value' => (isset($edit)) ? $edit->is_active : ''
                     ],
         ];
         
@@ -107,11 +126,51 @@ class MateriController extends DefaultController
                     'uuid' => 'required|string',
                     'name' => 'required|string',
                     'file' => 'required|string',
-                    'description' => 'required|string',
-                    'workshop_id' => 'required|string',
+                    'section_id' => 'required|string',
+                    'is_active' => 'required|string',
         ];
 
         return $rules;
+    }
+
+
+    public function jobdescSection()
+    {
+        $data = $this->defaultDataQuery()->where('section_id', 3)->get();
+
+        $columns = [
+            [
+                "title" => "NO",
+                "data" => "no",
+                "width" => "5%"
+            ],
+            [
+                "title" => "NAME",
+                "data" => "name",
+                "width" => "20%"
+            ],
+            [
+                "title" => "FILE",
+                "data" => "file",
+                "width" => "15%"
+            ],
+            [
+                "title" => "STATUS",
+                "data" => "is_active",
+                "width" => "10%"
+            ],
+            [
+                "title" => "ACTION",
+                "data" => null,
+                "width" => "10%"
+            ]
+        ];
+
+
+        return response()->json([
+            "columns" => $columns,
+            "data" => $data
+        ]);
     }
 
 }
