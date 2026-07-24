@@ -135,42 +135,60 @@ class JobdescSectionController extends DefaultController
 
 
     public function jobdescSection()
-    {
-        $data = $this->defaultDataQuery()->where('section_id', 3)->get();
-
-        $columns = [
-            [
-                "title" => "NO",
-                "data" => "no",
-                "width" => "5%"
-            ],
-            [
-                "title" => "NAME",
-                "data" => "name",
-                "width" => "20%"
-            ],
-            [
-                "title" => "FILE",
-                "data" => "file",
-                "width" => "15%"
-            ],
-            [
-                "title" => "STATUS",
-                "data" => "is_active",
-                "width" => "10%"
-            ],
-            [
-                "title" => "ACTION",
-                "data" => null,
-                "width" => "10%"
-            ]
-        ];
+{
+    $data = $this->defaultDataQuery()
+        ->where('section_id', 3)
+        ->get();
 
 
-        return response()->json([
-            "columns" => $columns,
-            "data" => $data
-        ]);
-    }
+    $columns = [
+
+        [
+            "title" => "NO",
+            "data" => "no",
+            "type" => "number",
+            "width" => "5%"
+        ],
+
+
+        [
+            "title" => "NAME",
+            "data" => "name",
+            "width" => "20%"
+        ],
+
+
+        [
+            "title" => "FILE",
+            "data" => "file",
+            "width" => "15%"
+        ],
+
+
+        [
+            "title" => "STATUS",
+            "data" => "is_active",
+            "width" => "10%"
+        ],
+
+
+        [
+            "title" => "ACTION",
+            "data" => null,
+            "type" => "action",
+            "width" => "10%"
+        ]
+
+    ];
+
+
+    return response()->json([
+
+        "columns" => $columns,
+
+        "data" => $data
+
+    ]);
+}
 
 }

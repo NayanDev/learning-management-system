@@ -1,11 +1,15 @@
-<div class="modal fade"id="{{ $modal['id'] }}" tabindex="-1" role="dialog" aria-labelledby="{{ $modal['id'] }}Label" aria-hi n="true">
+<div class="modal fade"
+    id="{{ $modal['id'] }}"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="{{ $modal['id'] }}Label"
+    aria-hidden="true">
 
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-
             <div class="modal-header">
                 <h5 class="modal-title" id="{{ $modal['id'] }}Label">
-                    {{ $modal['title'] }}
+                    {{ $modal['title'] ?? '' }}
                 </h5>
                 <button type="button"
                     class="btn-close"
@@ -14,24 +18,26 @@
                 </button>
             </div>
 
-            <form>
+            <form id="{{ $modal['form'] ?? '' }}">
                 <div class="modal-body">
-                    @include('backend.idev.show_with_tab.tab_table_modal_form')
+                    @include('backend.idev.show_with_tab.tab_table_modal_form', [
+                        'form' => $components['forms'][$modal['form']]
+                    ])
                 </div>
+
                 <div class="modal-footer">
-                    @foreach($modal['buttons'] as $button)
-                    <button type="button"
-                        class="{{ $button['class'] }}"
-                        @if($button['dismiss'])
-                        data-bs-dismiss="{{ $button['dismiss'] }}"
-                        @endif>
-                        {{ $button['label'] }}
-                    </button>
+                    @foreach(($modal['buttons'] ?? []) as $button)
+                        <button type="button"
+                            class="{{ $button['class'] ?? 'btn btn-secondary' }}"
+                            @if(!empty($button['dismiss']))
+                                data-bs-dismiss="{{ $button['dismiss'] }}"
+                            @endif>
+                            {{ $button['label'] ?? '' }}
+                        </button>
                     @endforeach
                 </div>
             </form>
-
         </div>
     </div>
-    
+
 </div>

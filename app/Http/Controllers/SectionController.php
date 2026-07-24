@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Department;
 use App\Models\JobdescSection;
 use App\Models\Section;
+use App\Pages\JobdescPage;
 use App\Services\ShowService;
 use Exception;
 use Idev\EasyAdmin\app\Helpers\Validation;
@@ -189,120 +190,20 @@ class SectionController extends DefaultController
 
     protected function show($id)
     {
+
         $singleData = $this->defaultDataQuery()
-            ->where('sections.id', $id)
+            ->where('sections.id',$id)
             ->first();
 
-        unset($singleData['id']);
+        return view('backend.idev.show_with_tab',array_merge(
+                [
+                    'detail'=>$singleData,
+                    'title'=>$this->title,
+                ],
+                (new JobdescPage())->build()
+            )
+        );
 
-        $tab = [
-                [
-                    "icon" => "ti ti-eye",
-                    "label" => "My Account",
-                    "target" => "detail",
-                    "active" => true,
-                    "title" => "Data Customer",
-                    "layout" => "detail",
-                    "table" => [
-                        "id" => "detail-table",
-                        "columns" => [
-                            "NAME",
-                            "EMAIL",
-                            "ACCOUNT",
-                            "LAST LOGIN",
-                            "ACTION"
-                        ]
-                    ]
-                ],
-                [
-                    "icon" => "ti ti-briefcase",
-                    "label" => "Job Description",
-                    "target" => "jobdesc",
-                    "active" => false,
-                    "title" => "Job Description",
-                    "layout" => "table",
-                    "table" => [
-                        "id" => "jobdesc-table",
-                        "columns" => [
-                            "No",
-                            "Name",
-                            "Description",
-                            "Action"
-                        ]
-                    ],
-                    "buttons" => [
-                        [
-                            "label" => "+ Jobdesc",
-                            "class" => "btn btn-light-primary m-0",
-                            "modal" => "#ModalJobdesc"
-                        ],
-                    ]
-                ]
-        ];
-
-        $modal = [
-            "id" => "ModalJobdesc",
-            "title" => "Add Jobdescription",
-            "form" => [
-                [
-                    "label" => "ID",
-                    "name" => "id",
-                    "type" => "text",
-                    "placeholder" => "Enter ID"
-                ],
-                [
-                    "label" => "UUID",
-                    "name" => "uuid",
-                    "type" => "text",
-                    "placeholder" => "Enter UUID"
-                ],
-                [
-                    "label" => "Name",
-                    "name" => "name",
-                    "type" => "text",
-                    "placeholder" => "Enter Name"
-                ],
-                [
-                    "label" => "File",
-                    "name" => "file",
-                    "type" => "file",
-                    "placeholder" => "Choose File"
-                ],
-                [
-                    "label" => "Section ID",
-                    "name" => "section_id",
-                    "type" => "text",
-                    "placeholder" => "Enter Section ID"
-                ],
-                [
-                    "label" => "Is Active",
-                    "name" => "is_active",
-                    "type" => "text",
-                    "placeholder" => "Enter Active Status"
-                ],
-            ],
-            "buttons" => [
-                [
-                    "label" => "Close",
-                    "class" => "btn btn-light-danger",
-                    "dismiss" => "modal"
-                ],
-                [
-                    "label" => "Save changes",
-                    "class" => "btn btn-light-primary",
-                    "dismiss" => null
-                ]
-            ]
-        ];
-
-        $data = [
-            'detail' => $singleData,
-            'title'  => $this->title,
-            'tab'    => $tab,
-            'modal' => $modal,
-        ];
-
-        return view('backend.idev.show_with_tab', $data);
     }
 
 

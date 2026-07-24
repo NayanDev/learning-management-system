@@ -1,18 +1,21 @@
 <div class="card-header pb-0">
     <ul class="nav nav-tabs profile-tabs" id="myTab" role="tablist">
 
-        @foreach($tab as $key => $item)
+        @foreach($tabs as $key => $item)
 
             <li class="nav-item" role="presentation">
-                <a class="nav-link {{ $key == 0 ? 'active' : '' }}"
+                <a class="nav-link {{ !empty($item['active']) ? 'active' : '' }}"
                     id="{{ $item['target'] }}-tab"
                     data-bs-toggle="tab"
                     href="#{{ $item['target'] }}"
                     role="tab"
-                    aria-selected="{{ $key == 0 ? 'true' : 'false' }}">
+                    aria-selected="{{ !empty($item['active']) ? 'true' : 'false' }}">
 
-                    <i class="{{ $item['icon'] }}"></i>
-                    {{ ucfirst($item['target']) }}
+                    @if(!empty($item['icon']))
+                        <i class="{{ $item['icon'] }}"></i>
+                    @endif
+
+                    {{ $item['label'] ?? ucfirst($item['target']) }}
 
                 </a>
             </li>
