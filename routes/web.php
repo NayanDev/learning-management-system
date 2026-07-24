@@ -475,5 +475,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
         Route::post('jobdesc-section-import-excel-default', [JobdescSectionController::class, 'importExcel'])->name('jobdesc-section.import-excel-default');
 
         Route::get('/report/jobdesc-section', [JobdescSectionController::class, 'jobdescSection']);
+        Route::delete('/section/jobdesc/{id}', [JobdescSectionController::class, 'destroyData']);
+        Route::get('/section/jobdesc/{id}', [JobdescSectionController::class,'showData']);
         
     });

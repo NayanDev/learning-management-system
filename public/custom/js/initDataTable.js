@@ -1,8 +1,15 @@
 function initReportTable() {
 
     document.querySelectorAll("table[data-url]").forEach((table) => {
+
         const tableId = "#" + table.id;
         const url = table.dataset.url;
+        const actions = table.dataset.actions
+        ? JSON.parse(table.dataset.actions)
+        : [];
+        const buttons = table.dataset.buttons
+        ? JSON.parse(table.dataset.buttons)
+        : [];
 
         if (!url) {
             return;
@@ -64,24 +71,25 @@ function initReportTable() {
                                 orderable: false,
                                 searchable: false,
                                 render: function (data, type, row) {
-                                    return `
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-light-success me-1"
-                                        onclick="editData(${row.id})">
-                                        <i class="ti ti-edit"></i>
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-light-danger"
-                                        onclick="deleteData(${row.id})">
-                                        <i class="ti ti-trash"></i>
-                                    </button>
-
-                                    `;
-                                },
+                                    return Object.keys(actions)
+                                        .map(key => {
+                                            const action = actions[key];
+                                            return `
+                                                <button
+                                                    type="button"
+                                                    class="${action.class}"
+                                                    onclick="handleAction(
+                                                        '${key}',
+                                                        ${row.id},
+                                                        '${action.url ?? ""}',
+                                                        '${action.modal ?? ""}'
+                                                    )">
+                                                    <i class="${action.icon}"></i>
+                                                </button>
+                                            `;
+                                        })
+                                        .join("");
+                                }
                             };
                         }
 
@@ -156,3 +164,89 @@ document.querySelectorAll('[data-bs-toggle="tab"]').forEach((tab) => {
         }, 300);
     });
 });
+
+
+function deleteData(id, url)
+{
+    Swal.fire({
+        title: "Yakin ingin menghapus?",
+        text: "Data yang sudah dihapus tidak dapat dikembalikan.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Hapus",
+        cancelButtonText: "Batal"
+    })
+    .then((result)=>{
+        if(result.isConfirmed){
+            $.ajax({
+                url: url + "/" + id,
+                type: "DELETE",
+                headers:{
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
+                },
+                success:function(response){
+                    Swal.fire({
+                        icon:"success",
+                        title:"Berhasil dihapus",
+                        timer:1500,
+                        showConfirmButton:false
+                    });
+
+                    // reload table
+                    const table = $('#jobdesc-table').DataTable();
+                    table.destroy();
+                    initReportTable();
+                },
+
+                error:function(xhr){
+                    console.error(xhr.responseText);
+
+                    Swal.fire({
+                        icon:"error",
+                        title:"Delete failed"
+                    });
+                }
+            });
+        }
+
+    });
+}
+
+function showData(id, url, modalId)
+{
+    $.get(url + "/" + id, function(response){
+        Object.keys(response).forEach(function(key){
+            const element = document.querySelector(
+                "#" + modalId + " [name='" + key + "']"
+            );
+
+            if(element){
+                element.value = response[key];
+            }
+        });
+
+        const modal = new bootstrap.Modal(
+            document.getElementById(modalId)
+        );
+        modal.show();
+    });
+}
+
+
+function handleAction(action, id, url, modal)
+{
+    switch (action) {
+
+        case "show":
+            showData(id, url, modal);
+            break;
+
+        case "edit":
+            editData(id, url, modal);
+            break;
+
+        case "delete":
+            deleteData(id, url);
+            break;
+    }
+}

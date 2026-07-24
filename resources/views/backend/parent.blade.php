@@ -4,6 +4,7 @@
 <head>
   <title>@stack("mtitle")</title>
   <meta charset="utf-8" />
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta name="base_url" content="{{url('')}}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -129,21 +130,17 @@
   @endforeach
   <div class="push-script-ajax">@stack("scripts")</div>
 
-
   <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- DataTables Core -->
+  <script src="https://cdn.datatables.net/2.3.8/js/dataTables.min.js"></script>
 
+  <!-- DataTables Bootstrap 5 -->
+  <script src="https://cdn.datatables.net/2.3.8/js/dataTables.bootstrap5.min.js"></script>
 
-    <!-- DataTables Core -->
-    <script src="https://cdn.datatables.net/2.3.8/js/dataTables.min.js"></script>
-
-
-    <!-- DataTables Bootstrap 5 -->
-    <script src="https://cdn.datatables.net/2.3.8/js/dataTables.bootstrap5.min.js"></script>
-
-
-    <!-- Custom DataTable -->
-    <script src="{{ asset('custom/js/initDataTable.js') }}"></script>
+  <!-- Custom DataTable -->
+  <script src="{{ asset('custom/js/initDataTable.js') }}"></script>
 
 </body>
 

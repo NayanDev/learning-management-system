@@ -47,4 +47,16 @@ class Button
         return $this->data;
     }
 
+    public function modal(string $modal)
+    {
+        $this->data['modal'] = $modal;
+        return $this;
+    }
+
+    public function type(string $type)
+    {
+        $this->data['type'] = $type;
+        return $this;
+    }
+
 }

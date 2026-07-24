@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\JobdescSection;
 use Idev\EasyAdmin\app\Http\Controllers\DefaultController;
+use Illuminate\Http\Request;
 
 class JobdescSectionController extends DefaultController
 {
@@ -135,60 +136,75 @@ class JobdescSectionController extends DefaultController
 
 
     public function jobdescSection()
-{
-    $data = $this->defaultDataQuery()
-        ->where('section_id', 3)
-        ->get();
+    {
+        $data = $this->defaultDataQuery()
+            ->where('section_id', 3)
+            ->get();
+
+        $columns = [
+            [
+                "title" => "NO",
+                "data" => "no",
+                "type" => "number",
+                "width" => "5%"
+            ],
+            [
+                "title" => "NAME",
+                "data" => "name",
+                "width" => "50%"
+            ],
+            [
+                "title" => "FILE",
+                "data" => "file",
+                "width" => "25%"
+            ],
+            [
+                "title" => "STATUS",
+                "data" => "is_active",
+                "width" => "5%"
+            ],
+            [
+                "title" => "ACTION",
+                "data" => null,
+                "type" => "action",
+                "width" => "15%"
+            ]
+        ];
 
 
-    $columns = [
+        return response()->json([
+            "columns" => $columns,
+            "data" => $data
+        ]);
+    }
 
-        [
-            "title" => "NO",
-            "data" => "no",
-            "type" => "number",
-            "width" => "5%"
-        ],
+    public function destroyData(Request $request, $id)
+    {
+        $data = $this->defaultDataQuery()
+            ->where('id',$id)
+            ->first();
 
+        if(!$data){
+            return response()->json([
+                'message'=>'Data not found'
+            ],404);
+        }
 
-        [
-            "title" => "NAME",
-            "data" => "name",
-            "width" => "20%"
-        ],
+        $data->delete();
 
-
-        [
-            "title" => "FILE",
-            "data" => "file",
-            "width" => "15%"
-        ],
-
-
-        [
-            "title" => "STATUS",
-            "data" => "is_active",
-            "width" => "10%"
-        ],
+        return response()->json([
+            'message'=>'Data deleted successfully'
+        ]);
+    }
 
 
-        [
-            "title" => "ACTION",
-            "data" => null,
-            "type" => "action",
-            "width" => "10%"
-        ]
+    public function showData($id)
+    {
+        $data = $this->defaultDataQuery()
+            ->where('id',$id)
+            ->firstOrFail();
 
-    ];
-
-
-    return response()->json([
-
-        "columns" => $columns,
-
-        "data" => $data
-
-    ]);
-}
+        return response()->json($data);
+    }
 
 }

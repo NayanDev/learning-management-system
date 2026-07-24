@@ -38,15 +38,18 @@ class Table
         return $this;
     }
 
-    public function modal(string $modal)
-    {
-        $this->data['modal'] = $modal;
-        return $this;
-    }
-
     public function key()
     {
         return $this->data['key'];
+    }
+
+    public function actions(array $actions): static
+    {
+        foreach ($actions as $action) {
+            $this->data['actions'][$action->toArray()['key']] = $action->toArray();
+        }
+
+        return $this;
     }
 
     public function toArray()

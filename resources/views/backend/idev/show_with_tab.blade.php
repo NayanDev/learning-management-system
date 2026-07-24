@@ -14,4 +14,10 @@
         </div>
     </div>
     <!-- [ sample-page ] end -->
+    @include(
+    'backend.idev.show_with_tab.render_modals',
+    [
+        'modals'=>$components['modals']
+    ]
+)
 </div>

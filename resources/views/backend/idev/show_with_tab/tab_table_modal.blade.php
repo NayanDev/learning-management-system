@@ -26,15 +26,29 @@
                 </div>
 
                 <div class="modal-footer">
-                    @foreach(($modal['buttons'] ?? []) as $button)
-                        <button type="button"
-                            class="{{ $button['class'] ?? 'btn btn-secondary' }}"
-                            @if(!empty($button['dismiss']))
+
+                    @foreach(($modal['buttons'] ?? []) as $buttonKey)
+
+                        @php
+                            $button = $components['buttons'][$buttonKey] ?? null;
+                        @endphp
+
+                        @continue(!$button)
+
+                        <button
+                            type="button"
+                            class="{{ $button['class'] }}"
+
+                            @if(isset($button['dismiss']))
                                 data-bs-dismiss="{{ $button['dismiss'] }}"
                             @endif>
-                            {{ $button['label'] ?? '' }}
+
+                            {{ $button['label'] }}
+
                         </button>
+
                     @endforeach
+
                 </div>
             </form>
         </div>
