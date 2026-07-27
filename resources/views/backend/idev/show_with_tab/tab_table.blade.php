@@ -4,12 +4,10 @@
             {{ $item['label'] ?? ucfirst($item['target']) }}
         </h5>
         <div class="card-header-right">
-            {{-- @include('backend.idev.show_with_tab.tab_table_button') --}}
 
             <button class="btn btn-danger" onclick="openJobdescModal()">
-                + Jobdesc
+                + {{ $item['label'] }}
             </button>
-
 
         </div>
     </div>

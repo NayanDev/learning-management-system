@@ -47,6 +47,19 @@ class SectionController extends DefaultController
                     ['name' => 'Name', 'column' => 'name'], 
             ]
         ];
+        
+
+        $this->importScripts = [
+            ['source' => 'https://cdn.datatables.net/2.3.8/js/dataTables.min.js'],
+            ['source' => 'https://cdn.datatables.net/2.3.8/js/dataTables.bootstrap5.min.js'],
+            ['source' => asset('custom/js/initDataTable.js')],
+            ['source' => asset('custom/js/modalConfig.js')],
+        ];
+
+        $this->importStyles = [
+            ['source' => asset('custom/css/sweetAlertValidation.css')],
+            ['source' => 'https://cdn.datatables.net/2.3.8/css/dataTables.bootstrap5.min.css'],
+        ];
     }
 
 

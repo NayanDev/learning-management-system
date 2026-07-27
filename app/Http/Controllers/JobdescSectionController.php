@@ -52,6 +52,7 @@ class JobdescSectionController extends DefaultController
         ];
 
         $this->importStyles = [
+            // ['source' => asset('custom/css/sweetAlertValidation.css')],
             ['source' => 'https://cdn.datatables.net/2.3.8/css/dataTables.bootstrap5.min.css'],
         ];
     }
@@ -160,11 +161,21 @@ class JobdescSectionController extends DefaultController
 
     public function storeData(Request $request)
     {
-        $request->validate([
-            'name'      => 'required|string|max:255',
-            'file'      => 'required|file|mimes:pdf|max:1024', // 1 MB
-            'section_id'=> 'required',
-        ]);
+        $request->validate(
+            [
+                'name'       => 'required|string|max:255',
+                'file'       => 'required|file|mimes:pdf|max:1024', // 1024 KB = 1 MB
+                'section_id' => 'required',
+            ],
+            [
+                'name.required'        => 'Nama job description wajib diisi.',
+                'file.required'        => 'File PDF wajib diupload.',
+                'file.file'            => 'File yang diupload tidak valid.',
+                'file.mimes'           => 'File harus berformat PDF.',
+                'file.max'             => 'Ukuran file terlalu besar. Maksimal upload 1 MB.',
+                'section_id.required'  => 'Section wajib dipilih.',
+            ]
+        );
 
         $file = $request->file('file');
 
@@ -203,70 +214,70 @@ class JobdescSectionController extends DefaultController
      * Update a JobdescSection. File upload is optional.
      */
     public function updateData(Request $request, $id)
-{
-    $record = JobdescSection::findOrFail($id);
+    {
+        $record = JobdescSection::findOrFail($id);
 
-    $request->validate([
-        'name'       => 'required|string|max:255',
-        'file'       => 'nullable|file|mimes:pdf|max:1024',
-        'section_id' => 'required',
-    ]);
-
-
-    $record->name = $request->name;
-    $record->section_id = $request->section_id;
-    $record->is_active = $request->is_active ?? false;
+        $request->validate([
+            'name'       => 'required|string|max:255',
+            'file'       => 'nullable|file|mimes:pdf|max:1024',
+            'section_id' => 'required',
+        ]);
 
 
-    if ($request->hasFile('file')) {
+        $record->name = $request->name;
+        $record->section_id = $request->section_id;
+        $record->is_active = $request->is_active ?? false;
 
-        // hapus file lama
-        if ($record->file) {
 
-            $oldFile = 'jobdesc/section/' . $record->file;
+        if ($request->hasFile('file')) {
 
-            if (Storage::disk('public')->exists($oldFile)) {
-                Storage::disk('public')->delete($oldFile);
+            // hapus file lama
+            if ($record->file) {
+
+                $oldFile = 'jobdesc/section/' . $record->file;
+
+                if (Storage::disk('public')->exists($oldFile)) {
+                    Storage::disk('public')->delete($oldFile);
+                }
             }
+
+
+            // pastikan folder tersedia
+            Storage::disk('public')
+                ->makeDirectory('jobdesc/section');
+
+
+            $file = $request->file('file');
+
+
+            // nama file sama seperti store
+            $filename = Str::slug($request->name)
+                . '_' . now()->format('YmdHis')
+                . '.' . $file->getClientOriginalExtension();
+
+
+            // simpan file
+            $file->storeAs(
+                'jobdesc/section',
+                $filename,
+                'public'
+            );
+
+
+            // database hanya nama file
+            $record->file = $filename;
         }
 
 
-        // pastikan folder tersedia
-        Storage::disk('public')
-            ->makeDirectory('jobdesc/section');
+        $record->save();
 
 
-        $file = $request->file('file');
-
-
-        // nama file sama seperti store
-        $filename = Str::slug($request->name)
-            . '_' . now()->format('YmdHis')
-            . '.' . $file->getClientOriginalExtension();
-
-
-        // simpan file
-        $file->storeAs(
-            'jobdesc/section',
-            $filename,
-            'public'
-        );
-
-
-        // database hanya nama file
-        $record->file = $filename;
+        return response()->json([
+            'status'  => true,
+            'message' => 'Job description berhasil diperbarui.',
+            'data'    => $record
+        ]);
     }
-
-
-    $record->save();
-
-
-    return response()->json([
-        'status'  => true,
-        'message' => 'Job description berhasil diperbarui.',
-        'data'    => $record
-    ]);
-}
 
 
     /**

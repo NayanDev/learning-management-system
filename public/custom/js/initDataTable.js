@@ -86,16 +86,12 @@ function initReportTable() {
                                         .map(key => {
 
                                             const action = actions[key];
-
                                             const safeUrl = (action.url ?? '')
                                                 .replace(/'/g, "\\'");
-
                                             const safeModal = (action.modal ?? '')
                                                 .replace(/'/g, "\\'");
-
                                             const safeRow = JSON.stringify(row)
                                                 .replace(/"/g, '&quot;');
-
 
                                             return `
                                                 <button
@@ -179,7 +175,7 @@ document.querySelectorAll('[data-bs-toggle="tab"]').forEach((tab) => {
 });
 
 /* ══════════════════════════════════════════════════════════════════════════
-handleAction — dispatcher untuk semua action button di DataTable
+    handleAction — dispatcher untuk semua action button di DataTable
    ══════════════════════════════════════════════════════════════════════════ */
 function handleAction(action, row, url, modal)
 {
@@ -202,24 +198,18 @@ function handleAction(action, row, url, modal)
 
 
 /* ══════════════════════════════════════════════════════════════════════════
-   showData — buka modal view (PDF viewer dll.), tidak ada form filling
+    showData — buka modal view (PDF viewer dll.), tidak ada form filling
    ══════════════════════════════════════════════════════════════════════════ */
 function showData(row, id, url, modalId)
 {
     const pdfUrl = '/storage/jobdesc/section/' + row.file + '#toolbar=0&navpanes=0';
-
-    console.log($('#jobdescPdfViewer').length); // harus 1
-
     document.getElementById('jobdescPdfViewer').src = pdfUrl;
-
-    console.log(document.getElementById('jobdescPdfViewer').src);
-
     $('#jobdesc-show').modal('show');
 }
 
 
 /* ══════════════════════════════════════════════════════════════════════════
-   editData — fetch data lalu buka modal CRUD dalam mode edit
+    editData — fetch data lalu buka modal CRUD dalam mode edit
    ══════════════════════════════════════════════════════════════════════════ */
 function editData(id, url, modalId)
 {
@@ -268,7 +258,7 @@ function editData(id, url, modalId)
 
 
 /* ══════════════════════════════════════════════════════════════════════════
-   deleteData — konfirmasi SweetAlert lalu hapus via fetch DELETE
+    deleteData — konfirmasi SweetAlert lalu hapus via fetch DELETE
                 Tidak ada reload halaman — hanya reinit DataTable
    ══════════════════════════════════════════════════════════════════════════ */
 function deleteData(id, url)
@@ -333,193 +323,3 @@ function deleteData(id, url)
         });
     });
 }
-
-
-(function () {
-    'use strict';
-
-    var MODAL_ID  = '{{ $modalId }}';
-    var SAVE_LABEL = '{{ $saveLabel }}';
-
-    /* ── Helper: get element inside this modal ──────────────────────── */
-    function $m(id) { return document.getElementById(MODAL_ID + '-' + id); }
-
-    /* ══════════════════════════════════════════════════════════════════
-       window.openCrudModal
-       Called by initDataTable.js (edit action) and the Create button.
-       ══════════════════════════════════════════════════════════════════ */
-    window.openCrudModal = function (selector, options) {
-        var modalEl = document.querySelector(selector);
-        if (!modalEl) {
-            console.warn('openCrudModal: element not found:', selector);
-            return;
-        }
-
-        var formEl    = document.getElementById(modalEl.id + '-form');
-        var methodEl  = document.getElementById(modalEl.id + '-_method');
-        var secEl     = document.getElementById(modalEl.id + '-section_id');
-        var titleEl   = modalEl.querySelector('.modal-title');
-        var baseUrl   = modalEl.dataset.baseUrl   || '';
-        var baseTitle = modalEl.dataset.baseTitle  || 'Form';
-        var mode      = (options && options.mode)  || 'create';
-
-        /* Reset form */
-        formEl.reset();
-        formEl.removeAttribute('data-submit-url'); // clear previous url
-
-        /* Clear file hints */
-        modalEl.querySelectorAll('[id$="-hint"]').forEach(function (el) {
-            el.textContent = '';
-        });
-
-        /* ── CREATE mode ─────────────────────────────────────────────── */
-        if (mode !== 'edit') {
-            formEl.dataset.submitUrl = baseUrl;
-            methodEl.value           = 'POST';
-            titleEl.textContent      = (options && options.title) || ('Add ' + baseTitle);
-
-            /* section_id from option or from nearest table[data-section-id] */
-            if (secEl) {
-                var sid = (options && options.sectionId) || '';
-                if (!sid) {
-                    var tbl = document.querySelector('table[data-section-id]');
-                    if (tbl) sid = tbl.dataset.sectionId || '';
-                }
-                secEl.value = sid;
-            }
-
-        /* ── EDIT mode ───────────────────────────────────────────────── */
-        } else {
-            formEl.dataset.submitUrl = baseUrl + '/' + options.id;
-            methodEl.value           = 'PUT';
-            titleEl.textContent      = (options && options.title) || ('Edit ' + baseTitle);
-
-            /* Pre-fill text / hidden fields */
-            var data = options.data || {};
-            Object.keys(data).forEach(function (key) {
-                var input = formEl.querySelector('[name="' + key + '"]');
-                if (input && input.type !== 'file') {
-                    input.value = data[key] != null ? data[key] : '';
-                }
-            });
-
-            /* Show current filename as hint below file input */
-            if (data.file) {
-                var parts    = data.file.split('/');
-                var filename = parts[parts.length - 1];
-                var hint = modalEl.querySelector('[id$="file-hint"]');
-                if (hint) hint.textContent = 'Current file: ' + filename;
-            }
-        }
-
-        bootstrap.Modal.getOrCreateInstance(modalEl).show();
-    };
-
-    /* ══════════════════════════════════════════════════════════════════
-       DOMContentLoaded wiring
-       ══════════════════════════════════════════════════════════════════ */
-    document.addEventListener('DOMContentLoaded', function () {
-        var modalEl = document.getElementById(MODAL_ID);
-        if (!modalEl) return;
-
-        var formEl    = document.getElementById(MODAL_ID + '-form');
-        var submitBtn = document.getElementById(MODAL_ID + '-btn-save');
-        var btnLabel  = document.getElementById(MODAL_ID + '-btn-label');
-
-        /* ── Ajax form submit ────────────────────────────────────────── */
-        formEl.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            var submitUrl = formEl.dataset.submitUrl || '';
-            if (!submitUrl) {
-                Swal.fire({ icon: 'error', title: 'Konfigurasi Error', text: 'Submit URL tidak ditemukan.' });
-                return;
-            }
-
-            // Log debug info ke console
-            var secInput = formEl.querySelector('[name="section_id"]');
-            console.log('[CrudModal] Submit →', submitUrl);
-            console.log('[CrudModal] section_id =', secInput ? secInput.value : 'input not found');
-            console.log('[CrudModal] _method =', (formEl.querySelector('[name="_method"]') || {}).value);
-
-            /* Disable button & show loading */
-            if (submitBtn) { submitBtn.disabled = true; }
-            if (btnLabel)  { btnLabel.textContent = 'Menyimpan…'; }
-
-            var formData  = new FormData(formEl);
-            var csrfMeta  = document.querySelector('meta[name="csrf-token"]');
-            var csrfToken = csrfMeta ? csrfMeta.content : '';
-
-            fetch(submitUrl, {
-                method : 'POST',          // always POST; _method field handles PUT spoofing
-                body   : formData,
-                headers: {
-                    'X-CSRF-TOKEN'     : csrfToken,
-                    'X-Requested-With' : 'XMLHttpRequest',
-                    'Accept'           : 'application/json',
-                }
-            })
-            .then(function (res) {
-                console.log('[CrudModal] Response HTTP', res.status, res.url);
-                return res.text().then(function (text) {
-                    var body = {};
-                    try { body = JSON.parse(text); } catch(e) {
-                        console.error('[CrudModal] Response bukan JSON:', text.substring(0, 500));
-                    }
-                    return { ok: res.ok, status: res.status, body: body };
-                });
-            })
-            .then(function (result) {
-                console.log('[CrudModal] Response body:', result.body);
-
-                if (result.ok && result.body.status !== false) {
-                    /* ── SUCCESS ──────────────────────────────────────── */
-                    bootstrap.Modal.getOrCreateInstance(modalEl).hide();
-
-                    // Gunakan global reloadDataTable dari initDataTable.js
-                    if (typeof window.reloadDataTable === 'function') {
-                        window.reloadDataTable();
-                    }
-
-                    Swal.fire({
-                        icon             : 'success',
-                        title            : 'Berhasil!',
-                        text             : result.body.message || 'Data berhasil disimpan.',
-                        timer            : 2000,
-                        showConfirmButton : false,
-                        timerProgressBar : true,
-                    });
-
-                } else {
-                    /* ── VALIDATION / SERVER ERROR ───────────────────── */
-                    var errors = result.body.errors || {};
-                    var lines  = Object.values(errors).flat();
-                    var html   = lines.length
-                        ? '<ul class="text-start mb-0">' + lines.map(function(l){ return '<li>' + l + '</li>'; }).join('') + '</ul>'
-                        : (result.body.message || 'Terjadi kesalahan. Status: ' + result.status);
-
-                    console.error('[CrudModal] Gagal:', result.status, errors);
-                    Swal.fire({
-                        icon : 'error',
-                        title: 'Gagal menyimpan!',
-                        html : html,
-                    });
-                }
-
-            })
-            .catch(function (err) {
-                console.error('[CrudModal] fetch error:', err);
-                Swal.fire({
-                    icon : 'error',
-                    title: 'Network Error',
-                    text : err.message || 'Gagal terhubung ke server.',
-                });
-            })
-            .finally(function () {
-                if (submitBtn) { submitBtn.disabled = false; }
-                if (btnLabel)  { btnLabel.textContent = SAVE_LABEL; }
-            });
-        });
-    });
-
-})();
