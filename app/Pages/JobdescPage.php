@@ -22,29 +22,28 @@ class JobdescPage extends PageBuilder
             ->layout('detail')
         );
 
-        $this->button(Button::make('create')
-            ->label('+ Jobdesc')
-            ->class('btn btn-danger')
-            ->icon('ti ti-plus')
-            ->modal('jobdesc-create')
-        );
-        
-        $this->button(Button::make('save')
-            ->label('Save')
-            ->class('btn btn-success')
-        );
-
-        $this->button(Button::make('close')
-            ->label('Close')
-            ->class('btn btn-danger')
-            ->dismiss('modal')
-        );
-
+        // ── Shared form used by create & update modal ──────────────────────
         $this->form(Form::make('jobdesc')
-            ->text('name','Name')
-            ->file('file','File')
+            ->text('name', 'Name')
+            ->file('file', 'File')
         );
 
+        // ── Single reusable modal for create & update ──────────────────────
+        $this->modal(
+            Modal::make('jobdesc-form')
+                ->type('form')
+                ->title('Job Description')   // overridden at runtime via JS
+                ->form('jobdesc')
+                ->url('/section/jobdesc')
+                ->method('POST')
+                ->size('lg')
+                ->dialog('modal-lg modal-dialog-centered')
+                ->backdrop('static')
+                ->keyboard(false)
+                ->buttons(['save', 'close'])
+        );
+
+        // ── Modal: view PDF ────────────────────────────────────────────────
         $this->modal(
             Modal::make('jobdesc-show')
                 ->type('view-pdf')
@@ -55,15 +54,34 @@ class JobdescPage extends PageBuilder
                 ->backdrop('static')
                 ->keyboard(false)
                 ->height(450)
-                ->src(asset('storage/materi/Company Profile_1769153180.pdf') . '#toolbar=0&navpanes=0')
+                ->src('')
+        );
+
+        // ── Footer buttons (referenced by modals) ─────────────────────────
+        $this->button(Button::make('save')
+            ->label('Save')
+            ->class('btn btn-success')
+            ->type('submit')
+        );
+
+        $this->button(Button::make('close')
+            ->label('Close')
+            ->class('btn btn-secondary')
+            ->dismiss('modal')
+        );
+
+        // ── Table ──────────────────────────────────────────────────────────
+        $this->button(Button::make('create')
+            ->label('+ Jobdesc')
+            ->class('btn btn-danger')
+            ->icon('ti ti-plus')
+            ->modal('jobdesc-form')
         );
 
         $this->table(Table::make('jobdesc')
             ->id('jobdesc-table')
-            ->buttons([
-                'create'
-            ])
-            ->columns(['No','Name','Description','Action'])
+            ->buttons(['create'])
+            ->columns(['No', 'Name', 'Description', 'Action'])
             ->actions([
                 Action::make('show')
                     ->icon('ti ti-eye')
@@ -75,14 +93,13 @@ class JobdescPage extends PageBuilder
                     ->icon('ti ti-edit')
                     ->class('btn btn-sm btn-light-success')
                     ->url('/section/jobdesc')
-                    ->modal('jobdesc-edit'),
+                    ->modal('jobdesc-form'),   // reuse same modal for edit
 
                 Action::make('delete')
                     ->icon('ti ti-trash')
                     ->class('btn btn-sm btn-light-danger')
                     ->url('/section/jobdesc'),
             ])
-            // ->modal('jobdesc-show')
             ->url('/report/jobdesc-section')
         );
 

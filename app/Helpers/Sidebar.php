@@ -163,6 +163,15 @@ class Sidebar
             'childrens' => []
           ],
         [
+            'name' => 'Jobdesc Section',
+            'icon' => 'ti ti-checkup-list',
+            'key' => 'jobdesc-section',
+            'base_key' => 'jobdesc-section',
+            'visibility' => true,
+            'ajax_load' => false,
+            'childrens' => []
+          ],
+        [
           'name' => 'Workshop',
           'icon' => 'ti ti-tools',
           'key' => 'workshop',

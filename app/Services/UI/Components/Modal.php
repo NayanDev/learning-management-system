@@ -92,4 +92,16 @@ class Modal
         return $this;
     }
 
+    public function url(string $url): static
+    {
+        $this->data['url'] = $url;
+        return $this;
+    }
+
+    public function method(string $method): static
+    {
+        $this->data['method'] = strtoupper($method);
+        return $this;
+    }
+
 }

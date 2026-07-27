@@ -2,20 +2,32 @@
     @foreach($table['buttons'] as $buttonKey)
 
         @php
-            $button = $components['buttons'][$buttonKey];
+            $button = $components['buttons'][$buttonKey] ?? null;
         @endphp
 
+        @continue(!$button)
+
+        {{--
+            Langsung memanggil openCrudModal() via onclick agar selalu berfungsi
+            meskipun tombol dirender setelah DOMContentLoaded (misalnya saat tab dibuka).
+            Tidak bergantung pada event listener yang di-wire saat DOMContentLoaded.
+        --}}
         <button
             type="button"
             class="{{ $button['class'] }}"
             @if(isset($button['modal']))
-                data-bs-toggle="modal"
-                data-bs-target="#{{ $button['modal'] }}"
+                onclick="(function(){
+                    if (typeof window.openCrudModal === 'function') {
+                        window.openCrudModal('#{{ $button['modal'] }}', { mode: 'create' });
+                    } else {
+                        console.error('openCrudModal belum tersedia.');
+                    }
+                })()"
             @endif>
 
-            {{-- @if(isset($button['icon']))
+            @if(isset($button['icon']))
                 <i class="{{ $button['icon'] }}"></i>
-            @endif --}}
+            @endif
 
             {{ $button['label'] }}
 

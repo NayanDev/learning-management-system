@@ -3,7 +3,11 @@
     @switch($modal['type'] ?? null)
 
         @case('form')
-            @include('modal.form')
+            @include('backend.idev.show_with_tab.modal.modal_form_jobdesc', [
+                'modal'   => $modal,
+                'form'    => $components['forms'][$modal['form']] ?? [],
+                'buttons' => $components['buttons'] ?? [],
+            ])
         @break
 
         @case('view-pdf')

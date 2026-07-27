@@ -42,7 +42,22 @@ use App\Http\Controllers\TrainingUnplanParticipantController;
 use App\Http\Controllers\TrainingWorkshopController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkshopController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+
+// Route::post('/section/jobdesc/test', function (Request $request) {
+
+    // return response()->json([
+    //     'status' => true,
+    //     'data' => [
+    //         'name' => $request->input('name'),
+    //         'section_id' => $request->input('section_id'),
+    //         'file_exists' => $request->hasFile('file'),
+    //     ]
+    // ]);
+
+// });
 
 Route::get('/', [AuthController::class, 'login'])->name('login')->middleware('web');
 // Route Signature Verified
@@ -474,8 +489,11 @@ Route::group(['middleware' => ['web', 'auth']], function () {
         Route::get('jobdesc-section-export-excel-default', [JobdescSectionController::class, 'exportExcel'])->name('jobdesc-section.export-excel-default');
         Route::post('jobdesc-section-import-excel-default', [JobdescSectionController::class, 'importExcel'])->name('jobdesc-section.import-excel-default');
 
-        Route::get('/report/jobdesc-section', [JobdescSectionController::class, 'jobdescSection']);
-        Route::delete('/section/jobdesc/{id}', [JobdescSectionController::class, 'destroyData']);
-        Route::get('/section/jobdesc/{id}', [JobdescSectionController::class,'showData']);
+        Route::get('/report/jobdesc-section',       [JobdescSectionController::class, 'jobdescSection']);
+        Route::post('/section/jobdesc/test',             [JobdescSectionController::class, 'storeData']);
+        
+        Route::put('/section/jobdesc/{id}',         [JobdescSectionController::class, 'updateData']);
+        Route::delete('/section/jobdesc/{id}',      [JobdescSectionController::class, 'destroyData']);
+        Route::get('/section/jobdesc/{id}',         [JobdescSectionController::class, 'showData']);
         
     });

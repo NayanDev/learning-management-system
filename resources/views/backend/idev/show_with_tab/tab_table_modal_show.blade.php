@@ -9,17 +9,22 @@
         <div class="modal-content">
 
             <div class="modal-header">
-                <h5 class="modal-title">Detail Job Description</h5>
+                <h5 class="modal-title">
+                    Detail Job Description
+                </h5>
 
                 <button type="button"
                         class="btn-close"
-                        data-bs-dismiss="modal"></button>
+                        data-bs-dismiss="modal">
+                </button>
             </div>
+
 
             <div class="modal-body p-0">
 
                 <iframe
-                    src="{{ Storage::url('materi/Company Profile_1769153180.pdf') }}#toolbar=0&navpanes=0"
+                    id="jobdescPdfViewer"
+                    src=""
                     width="100%"
                     height="700"
                     style="border:none;">

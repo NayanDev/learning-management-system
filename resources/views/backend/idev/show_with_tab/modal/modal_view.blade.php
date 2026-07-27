@@ -32,7 +32,8 @@
                     @case('pdf')
 
                         <iframe
-                            src="{{ $modal['src'] }}"
+                            id="jobdescPdfViewer"
+                            src=""
                             width="100%"
                             height="{{ $modal['height'] ?? '700' }}"
                             style="border:none;">
