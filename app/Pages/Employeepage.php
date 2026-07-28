@@ -4,13 +4,12 @@ namespace App\Pages;
 
 use App\Services\UI\Components\Action;
 use App\Services\UI\Components\Button;
-use App\Services\UI\Components\Form;
 use App\Services\UI\Components\Modal;
 use App\Services\UI\Components\Tab;
 use App\Services\UI\Components\Table;
 use App\Services\UI\PageBuilder;
 
-class JobdescPage extends PageBuilder
+class EmployeePage extends PageBuilder
 {
     public function __construct()
     {
@@ -32,10 +31,10 @@ class JobdescPage extends PageBuilder
         );
 
         // ── Shared form used by create & update modal ──────────────────────
-        $this->form(Form::make('jobdesc')
-            ->text('name', 'Name')
-            ->file('file', 'File')
-        );
+        // $this->form(Form::make('jobdesc')
+        //     ->text('name', 'Name')
+        //     ->file('file', 'File')
+        // );
 
         // ── Single reusable modal for create & update ──────────────────────
         $this->modal(
@@ -43,7 +42,7 @@ class JobdescPage extends PageBuilder
                 ->type('form')
                 ->title('Job Description')   // overridden at runtime via JS
                 ->form('jobdesc')
-                ->url('/section/jobdesc')
+                ->url('/employee/jobdesc')
                 ->method('POST')
                 ->size('lg')
                 ->dialog('modal-lg modal-dialog-centered')
@@ -63,7 +62,7 @@ class JobdescPage extends PageBuilder
                 ->backdrop('static')
                 ->keyboard(false)
                 ->height(450)
-                ->src('storage/jobdesc/section')
+                ->src('storage/jobdesc/employee')
         );
 
         // ── Footer buttons (referenced by modals) ─────────────────────────
@@ -95,21 +94,21 @@ class JobdescPage extends PageBuilder
                 Action::make('show')
                     ->icon('ti ti-eye')
                     ->class('btn btn-sm btn-light-primary')
-                    ->url('/section/jobdesc')
+                    ->url('/employee/jobdesc')
                     ->modal('jobdesc-show'),
 
                 Action::make('edit')
                     ->icon('ti ti-edit')
                     ->class('btn btn-sm btn-light-success')
-                    ->url('/section/jobdesc')
+                    ->url('/employee/jobdesc')
                     ->modal('jobdesc-form'),   // reuse same modal for edit
 
                 Action::make('delete')
                     ->icon('ti ti-trash')
                     ->class('btn btn-sm btn-light-danger')
-                    ->url('/section/jobdesc'),
+                    ->url('/employee/jobdesc'),
             ])
-            ->url('/report/jobdesc-section')
+            ->url('/report/jobdesc-employee')
         );
     }
 

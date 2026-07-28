@@ -129,7 +129,6 @@ class JobdescSectionController extends DefaultController
     public function jobdescSection(Request $request)
     {
         $sectionId = $request->query('section_id');
-
         $query = $this->defaultDataQuery();
 
         if ($sectionId) {
@@ -137,7 +136,6 @@ class JobdescSectionController extends DefaultController
         }
 
         $data = $query->get();
-
         $columns = [
             ['title' => 'NO',     'data' => 'no',       'type' => 'number', 'width' => '5%'],
             ['title' => 'NAME',   'data' => 'name',                          'width' => '45%'],
@@ -151,13 +149,6 @@ class JobdescSectionController extends DefaultController
             'data'    => $data,
         ]);
     }
-
-
-
-    /**
-     * POST /section/jobdesc
-     * Create a new JobdescSection with PDF file upload.
-     */
 
     public function storeData(Request $request)
     {
@@ -197,7 +188,7 @@ class JobdescSectionController extends DefaultController
         $record = JobdescSection::create([
             'uuid'       => Str::random(12),
             'name'       => $request->name,
-            'file'       => $filename, // hanya nama file
+            'file'       => $filename,
             'section_id' => $request->section_id,
             'is_active'  => $request->is_active ?? false,
         ]);
@@ -209,10 +200,6 @@ class JobdescSectionController extends DefaultController
         ]);
     }
 
-    /**
-     * PUT /section/jobdesc/{id}
-     * Update a JobdescSection. File upload is optional.
-     */
     public function updateData(Request $request, $id)
     {
         $record = JobdescSection::findOrFail($id);
@@ -223,54 +210,32 @@ class JobdescSectionController extends DefaultController
             'section_id' => 'required',
         ]);
 
-
         $record->name = $request->name;
         $record->section_id = $request->section_id;
         $record->is_active = $request->is_active ?? false;
 
-
         if ($request->hasFile('file')) {
-
             // hapus file lama
             if ($record->file) {
-
                 $oldFile = 'jobdesc/section/' . $record->file;
-
                 if (Storage::disk('public')->exists($oldFile)) {
                     Storage::disk('public')->delete($oldFile);
                 }
             }
 
-
             // pastikan folder tersedia
-            Storage::disk('public')
-                ->makeDirectory('jobdesc/section');
-
-
+            Storage::disk('public')->makeDirectory('jobdesc/section');
             $file = $request->file('file');
-
-
             // nama file sama seperti store
             $filename = Str::slug($request->name)
                 . '_' . now()->format('YmdHis')
                 . '.' . $file->getClientOriginalExtension();
-
-
             // simpan file
-            $file->storeAs(
-                'jobdesc/section',
-                $filename,
-                'public'
-            );
-
-
-            // database hanya nama file
+            $file->storeAs('jobdesc/section',$filename,'public');
             $record->file = $filename;
         }
 
-
         $record->save();
-
 
         return response()->json([
             'status'  => true,
@@ -279,32 +244,20 @@ class JobdescSectionController extends DefaultController
         ]);
     }
 
-
-    /**
-     * DELETE /section/jobdesc/{id}
-     */
     public function destroyData(Request $request, $id)
     {
         $data = JobdescSection::find($id);
-
         if (!$data) {
             return response()->json(['message' => 'Data not found'], 404);
         }
-
         if ($data->file && Storage::disk('public')->exists($data->file)) {
             Storage::disk('public')->delete($data->file);
         }
-
         $data->delete();
 
         return response()->json(['message' => 'Data deleted successfully']);
     }
 
-
-    /**
-     * GET /section/jobdesc/{id}
-     * Returns fields for pre-filling the edit modal.
-     */
     public function showData($id)
     {
         $data = JobdescSection::findOrFail($id);
@@ -316,4 +269,5 @@ class JobdescSectionController extends DefaultController
             'section_id' => $data->section_id,
         ]);
     }
+
 }

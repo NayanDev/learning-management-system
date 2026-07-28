@@ -18,6 +18,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\JobdescEmployeeController;
 use App\Http\Controllers\JobdescSectionController;
 use App\Http\Controllers\MateriController;
 use App\Http\Controllers\MateriLogController;
@@ -42,7 +43,6 @@ use App\Http\Controllers\TrainingUnplanParticipantController;
 use App\Http\Controllers\TrainingWorkshopController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkshopController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
@@ -494,5 +494,20 @@ Route::group(['middleware' => ['web', 'auth']], function () {
         Route::put('/section/jobdesc/{id}',         [JobdescSectionController::class, 'updateData']);
         Route::delete('/section/jobdesc/{id}',      [JobdescSectionController::class, 'destroyData']);
         Route::get('/section/jobdesc/{id}',         [JobdescSectionController::class, 'showData']);
+
+        // Route Jobdesc Employee
+        Route::resource('jobdesc-employee', JobdescEmployeeController::class);
+        Route::get('jobdesc-employee-api', [JobdescEmployeeController::class, 'indexApi'])->name('jobdesc-employee.listapi');
+        Route::get('jobdesc-employee-export-pdf-default', [JobdescEmployeeController::class, 'exportPdf'])->name('jobdesc-employee.export-pdf-default');
+        Route::get('jobdesc-employee-export-excel-default', [JobdescEmployeeController::class, 'exportExcel'])->name('jobdesc-employee.export-excel-default');
+        Route::post('jobdesc-employee-import-excel-default', [JobdescEmployeeController::class, 'importExcel'])->name('jobdesc-employee.import-excel-default');
+
+        Route::get('/report/jobdesc-employee',       [JobdescEmployeeController::class, 'jobdescEmployee']);
+        Route::post('/employee/jobdesc',             [JobdescEmployeeController::class, 'storeData']);
+        Route::put('/employee/jobdesc/{id}',         [JobdescEmployeeController::class, 'updateData']);
+        Route::delete('/employee/jobdesc/{id}',      [JobdescEmployeeController::class, 'destroyData']);
+        Route::get('/employee/jobdesc/{id}',         [JobdescEmployeeController::class, 'showData']);
+
+
         
     });

@@ -14,7 +14,7 @@
                 </button>
             </div>
 
-            <form id="jobdescForm" enctype="multipart/form-data">
+            <form id="jobdescForm" data-url="{{ $modal['url'] }}" enctype="multipart/form-data">
 
                 @csrf
 
@@ -32,7 +32,7 @@
 
                 <input
                     type="hidden"
-                    name="section_id"
+                    name="{{ request()->segment(1) }}_id"
                     value="{{ $detail->id ?? '' }}">
 
                 <div class="modal-body">

@@ -1,6 +1,7 @@
 <div class="modal fade"
      id="{{ $modal['id'] }}"
      tabindex="-1"
+     data-src="{{ $modal['src'] }}"
      data-bs-backdrop="{{ $modal['backdrop'] ?? 'static' }}"
      data-bs-keyboard="{{ ($modal['keyboard'] ?? false) ? 'true' : 'false' }}">
 

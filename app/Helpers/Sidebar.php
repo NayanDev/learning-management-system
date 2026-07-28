@@ -172,6 +172,15 @@ class Sidebar
             'childrens' => []
           ],
         [
+            'name' => 'Jobdesc Employee',
+            'icon' => 'ti ti-checkup-list',
+            'key' => 'jobdesc-employee',
+            'base_key' => 'jobdesc-employee',
+            'visibility' => true,
+            'ajax_load' => false,
+            'childrens' => []
+          ],
+        [
           'name' => 'Workshop',
           'icon' => 'ti ti-tools',
           'key' => 'workshop',

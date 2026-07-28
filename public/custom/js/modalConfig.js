@@ -49,10 +49,10 @@ $(document).on("submit", "#jobdescForm", function (e) {
     e.preventDefault();
 
     let id = $("#jobdesc_id").val();
-
     let formData = new FormData(this);
-
-    let url = id ? "/section/jobdesc/" + id : "/section/jobdesc";
+    let form = this;
+    let dataURLForm = form.dataset.url;
+    let url = id ? dataURLForm + "/" + id : dataURLForm;
 
     // update menggunakan method PUT
     if (id) {

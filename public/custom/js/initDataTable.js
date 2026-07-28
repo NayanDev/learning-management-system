@@ -202,7 +202,8 @@ function handleAction(action, row, url, modal)
    ══════════════════════════════════════════════════════════════════════════ */
 function showData(row, id, url, modalId)
 {
-    const pdfUrl = '/storage/jobdesc/section/' + row.file + '#toolbar=0&navpanes=0';
+    const basePath = $('#' + url).data('src');
+    const pdfUrl = basePath + '/' + row.file + '#toolbar=0&navpanes=0';
     document.getElementById('jobdescPdfViewer').src = pdfUrl;
     $('#jobdesc-show').modal('show');
 }
@@ -211,50 +212,50 @@ function showData(row, id, url, modalId)
 /* ══════════════════════════════════════════════════════════════════════════
     editData — fetch data lalu buka modal CRUD dalam mode edit
    ══════════════════════════════════════════════════════════════════════════ */
-function editData(id, url, modalId)
-{
-    if (typeof window.openCrudModal !== 'function') {
-        console.error('[editData] openCrudModal tidak ditemukan!');
-        Swal.fire({ icon: 'error', title: 'Error', text: 'Modal belum siap.' });
-        return;
-    }
+// function editData(id, url, modalId)
+// {
+//     if (typeof window.openCrudModal !== 'function') {
+//         console.error('[editData] openCrudModal tidak ditemukan!');
+//         Swal.fire({ icon: 'error', title: 'Error', text: 'Modal belum siap.' });
+//         return;
+//     }
 
-    // Tampilkan loading cursor
-    document.body.style.cursor = 'wait';
+//     // Tampilkan loading cursor
+//     document.body.style.cursor = 'wait';
 
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+//     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
-    fetch(url + '/' + id, {
-        method: 'GET',
-        headers: {
-            'X-CSRF-TOKEN'     : csrfToken,
-            'X-Requested-With' : 'XMLHttpRequest',
-            'Accept'           : 'application/json',
-        }
-    })
-    .then(function (res) {
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return res.json();
-    })
-    .then(function (data) {
-        window.openCrudModal('#' + modalId, {
-            mode : 'edit',
-            id   : id,
-            data : data,
-        });
-    })
-    .catch(function (err) {
-        console.error('[editData] fetch gagal:', err);
-        Swal.fire({
-            icon : 'error',
-            title: 'Gagal memuat data!',
-            text : 'Tidak dapat mengambil data dari server.',
-        });
-    })
-    .finally(function () {
-        document.body.style.cursor = '';
-    });
-}
+//     fetch(url + '/' + id, {
+//         method: 'GET',
+//         headers: {
+//             'X-CSRF-TOKEN'     : csrfToken,
+//             'X-Requested-With' : 'XMLHttpRequest',
+//             'Accept'           : 'application/json',
+//         }
+//     })
+//     .then(function (res) {
+//         if (!res.ok) throw new Error('HTTP ' + res.status);
+//         return res.json();
+//     })
+//     .then(function (data) {
+//         window.openCrudModal('#' + modalId, {
+//             mode : 'edit',
+//             id   : id,
+//             data : data,
+//         });
+//     })
+//     .catch(function (err) {
+//         console.error('[editData] fetch gagal:', err);
+//         Swal.fire({
+//             icon : 'error',
+//             title: 'Gagal memuat data!',
+//             text : 'Tidak dapat mengambil data dari server.',
+//         });
+//     })
+//     .finally(function () {
+//         document.body.style.cursor = '';
+//     });
+// }
 
 
 /* ══════════════════════════════════════════════════════════════════════════

@@ -1,4 +1,5 @@
 <div class="row">
+    {{-- {{ dd($components) }} --}}
     <!-- [ sample-page ] start -->
     <div class="col-sm-12">
         <div class="card">

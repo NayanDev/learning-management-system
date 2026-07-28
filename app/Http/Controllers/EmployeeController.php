@@ -7,10 +7,9 @@ use App\Models\Department;
 use App\Models\Division;
 use App\Models\Employee;
 use App\Models\Group;
-use App\Models\JobdescEmployee;
 use App\Models\Position;
 use App\Models\Section;
-use App\Services\ShowService;
+use App\Pages\EmployeePage;
 use Exception;
 use Idev\EasyAdmin\app\Helpers\Validation;
 use Idev\EasyAdmin\app\Http\Controllers\DefaultController;
@@ -33,8 +32,8 @@ class EmployeeController extends DefaultController
     {
         $this->title = 'Employee';
         $this->generalUri = 'employee';
-        $this->arrPermissions = ['edit','create','detail','delete'];
-        $this->actionButtons = ['btn_edit', 'btn_detail', 'btn_show', 'btn_delete'];
+        $this->arrPermissions = ['show', 'edit','create','delete'];
+        $this->actionButtons = ['btn_edit', 'btn_show', 'btn_delete'];
 
         $this->tableHeaders = [
                     ['name' => 'No', 'column' => '#', 'order' => true],
@@ -79,6 +78,19 @@ class EmployeeController extends DefaultController
                     ['name' => 'Is trainer', 'column' => 'is_trainer'],
                     ['name' => 'Is leader', 'column' => 'is_leader'], 
             ]
+        ];
+
+
+        $this->importScripts = [
+            ['source' => 'https://cdn.datatables.net/2.3.8/js/dataTables.min.js'],
+            ['source' => 'https://cdn.datatables.net/2.3.8/js/dataTables.bootstrap5.min.js'],
+            ['source' => asset('custom/js/initDataTable.js')],
+            ['source' => asset('custom/js/modalConfig.js')],
+        ];
+
+        $this->importStyles = [
+            ['source' => asset('custom/css/sweetAlertValidation.css')],
+            ['source' => 'https://cdn.datatables.net/2.3.8/css/dataTables.bootstrap5.min.css'],
         ];
     }
 
@@ -442,6 +454,25 @@ class EmployeeController extends DefaultController
                 'message' => 'Failed to create employee: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+
+    protected function show($id)
+    {
+
+        $singleData = $this->defaultDataQuery()
+            ->where('employees.id',$id)
+            ->first();
+
+        return view('backend.idev.show_with_tab',array_merge(
+                [
+                    'detail'=>$singleData,
+                    'title'=>$this->title,
+                ],
+                (new EmployeePage())->build()
+            )
+        );
+
     }
 
 }
