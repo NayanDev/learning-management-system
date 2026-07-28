@@ -12,7 +12,27 @@ class Section extends Model
     protected $table = 'sections';
     protected $primaryKey = 'id';
     protected $fillable = ["department_id","uuid","name"];
-    protected $appends = ['btn_delete', 'btn_edit', 'btn_show'];
+    protected $appends = ['badge_jobdesc', 'btn_delete', 'btn_edit', 'btn_show'];
+
+
+    public function jobdescSection()
+    {
+        return $this->hasOne(JobdescSection::class, 'section_id');
+    }
+
+
+    public function getBadgeJobdescAttribute()
+    {
+        if ($this->jobdescSection && filled($this->jobdescSection->file)) {
+            return "<span class='badge bg-light-success text-success'>
+                        Uploaded
+                    </span>";
+        }
+
+        return "<span class='badge bg-light-danger text-danger'>
+                    Empty
+                </span>";
+    }
 
 
     public function getBtnDeleteAttribute()

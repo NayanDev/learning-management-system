@@ -12,7 +12,27 @@ class Employee extends Model
     protected $table = 'employees';
     protected $primaryKey = 'id';
     protected $fillable = ["uuid","name","email","phone","gender","company_id","division_id","department_id","position_id","section_id","group_id","status","nik","signature","is_trainer","is_leader"];
-    protected $appends = ['btn_delete', 'btn_edit', 'btn_show'];
+    protected $appends = ['badge_jobdesc', 'btn_delete', 'btn_edit', 'btn_show'];
+
+
+    public function jobdescEmployee()
+    {
+        return $this->hasOne(JobdescEmployee::class, 'employee_id');
+    }
+
+
+    public function getBadgeJobdescAttribute()
+    {
+        if ($this->jobdescEmployee && filled($this->jobdescEmployee->file)) {
+            return "<span class='badge bg-light-success text-success'>
+                        Uploaded
+                    </span>";
+        }
+
+        return "<span class='badge bg-light-danger text-danger'>
+                    Empty
+                </span>";
+    }
 
 
     public function getBtnDeleteAttribute()

@@ -42,6 +42,7 @@ class EmployeeController extends DefaultController
                     ['name' => 'Email', 'column' => 'email', 'order' => true],
                     ['name' => 'Phone', 'column' => 'phone', 'order' => true],
                     ['name' => 'Gender', 'column' => 'gender', 'order' => true],
+                    ['name' => 'Has Jobdesc', 'column' => 'badge_jobdesc', 'order' => true],
                     ['name' => 'Company', 'column' => 'company_name', 'order' => true],
                     ['name' => 'Division', 'column' => 'division_name', 'order' => true],
                     ['name' => 'Department', 'column' => 'department_name', 'order' => true],

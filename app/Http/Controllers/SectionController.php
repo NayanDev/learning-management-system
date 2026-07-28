@@ -34,6 +34,7 @@ class SectionController extends DefaultController
                     ['name' => 'Department', 'column' => 'department_name', 'order' => true],
                     // ['name' => 'Uuid', 'column' => 'uuid', 'order' => true],
                     ['name' => 'Name', 'column' => 'name', 'order' => true], 
+                    ['name' => 'Has Jobdesc', 'column' => 'badge_jobdesc', 'order' => true], 
                     ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
                     ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
         ];

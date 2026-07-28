@@ -14,57 +14,40 @@ class Sidebar
       $menus = $this->menus();
       $constant = new Constant();
       $permission = $constant->permissions();
-
       $arrMenu = [];
 
       foreach ($menus as $key => $menu) {
-
           $visibilityMenu = in_array(
               $menu['key'] . ".index",
               $permission['list_access']
           );
-
           if (isset($menu['override_visibility'])) {
               $visibilityMenu = $menu['override_visibility'];
           }
-
           $menu['visibility'] = $visibilityMenu;
-
-          // URL parent
           $menu['url'] = Route::has($menu['key'] . ".index")
               ? route($menu['key'] . ".index")
               : "#";
-
           $menu['base_key'] = $menu['key'];
           $menu['key'] = $menu['key'] . ".index";
-
           if (isset($menu['childrens']) && count($menu['childrens']) > 0) {
-
               foreach ($menu['childrens'] as &$child) {
-
                   $childVisibility = in_array(
                       $child['key'] . ".index",
                       $permission['list_access']
                   );
-
                   if (isset($child['override_visibility'])) {
                       $childVisibility = $child['override_visibility'];
                   }
-
                   $child['visibility'] = $childVisibility;
-
                   $child['url'] = Route::has($child['key'] . ".index")
                       ? route($child['key'] . ".index")
                       : "#";
-
                   $child['base_key'] = $child['key'];
                   $child['key'] = $child['key'] . ".index";
               }
-
               unset($child);
           }
-
-
           $arrMenu[] = $menu;
       }
 
@@ -74,7 +57,7 @@ class Sidebar
 
   public function menus()
   {
-    $role = "admin";
+    $role = "developer";
     if (config('idev.enable_role', true)) {
       $role = Auth::user()->role->name;
     }
@@ -438,7 +421,7 @@ class Sidebar
           'icon' => 'ti ti-key',
           'key' => 'role',
           'base_key' => 'role',
-          'visibility' => in_array($role, ['admin']),
+          'visibility' => in_array($role, ['developer']),
           'ajax_load' => false,
           'childrens' => []
         ],
@@ -447,7 +430,7 @@ class Sidebar
           'icon' => 'ti ti-users',
           'key' => 'user',
           'base_key' => 'user',
-          'visibility' => in_array($role, ['admin']),
+          'visibility' => in_array($role, ['developer']),
           'ajax_load' => false,
           'childrens' => []
         ],
