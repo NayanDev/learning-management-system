@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('year');
             $table->dateTime('end_date');
-            $table->enum('status', ['open', 'submit', 'approve', 'close', 'reject'])->default('open');
-            $table->text('notes')->nullable();
+            $table->enum('status', ['open', 'submit', 'approve', 'acknowledge', 'close', 'reject'])->default('open');
             $table->text('description')->nullable();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('divisi');

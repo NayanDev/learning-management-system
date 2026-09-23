@@ -11,7 +11,7 @@ class TrainingWorkshop extends Model
 
     protected $table = 'training_need_workshops';
     protected $primaryKey = 'id';
-    protected $fillable = ["training_need_id", "workshop_id", "start_date", "end_date", "instructor", "position", "user_id", "divisi"];
+    protected $fillable = ["training_need_id", "workshop_id", "start_date", "implementation_status", "end_date", "instructor", "position", "user_id", "divisi"];
     protected $appends = ['btn_access', 'btn_delete', 'btn_edit', 'btn_show'];
 
 

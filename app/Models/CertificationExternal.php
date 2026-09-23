@@ -15,6 +15,17 @@ class CertificationExternal extends Model
     protected $appends = ['btn_print', 'btn_delete', 'btn_edit', 'btn_show'];
 
 
+    public function participant()
+    {
+        return $this->belongsTo(Participant::class, 'participant_id');
+    }
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id');
+    }
+
+
     public function getBtnPrintAttribute()
     {
         $html = "<a href='" . asset('images/certification_external/' . $this->file_path) . "' target='_blank' class='btn btn-outline-success btn-sm radius-6' style='margin:1px;'>

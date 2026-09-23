@@ -23,70 +23,50 @@ class DatabaseSeeder extends Seeder
     {
         Role::updateOrCreate(
             [
-                'name' => 'programmer'
+                'name' => 'developer'
             ],
             [
-                'name' => 'programmer',
+                'name' => 'developer',
                 'access' => '[{"route":"dashboard","access":["list"]},{"route":"role","access":["list","create","show","edit","delete","import-excel-default","export-excel-default","export-pdf-default"]},{"route":"user","access":["list","create","show","edit","delete","import-excel-default","export-excel-default","export-pdf-default"]}]',
             ]
         );
 
         Role::updateOrCreate(
             [
-                'name' => 'admin'
+                'name' => 'supervisi'
             ],
             [
-                'name' => 'admin',
+                'name' => 'supervisi',
                 'access' => '[{"route":"dashboard","access":["list"]},{"route":"role","access":["list","create","show","edit","delete","import-excel-default","export-excel-default","export-pdf-default"]},{"route":"user","access":["list","create","show","edit","delete","import-excel-default","export-excel-default","export-pdf-default"]}]',
             ]
         );
 
         Role::updateOrCreate(
             [
-                'name' => 'Direktur'
+                'name' => 'administrator'
             ],
             [
-                'name' => 'direktur',
+                'name' => 'administrator',
                 'access' => '[{"route":"dashboard","access":["list"]}]',
             ]
         );
 
         Role::updateOrCreate(
             [
-                'name' => 'Manager'
+                'name' => 'trainer'
             ],
             [
-                'name' => 'manager',
+                'name' => 'trainer',
                 'access' => '[{"route":"dashboard","access":["list"]}]',
             ]
         );
 
         Role::updateOrCreate(
             [
-                'name' => 'Staff'
-            ],
-            [
-                'name' => 'staff',
-                'access' => '[{"route":"dashboard","access":["list"]}]',
-            ]
-        );
-
-        Role::updateOrCreate(
-            [
-                'name' => 'Participant'
+                'name' => 'participant'
             ],
             [
                 'name' => 'participant',
-                'access' => '[{"route":"dashboard","access":["list"]}]',
-            ]
-        );
-
-        Role::updateOrCreate(
-            [
-                'name' => 'Mentor'
-            ],
-            [
-                'name' => 'mentor',
                 'access' => '[{"route":"dashboard","access":["list"]}]',
             ]
         );
@@ -112,7 +92,7 @@ class DatabaseSeeder extends Seeder
                 'telp' => '0895832720752',
                 'nik' => '3.251.141',
                 'password' => bcrypt('qwerty'),
-                'role_id' => Role::where('name', 'programmer')->first()->id,
+                'role_id' => Role::where('name', 'developer')->first()->id,
             ]
         );
     }

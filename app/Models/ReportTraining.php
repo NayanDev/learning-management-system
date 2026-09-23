@@ -26,6 +26,11 @@ class ReportTraining extends Model
         return $this->belongsTo(User::class, 'manager');
     }
 
+    public function directorUser()
+    {
+        return $this->belongsTo(User::class, 'director');
+    }
+
     public function getBtnSignatureAttribute()
     {
 

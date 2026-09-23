@@ -18,11 +18,10 @@ return new class extends Migration
             $table->json('general')->nullable();    // array text
             $table->json('technic')->nullable();    // array text
             $table->enum('status', ['open', 'submit', 'approve', 'close', 'reject'])->default('open');
-            $table->text('notes')->nullable();
             $table->dateTime('created_date')->nullable();
             $table->foreignId('approve_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('divisi');
+            $table->string('divisi')->nullable();
             $table->timestamps();
         });
     }

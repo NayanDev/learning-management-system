@@ -20,9 +20,19 @@ class AnswerParticipant extends Model
         return $this->belongsTo(Event::class, 'event_id');
     }
 
-    public function questions()
+    public function participant()
     {
-        return $this->hasMany(Question::class);
+        return $this->belongsTo(Participant::class, 'participant_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function question()
+    {
+        return $this->belongsTo(Question::class, 'question_id');
     }
 
     public function answer()

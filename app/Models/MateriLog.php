@@ -15,6 +15,17 @@ class MateriLog extends Model
     protected $appends = ['btn_delete', 'btn_edit', 'btn_show'];
 
 
+    public function materi()
+    {
+        return $this->belongsTo(Materi::class, 'materi_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+
     public function getBtnDeleteAttribute()
     {
         $html = "<button type='button' class='btn btn-outline-danger btn-sm radius-6' style='margin:1px;' data-bs-toggle='modal' data-bs-target='#modalDelete' onclick='setDelete(" . json_encode($this->id) . ")'>

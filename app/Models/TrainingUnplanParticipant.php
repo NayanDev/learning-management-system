@@ -11,7 +11,7 @@ class TrainingUnplanParticipant extends Model
 
     protected $table = 'training_unplane_participants';
     protected $primaryKey = 'id';
-    protected $fillable = ["company", "nik", "name", "divisi", "unit_kerja", "status", "jk", "email", "telp", "training_unplane_id"];
+    protected $fillable = ["company", "nik", "name", "divisi", "unit_kerja", "status", "jk", "email", "telp", "training_unplane_id", "user_id"];
     protected $appends = ['btn_delete', 'btn_edit', 'btn_show'];
 
 

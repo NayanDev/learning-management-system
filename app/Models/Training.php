@@ -12,7 +12,7 @@ class Training extends Model
 
     protected $table = 'trainings';
     protected $primaryKey = 'id';
-    protected $fillable = ["year", "end_date", "status", "notes", "description", "user_id", "divisi", "approve_by", "created_date"];
+    protected $fillable = ["year", "end_date", "status", "description", "user_id", "divisi", "approve_by", "created_date"];
     protected $appends = ['btn_approve', 'btn_delete', 'btn_multilink', 'btn_edit', 'btn_show', 'badge_status'];
 
 
@@ -24,6 +24,8 @@ class Training extends Model
             $badge = '<span class="badge bg-light-warning rounded-pill f-12">Submit</span>';
         } elseif ($this->status === "approve") {
             $badge = '<span class="badge bg-light-primary rounded-pill f-12">Approve</span>';
+        } elseif ($this->status === "acknowledge") {
+            $badge = '<span class="badge bg-light-info rounded-pill f-12">Acknowledge</span>';
         } elseif ($this->status === "close") {
             $badge = '<span class="badge bg-light-success rounded-pill f-12">Close</span>';
         } elseif ($this->status === "reject") {

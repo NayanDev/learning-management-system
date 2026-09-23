@@ -12,8 +12,13 @@ class TrainingAnalyst extends Model
 
     protected $table = 'training_analysts';
     protected $primaryKey = 'id';
-    protected $fillable = ["training_id", "qualification", "general", "technic", "status", "notes", "created_date", "approve_by", "user_id", "divisi"];
+    protected $fillable = ["training_id", "qualification", "general", "technic", "status", "created_date", "approve_by", "user_id", "divisi"];
     protected $appends = ['btn_access', 'btn_approve', 'btn_delete', 'btn_edit', 'btn_show', 'badge_status'];
+    protected $casts = [
+        'qualification' => 'array',
+        'general'       => 'array',
+        'technic'       => 'array',
+    ];
 
     public function user()
     {
@@ -28,6 +33,11 @@ class TrainingAnalyst extends Model
     public function training()
     {
         return $this->belongsTo(Training::class);
+    }
+
+    public function trainingAnalystDatas()
+    {
+        return $this->hasMany(TrainingAnalystData::class, 'training_analyst_id');
     }
 
     public function approval()

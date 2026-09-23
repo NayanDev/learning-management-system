@@ -12,7 +12,7 @@ class Certification extends Model
 
     protected $table = 'certifications';
     protected $primaryKey = 'id';
-    protected $fillable = ["event_id", "number_certification", "participant_id", "category", "template_certification_id", "approve_by", "created_date"];
+    protected $fillable = ["number_certification", "participant_id", "event_id", "template_certification_id", "category"];
     protected $appends = ['btn_print', 'btn_delete', 'btn_edit', 'btn_show'];
 
     public function participant()
@@ -52,11 +52,6 @@ class Certification extends Model
             $html = $pdf;
             return $html;
         }
-    }
-
-    public function approver()
-    {
-        return $this->belongsTo(User::class, 'approve_by');
     }
 
 

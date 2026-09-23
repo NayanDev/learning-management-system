@@ -27,8 +27,8 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->foreignId('approve_by')->nullable()->constrained('users')->nullOnDelete();
             $table->dateTime('created_date')->nullable();
-            $table->text('notes')->nullable();
-            $table->enum('status', ['open', 'submit', 'approve', 'close', 'reject'])->default('open');
+            $table->enum('status', ['open', 'submit', 'approve', 'acknowledge', 'close', 'reject'])->default('open');
+            $table->string('command_attachment')->nullable();
             $table->timestamps();
         });
     }

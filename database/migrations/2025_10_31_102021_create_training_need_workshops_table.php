@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('training_need_id')->constrained()->onDelete('cascade');
             $table->foreignId('workshop_id')->constrained()->onDelete('cascade');
             $table->dateTime('start_date');
+            $table->enum('implementation_status', ['open', 'used', 'completed'])->default('open');
             $table->dateTime('end_date');
             $table->enum('instructor', ['internal', 'external']);
             $table->string('position');

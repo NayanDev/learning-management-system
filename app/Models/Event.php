@@ -13,8 +13,29 @@ class Event extends Model
 
     protected $table = 'events';
     protected $primaryKey = 'id';
-    protected $fillable = ["workshop_id", "user_id", "divisi", "year", "letter_number", "organizer", "start_date", "end_date", "token", "token_expired", "instructor", "location", "approve_by", "created_date", "notes", "status","command_attachment"];
-    protected $appends = ['btn_approve', 'btn_delete', 'btn_edit', 'btn_multilink'];
+    protected $fillable = ["workshop_id", "user_id", "divisi", "year", "letter_number", "organizer", "start_date", "end_date", "token", "token_expired", "instructor", "location", "approve_by", "created_date", "status", "command_attachment"];
+    protected $appends = ['badge_status', 'btn_approve', 'btn_delete', 'btn_edit', 'btn_multilink'];
+
+
+    public function getBadgeStatusAttribute()
+    {
+        if ($this->status === "open") {
+            $badge = '<span class="badge bg-light-secondary rounded-pill f-12">Open</span>';
+        } elseif ($this->status === "submit") {
+            $badge = '<span class="badge bg-light-warning rounded-pill f-12">Submit</span>';
+        } elseif ($this->status === "approve") {
+            $badge = '<span class="badge bg-light-primary rounded-pill f-12">Approve</span>';
+        } elseif ($this->status === "acknowledge") {
+            $badge = '<span class="badge bg-light-info rounded-pill f-12">Acknowledge</span>';
+        } elseif ($this->status === "close") {
+            $badge = '<span class="badge bg-light-success rounded-pill f-12">Close</span>';
+        } elseif ($this->status === "reject") {
+            $badge = '<span class="badge bg-light-danger rounded-pill f-12">Reject</span>';
+        } else {
+            $badge = '<span class="badge bg-light-dark rounded-pill f-12">data tidak ditemukan</span>';
+        }
+        return $badge;
+    }
 
 
     public function documentations()

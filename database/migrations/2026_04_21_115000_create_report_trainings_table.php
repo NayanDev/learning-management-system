@@ -20,8 +20,8 @@ return new class extends Migration
             $table->text('targets');
             $table->text('notes');
             $table->dateTime('report_date');
-            $table->foreignId('manager')->constrained('users')->onDelete('cascade')->nullable();
-            $table->foreignId('director')->constrained('users')->onDelete('cascade')->nullable();
+            $table->foreignId('manager')->nullable()->constrained('users')->nullOnDelete();
+            $table->unsignedBigInteger('director');
             $table->string('director_name');
             $table->string('director_signature')->nullable();
             $table->timestamps();

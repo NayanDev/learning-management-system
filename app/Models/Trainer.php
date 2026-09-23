@@ -15,6 +15,11 @@ class Trainer extends Model
     protected $appends = ['btn_signature', 'btn_delete', 'btn_edit', 'btn_show'];
 
 
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

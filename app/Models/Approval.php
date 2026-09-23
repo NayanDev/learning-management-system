@@ -20,11 +20,6 @@ class Approval extends Model
         return $this->morphTo();
     }
 
-    public function approver()
-    {
-        return $this->belongsTo(User::class, 'approver_id');
-    }
-
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

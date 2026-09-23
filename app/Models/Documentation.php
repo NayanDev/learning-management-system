@@ -15,6 +15,17 @@ class Documentation extends Model
     protected $appends = ['view_image', 'btn_delete', 'btn_edit', 'btn_show'];
 
 
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+
     public function getViewImageAttribute()
     {
         if ($this->image) {

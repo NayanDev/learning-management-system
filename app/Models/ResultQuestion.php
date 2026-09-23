@@ -16,6 +16,17 @@ class ResultQuestion extends Model
     protected $appends = ['pretest', 'posttest', 'btn_multilink', 'btn_delete', 'btn_edit', 'btn_show'];
 
 
+    public function participant()
+    {
+        return $this->belongsTo(Participant::class, 'participant_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+
     public function getPretestAttribute()
     {
         if ($this->pretest_score >= 69) {

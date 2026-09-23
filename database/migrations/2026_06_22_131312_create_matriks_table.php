@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('matriks', function (Blueprint $table) {
             $table->id();
-            $table->string('divisi');
+            $table->string('divisi')->nullable();
             $table->string('created_by')->nullable();
             $table->string('checked_by')->nullable();
             $table->string('approved_by')->nullable();

@@ -17,13 +17,17 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('company');
             $table->string('divisi');
-            $table->string('unit_kerja');
+            $table->string('unit_kerja')->nullable();
             $table->string('status');
             $table->string('jk');
             $table->string('telp');
             $table->string('nik')->unique()->nullable();
             $table->string('signature')->nullable();
             $table->unsignedBigInteger('role_id');
+            $table->string('qualification')->nullable();
+            $table->string('position')->nullable();
+            $table->tinyInteger('is_trainer')->default(0);
+            $table->tinyInteger('is_leader')->default(0);
             $table->string('password');
             $table->timestamps();
 

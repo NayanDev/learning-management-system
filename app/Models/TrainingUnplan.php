@@ -12,7 +12,7 @@ class TrainingUnplan extends Model
 
     protected $table = 'training_unplanes';
     protected $primaryKey = 'id';
-    protected $fillable = ["training_id", "user_id", "workshop_id", "organizer", "speaker", "start_date", "end_date", "divisi", "instructor", "location", "status", "notes", "approve_by"];
+    protected $fillable = ["training_id", "user_id", "workshop_id", "organizer", "start_date", "end_date", "divisi", "instructor", "location", "status", "approve_by"];
     protected $appends = ['btn_approve', 'btn_access', 'btn_delete', 'btn_edit', 'btn_show', 'badge_status'];
 
 

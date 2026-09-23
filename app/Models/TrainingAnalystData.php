@@ -16,4 +16,15 @@ class TrainingAnalystData extends Model
         'general',
         'technic',
     ];
+
+    protected $casts = [
+        'qualification' => 'array',
+        'general'       => 'array',
+        'technic'       => 'array',
+    ];
+
+    public function trainingAnalyst()
+    {
+        return $this->belongsTo(TrainingAnalyst::class, 'training_analyst_id');
+    }
 }

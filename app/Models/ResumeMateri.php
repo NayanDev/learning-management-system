@@ -15,6 +15,17 @@ class ResumeMateri extends Model
     protected $appends = ['btn_print', 'btn_delete', 'btn_edit', 'btn_show'];
 
 
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+
     public function getBtnPrintAttribute()
     {
         $html = "<a id='export-pdf' class='btn btn-sm btn-outline-success radius-6' target='_blank' href='" . "resume_external/" . $this->file_path . "' title='Materi Pelatihan'><i class='ti ti-file'></i></a>";

@@ -11,8 +11,8 @@ class TemplateCertification extends Model
 
     protected $table = 'template_certifications';
     protected $primaryKey = 'id';
-    protected $fillable = ["name", "template", "logo", "date", "user_id"];
-    protected $appends = ['view_image', 'logo_image', 'btn_delete', 'btn_edit', 'btn_show'];
+    protected $fillable = ["name", "template", "date", "note"];
+    protected $appends = ['view_image', 'btn_delete', 'btn_edit', 'btn_show'];
 
 
     public function getViewImageAttribute()
@@ -24,13 +24,6 @@ class TemplateCertification extends Model
     }
 
 
-    public function getLogoImageAttribute()
-    {
-        if ($this->logo) {
-            return asset('images/logo_certification/' . $this->logo);
-        }
-        return null;
-    }
 
 
     public function getBtnDeleteAttribute()

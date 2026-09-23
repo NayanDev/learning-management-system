@@ -23,7 +23,6 @@ return new class extends Migration
             $table->enum('instructor', ['internal', 'external']);
             $table->string('location');
             $table->enum('status', ['open', 'submit', 'approve', 'close', 'reject'])->default('open');
-            $table->text('notes')->nullable();
             $table->foreignId('approve_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });

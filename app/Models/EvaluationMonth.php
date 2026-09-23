@@ -8,9 +8,29 @@ class EvaluationMonth extends Model
 {
     protected $table = 'evaluation_months';
     protected $primaryKey = 'id';
-    protected $fillable = ["name","user_id","value","category","event_id","trainer_id","participant_id"];
+    protected $fillable = ["user_id", "name", "value", "event_id", "trainer_id", "participant_id"];
     protected $appends = ['btn_delete', 'btn_edit', 'btn_show'];
     
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id');
+    }
+
+    public function trainer()
+    {
+        return $this->belongsTo(Trainer::class, 'trainer_id');
+    }
+
+    public function participant()
+    {
+        return $this->belongsTo(Participant::class, 'participant_id');
+    }
+
     /**
      * Get category based on value
      * 0-5 = D, 6-10 = C, 11-15 = B, 16-20 = A
