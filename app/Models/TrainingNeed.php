@@ -15,7 +15,6 @@ class TrainingNeed extends Model
     protected $fillable = ["training_id", "user_id", "divisi", "approve_by", "status", "notes", "created_date"];
     protected $appends = ['btn_access', 'btn_approve', 'btn_delete', 'btn_edit', 'btn_show', 'badge_status'];
 
-
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

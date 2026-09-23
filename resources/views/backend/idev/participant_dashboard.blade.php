@@ -124,109 +124,60 @@
 
     @php
         $allowedRoles = ['adminhr', 'admin'];
-        $allowedRoleTwo = ['officer', 'staff', 'manager'];
+        $allowedRoleTwo = ['officer', 'staff'];
+        $allowedPosition = ['Manager', 'Asman'];
         $user = Auth::user();
     @endphp
 
-    @if(in_array($user->role->name, $allowedRoles))
+    @if(in_array($user->role->name, $allowedRoles) || in_array($user->position, $allowedPosition) && strtoupper($user->divisi) === 'UMUM & SDM')
 
     <!-- Dashboard Statistics -->
     <div class="row mb-4">
-        <!-- Total Pelatihan Diikuti -->
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100">
+
+        <div class="col-md-12 col-xl-3">
+            <div class="card bg-primary order-card">
                 <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="avtar avtar-s bg-light-primary">
-                                <i class="ti ti-school fs-4"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-0 text-muted">Total Trainings</h6>
-                            <h3 class="mb-0 fw-bold">{{ $totalEvents ?? '0' }}</h3>
-                        </div>
-                    </div>
+                    <h5 class="text-white">Total Training</h5>
+                    <h3 class="text-white">{{ $totalEvents ?? '0' }}</h3>
+                    <p class="m-b-0">Jumlah Pelatihan tersedia</p>
+                    <i class="ti ti-school d-block f-46 card-icon text-white"></i>
                 </div>
             </div>
         </div>
 
-        <!-- Pelatihan Selesai -->
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100">
+        <div class="col-md-12 col-xl-3">
+            <div class="card bg-success order-card">
                 <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="avtar avtar-s bg-light-success">
-                                <i class="ti ti-checks fs-4"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-0 text-muted">Completed Trainings</h6>
-                            <h3 class="mb-0 fw-bold">{{ $completedEvents ?? '0' }}</h3>
-                        </div>
-                    </div>
+                    <h5 class="text-white">Complete Training</h5>
+                    <h3 class="text-white">{{ $completedEvents ?? '0' }}</h3>
+                    <p class="m-b-0">Pelatihan yang terlaksana</p>
+                    <i class="ti ti-checks d-block f-46 card-icon text-white"></i>
                 </div>
             </div>
         </div>
 
-        <!-- Menunggu Konfirmasi -->
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100">
+        <div class="col-md-12 col-xl-3">
+            <div class="card bg-warning order-card">
                 <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="avtar avtar-s bg-light-warning">
-                                <i class="ti ti-clock fs-4"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-0 text-muted">Open Trainings</h6>
-                            <h3 class="mb-0 fw-bold">{{ $upcomingEvents ?? '0' }}</h3>
-                        </div>
-                    </div>
+                    <h5 class="text-white">Total TNA</h5>
+                    <h3 class="text-white">{{ $totalTNA ?? '0' }}</h3>
+                    <p class="m-b-0">Training Need Analyst</p>
+                    <i class="ti ti-clock d-block f-46 card-icon text-white"></i>
                 </div>
             </div>
         </div>
 
-        <!-- Sertifikat -->
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100">
+        <div class="col-md-12 col-xl-3">
+            <div class="card bg-secondary order-card">
                 <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="avtar avtar-s bg-light-info">
-                                <i class="ti ti-certificate fs-4"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-0 text-muted">Certificates</h6>
-                            <h3 class="mb-0 fw-bold">{{ $countCertificates ?? '0' }}</h3>
-                        </div>
-                    </div>
+                    <h5 class="text-white">Total Certificates</h5>
+                    <h3 class="text-white">{{ $countCertificates ?? '0' }}</h3>
+                    <p class="m-b-0">Sertifikat yang dimiliki</p>
+                    <i class="ti ti-certificate d-block f-46 card-icon text-white"></i>
                 </div>
             </div>
         </div>
-
-        <!-- Total Pelatihan Diikuti -->
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="avtar avtar-s bg-light-danger">
-                                <i class="ti ti-stars fs-4"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-0 text-muted">Total Training Requests</h6>
-                            <h3 class="mb-0 fw-bold">{{ $totalTrainingWorkshops ?? '0' }}</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        
     </div>
 
     <div class="row g-3 mb-4">

@@ -269,8 +269,8 @@ class EventController extends DefaultController
 
         $user = Auth::user();
 
-        $isAdmin = $user->role->name === 'admin' || ($user->role->name === 'manager' && $user->divisi === 'Umum & SDM');
-        $isManager = $user->role->name === 'manager';
+        $isAdmin = $user->role->name === 'developer' || ($user->role->name === 'supervisi' && $user->divisi === 'Umum & SDM');
+        $isManager = $user->role->name === 'supervisi';
 
         $isTrainer = DB::table('trainers')
             ->where('user_id', $user->id)
@@ -450,7 +450,9 @@ class EventController extends DefaultController
 
     protected function filters()
     {
-        if (Auth::user()->role->name === 'admin') {
+        $allowedPosition = ['Manager', 'Asman'];
+        $user = Auth::user();
+        if (Auth::user()->role->name === 'admin' || in_array($user->position, $allowedPosition) && strtoupper($user->divisi) === 'UMUM & SDM') {
             $isEvent = Event::get();
         } else {
             $isEvent = Event::where('user_id', Auth::user()->id)->get();
@@ -486,6 +488,7 @@ class EventController extends DefaultController
                     'name' => 'year',
                     'class' => 'col-md-2',
                     'options' => $arrEvent,
+                    'selected_value' => date('Y'),
                 ],
             ];
 

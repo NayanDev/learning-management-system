@@ -120,7 +120,7 @@ class JobdescEmployeeController extends DefaultController
 
     public function JobdescEmployee(Request $request)
     {
-        $employeeId = $request->query('employee_id');
+        $employeeId = $request->query('data_id');
         $query = $this->defaultDataQuery();
 
         if ($employeeId) {

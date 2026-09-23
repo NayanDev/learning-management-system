@@ -755,6 +755,27 @@ function idevSetEdit(id, uriKey)
                     htmlCl += "</div>"
                 });
                 $('#group-checklist-edit_'+field.name).html(htmlCl)
+            }else if(field.type == "multiinput" && field.enable_action && field.values && field.values.length > 0){
+                var preffixMethod = field.method ? field.method + '_' : '';
+                // Scope hanya ke dalam #drawerEdit agar create form tidak ikut terisi
+                var $container = $('#drawerEdit .' + preffixMethod + 'repeatable-sections');
+
+                // Ambil template baris pertama (clone sebelum dikosongkan)
+                var $template = $container.children('.' + preffixMethod + 'field-sections').first().clone();
+                $template.find('input:not([type="radio"]):not([type="checkbox"]), textarea, select').val('');
+
+                // Kosongkan container, lalu isi ulang dari values
+                $container.html('');
+
+                $.each(field.values, function(index, val) {
+                    var epochSeconds = Math.floor(Date.now() / 1000) + index;
+                    var $row = $template.clone();
+                    $row.attr('id', preffixMethod + 'repeatable-' + epochSeconds);
+                    $row.find('input[type="text"]:first, textarea:first').val(val);
+                    var htmlRemove = "<button type='button' class='btn btn-sm btn-circle btn-danger my-4 text-white' onclick='remove(\"" + preffixMethod + "\"," + epochSeconds + ")'><i class=\"ti ti-minus\"></i></button>";
+                    $row.find('.remove-section').html(htmlRemove);
+                    $container.append($row);
+                });
             }else if(field.type == "repeatable"){
                 var jsonValues = JSON.parse(field.value)
                 var cloneElement = $('.edit_repeatable-sections .row:last()').clone();

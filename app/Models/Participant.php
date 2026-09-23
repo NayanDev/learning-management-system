@@ -35,6 +35,11 @@ class Participant extends Model
         return $this->hasOne(Attendance::class, 'participant_id', 'id');
     }
 
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class, 'participant_id');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

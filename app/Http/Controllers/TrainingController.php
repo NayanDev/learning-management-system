@@ -155,7 +155,7 @@ class TrainingController extends DefaultController
         }
 
         $dataQueries = Training::join('users', 'users.id', '=', 'trainings.user_id')
-            ->when(!in_array(Auth::user()->role->name, ['admin', 'manager']), function ($query) {
+            ->when(!in_array(Auth::user()->role->name, ['developer', 'supervisi']), function ($query) {
                 $query->where('trainings.status', 'open');
             })
             ->where($filters)

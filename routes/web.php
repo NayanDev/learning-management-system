@@ -31,6 +31,7 @@ use App\Http\Controllers\ResultQuestionController;
 use App\Http\Controllers\ResumeMateriController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\TemplateCertificationController;
+use App\Http\Controllers\TnaAdminController;
 use App\Http\Controllers\TrainerController;
 use App\Http\Controllers\TrainingAnalystController;
 use App\Http\Controllers\TrainingController;
@@ -48,14 +49,14 @@ use Illuminate\Support\Facades\Route;
 
 // Route::post('/section/jobdesc/test', function (Request $request) {
 
-    // return response()->json([
-    //     'status' => true,
-    //     'data' => [
-    //         'name' => $request->input('name'),
-    //         'section_id' => $request->input('section_id'),
-    //         'file_exists' => $request->hasFile('file'),
-    //     ]
-    // ]);
+// return response()->json([
+//     'status' => true,
+//     'data' => [
+//         'name' => $request->input('name'),
+//         'section_id' => $request->input('section_id'),
+//         'file_exists' => $request->hasFile('file'),
+//     ]
+// ]);
 
 // });
 
@@ -65,7 +66,7 @@ Route::get('signature-verified-x', [UserController::class, 'signatureVerified'])
 Route::get('apitest', [TrainingParticipantController::class, 'getFilteredApiData']);
 
 // Halaman development - jangan dihapus
-Route::get('/matrik-view', function() {
+Route::get('/matrik-view', function () {
     return view('pdf.matrik_karyawan');
 })->name('matrik.view');
 
@@ -76,20 +77,18 @@ Route::get('/matrik-view', function() {
 
 
 Route::get('/api-riwayat-pelatihan', [AttendanceController::class, 'TrainingHistoryApi'])->name('api.pegawai');
-
 Route::get('trainer-signature', [TrainerController::class, 'signatureExternal'])->name('trainer.signature.external');
 Route::post('trainer-signature', [TrainerController::class, 'storeSignature'])->name('trainer.signature.store');
-
 Route::get('/evaluation-bulk-public', [EvaluationController::class, 'evaluationBulk'])->name('evaluation.bulk');
 Route::post('/submit-evaluation-bulk', [EvaluationController::class, 'submitEvaluationBulk'])->name('submit.evaluation.bulk');
-
-
-    Route::get('signature-verified/{model}/{id}/{user}', [ApprovalController::class, 'signatureVerified'])->name('signature.verified');
-    Route::get('director-signature-verified/{model}/{id}', [DirectorSignatureController::class, 'signatureVerified'])->name('director.signature.verified');
+Route::get('signature-verified/{model}/{id}/{user}', [ApprovalController::class, 'signatureVerified'])->name('signature.verified');
+Route::get('director-signature-verified/{model}/{id}', [DirectorSignatureController::class, 'signatureVerified'])->name('director.signature.verified');
 
 Route::group(['middleware' => ['web', 'auth']], function () {
     // Route Dashboard
     Route::resource('dashboard', DashboardController::class);
+    Route::get('dashboard-test', [DashboardController::class, 'dashboardtest'])->name('dashboard.test');
+    Route::post('dashboard/training-workshop/{id}/complete', [DashboardController::class, 'completeTrainingWorkshop'])->name('dashboard.training-workshop.complete');
     Route::get('dashboard-api', [DashboardController::class, 'indexApi'])->name('dashboard.listapi');
     Route::get('dashboard-export-pdf-default', [DashboardController::class, 'exportPdf'])->name('dashboard.export-pdf-default');
     Route::get('dashboard-export-excel-default', [DashboardController::class, 'exportExcel'])->name('dashboard.export-excel-default');
@@ -97,6 +96,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
 
     // Route Users
     Route::resource('user', UserController::class);
+    Route::post('update-signature', [UserController::class, 'updateSignature'])->name('user.signature.update');
     Route::get('user-api', [UserController::class, 'indexApi'])->name('user.listapi');
     Route::get('user-export-pdf-default', [UserController::class, 'exportPdf'])->name('user.export-pdf-default');
     Route::get('user-export-excel-default', [UserController::class, 'exportExcel'])->name('user.export-excel-default');
@@ -122,6 +122,8 @@ Route::group(['middleware' => ['web', 'auth']], function () {
     Route::get('training-need-export-pdf-default', [TrainingNeedController::class, 'exportPdf'])->name('training-need.export-pdf-default');
     Route::get('training-need-export-excel-default', [TrainingNeedController::class, 'exportExcel'])->name('training-need.export-excel-default');
     Route::post('training-need-import-excel-default', [TrainingNeedController::class, 'importExcel'])->name('training-need.import-excel-default');
+    Route::patch('training-need/{id}/submit', [TrainingNeedController::class, 'submit'])->name('training-need.submit');
+    Route::patch('training-need/{id}/approve', [TrainingNeedController::class, 'approve'])->name('training-need.approve');
 
     // Route Training Workshop
     Route::resource('training-workshop', TrainingWorkshopController::class);
@@ -293,13 +295,20 @@ Route::group(['middleware' => ['web', 'auth']], function () {
     Route::get('approval-export-pdf-default', [ApprovalController::class, 'exportPdf'])->name('approval.export-pdf-default');
     Route::get('approval-export-excel-default', [ApprovalController::class, 'exportExcel'])->name('approval.export-excel-default');
     Route::post('approval-import-excel-default', [ApprovalController::class, 'importExcel'])->name('approval.import-excel-default');
-    
+
     // Route Director Signature
     Route::resource('director-signature', DirectorSignatureController::class);
     Route::get('director-signature-api', [DirectorSignatureController::class, 'indexApi'])->name('director-signature.listapi');
     Route::get('director-signature-export-pdf-default', [DirectorSignatureController::class, 'exportPdf'])->name('director-signature.export-pdf-default');
     Route::get('director-signature-export-excel-default', [DirectorSignatureController::class, 'exportExcel'])->name('director-signature.export-excel-default');
     Route::post('director-signature-import-excel-default', [DirectorSignatureController::class, 'importExcel'])->name('director-signature.import-excel-default');
+
+    // Route TNA Admin
+    Route::resource('tna-admin', TnaAdminController::class);
+    Route::get('tna-admin-api', [TnaAdminController::class, 'indexApi'])->name('tna-admin.listapi');
+    Route::get('tna-admin-export-pdf-default', [TnaAdminController::class, 'exportPdf'])->name('tna-admin.export-pdf-default');
+    Route::get('tna-admin-export-excel-default', [TnaAdminController::class, 'exportExcel'])->name('tna-admin.export-excel-default');
+    Route::post('tna-admin-import-excel-default', [TnaAdminController::class, 'importExcel'])->name('tna-admin.import-excel-default');
 });
 
 
@@ -323,9 +332,10 @@ Route::group(['middleware' => ['web', 'auth']], function () {
     Route::post('training-analyst/save-all', [TrainingAnalystController::class, 'saveAll'])->name('training-analyst.saveAll');
     Route::get('training-analyst-pdf', [TrainingAnalystController::class, 'generatePDF'])->name('training-analyst.pdf');
     Route::post('training-analyst/{id}', [TrainingAnalystController::class, 'approve'])->name('training.analyst.approve');
+    Route::patch('/training-analyst/{idx}/submit',[TrainingAnalystController::class, 'submit'])->name('training-analyst.submit');
 
 
-    
+
     Route::post('approval-data/{id}', [ApprovalController::class, 'approve'])->name('approval.data');
 
 
@@ -336,7 +346,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
     Route::post('training-need/{id}', [TrainingNeedController::class, 'approve'])->name('training.need.approve');
     Route::get('training-need-pdf', [TrainingNeedController::class, 'generatePDF'])->name('training-need.pdf');
 
-    
+
 
     // Route Training Unplan
     Route::post('training-unplan/{id}', [TrainingUnplanController::class, 'approve'])->name('training.unplan.approve');
@@ -350,7 +360,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
     Route::post('participant-checkout/{token}', [AttendanceController::class, 'checkoutForm'])->name('participant.checkout.form');
     Route::post('participant-attendance/{token}', [AttendanceController::class, 'attendanceForm'])->name('participant.attendance.form');
     Route::post('participant-attendance-ready/', [AttendanceController::class, 'attendanceFormReady'])->name('participant.attendance.form.ready');
-    
+
     Route::get('attendance-present-pdf', [AttendanceController::class, 'presentPdf'])->name('attendance.present.pdf');
 
     // Route Barcode
@@ -404,7 +414,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
 
     // Route Event Approve
     Route::post('event/{id}', [EventController::class, 'approve'])->name('event.approve');
-    
+
     // Route Certification Approve
     Route::post('certification/{id}', [CertificationController::class, 'approve'])->name('certification.approve');
 
@@ -413,101 +423,99 @@ Route::group(['middleware' => ['web', 'auth']], function () {
 });
 
 // Route Training Schedule
-    Route::get('training-schedule-pdf', [TrainingScheduleController::class, 'generatePDF'])->name('training-schedule.pdf');
-    Route::get('attendance-ready-pdf', [AttendanceController::class, 'readyPdf'])->name('attendance.ready.pdf');
-    Route::get('/report/workshops', [WorkshopController::class, 'dataTable'])->name('report.workshops');
+Route::get('training-schedule-pdf', [TrainingScheduleController::class, 'generatePDF'])->name('training-schedule.pdf');
+Route::get('attendance-ready-pdf', [AttendanceController::class, 'readyPdf'])->name('attendance.ready.pdf');
+Route::get('/report/workshops', [WorkshopController::class, 'dataTable'])->name('report.workshops');
 
 
-    Route::group(['middleware' => ['web', 'auth']], function () {
-        // Route Company
-        Route::resource('company', CompanyController::class);
-        Route::get('company-api', [CompanyController::class, 'indexApi'])->name('company.listapi');
-        Route::get('company-export-pdf-default', [CompanyController::class, 'exportPdf'])->name('company.export-pdf-default');
-        Route::get('company-export-excel-default', [CompanyController::class, 'exportExcel'])->name('company.export-excel-default');
-        Route::post('company-import-excel-default', [CompanyController::class, 'importExcel'])->name('company.import-excel-default');
+Route::group(['middleware' => ['web', 'auth']], function () {
+    // Route Company
+    Route::resource('company', CompanyController::class);
+    Route::get('company-api', [CompanyController::class, 'indexApi'])->name('company.listapi');
+    Route::get('company-export-pdf-default', [CompanyController::class, 'exportPdf'])->name('company.export-pdf-default');
+    Route::get('company-export-excel-default', [CompanyController::class, 'exportExcel'])->name('company.export-excel-default');
+    Route::post('company-import-excel-default', [CompanyController::class, 'importExcel'])->name('company.import-excel-default');
 
-        // Route Division
-        Route::resource('division', DivisionController::class);
-        Route::get('division-api', [DivisionController::class, 'indexApi'])->name('division.listapi');
-        Route::get('division-export-pdf-default', [DivisionController::class, 'exportPdf'])->name('division.export-pdf-default');
-        Route::get('division-export-excel-default', [DivisionController::class, 'exportExcel'])->name('division.export-excel-default');
-        Route::post('division-import-excel-default', [DivisionController::class, 'importExcel'])->name('division.import-excel-default');
+    // Route Division
+    Route::resource('division', DivisionController::class);
+    Route::get('division-api', [DivisionController::class, 'indexApi'])->name('division.listapi');
+    Route::get('division-export-pdf-default', [DivisionController::class, 'exportPdf'])->name('division.export-pdf-default');
+    Route::get('division-export-excel-default', [DivisionController::class, 'exportExcel'])->name('division.export-excel-default');
+    Route::post('division-import-excel-default', [DivisionController::class, 'importExcel'])->name('division.import-excel-default');
 
-        // Route Department
-        Route::resource('department', DepartmentController::class);
-        Route::get('department-api', [DepartmentController::class, 'indexApi'])->name('department.listapi');
-        Route::get('department-export-pdf-default', [DepartmentController::class, 'exportPdf'])->name('department.export-pdf-default');
-        Route::get('department-export-excel-default', [DepartmentController::class, 'exportExcel'])->name('department.export-excel-default');
-        Route::post('department-import-excel-default', [DepartmentController::class, 'importExcel'])->name('department.import-excel-default');
+    // Route Department
+    Route::resource('department', DepartmentController::class);
+    Route::get('department-api', [DepartmentController::class, 'indexApi'])->name('department.listapi');
+    Route::get('department-export-pdf-default', [DepartmentController::class, 'exportPdf'])->name('department.export-pdf-default');
+    Route::get('department-export-excel-default', [DepartmentController::class, 'exportExcel'])->name('department.export-excel-default');
+    Route::post('department-import-excel-default', [DepartmentController::class, 'importExcel'])->name('department.import-excel-default');
 
-        // Route Position
-        Route::resource('position', PositionController::class);
-        Route::get('position-api', [PositionController::class, 'indexApi'])->name('position.listapi');
-        Route::get('position-export-pdf-default', [PositionController::class, 'exportPdf'])->name('position.export-pdf-default');
-        Route::get('position-export-excel-default', [PositionController::class, 'exportExcel'])->name('position.export-excel-default');
-        Route::post('position-import-excel-default', [PositionController::class, 'importExcel'])->name('position.import-excel-default');
+    // Route Position
+    Route::resource('position', PositionController::class);
+    Route::get('position-api', [PositionController::class, 'indexApi'])->name('position.listapi');
+    Route::get('position-export-pdf-default', [PositionController::class, 'exportPdf'])->name('position.export-pdf-default');
+    Route::get('position-export-excel-default', [PositionController::class, 'exportExcel'])->name('position.export-excel-default');
+    Route::post('position-import-excel-default', [PositionController::class, 'importExcel'])->name('position.import-excel-default');
 
-        // Route Section
-        Route::resource('section', SectionController::class);
-        Route::get('section-api', [SectionController::class, 'indexApi'])->name('section.listapi');
-        Route::get('section-export-pdf-default', [SectionController::class, 'exportPdf'])->name('section.export-pdf-default');
-        Route::get('section-export-excel-default', [SectionController::class, 'exportExcel'])->name('section.export-excel-default');
-        Route::post('section-import-excel-default', [SectionController::class, 'importExcel'])->name('section.import-excel-default');
+    // Route Section
+    Route::resource('section', SectionController::class);
+    Route::get('section-api', [SectionController::class, 'indexApi'])->name('section.listapi');
+    Route::get('section-export-pdf-default', [SectionController::class, 'exportPdf'])->name('section.export-pdf-default');
+    Route::get('section-export-excel-default', [SectionController::class, 'exportExcel'])->name('section.export-excel-default');
+    Route::post('section-import-excel-default', [SectionController::class, 'importExcel'])->name('section.import-excel-default');
 
-        // Route Group
-        Route::resource('group', GroupController::class);
-        Route::get('group-api', [GroupController::class, 'indexApi'])->name('group.listapi');
-        Route::get('group-export-pdf-default', [GroupController::class, 'exportPdf'])->name('group.export-pdf-default');
-        Route::get('group-export-excel-default', [GroupController::class, 'exportExcel'])->name('group.export-excel-default');
-        Route::post('group-import-excel-default', [GroupController::class, 'importExcel'])->name('group.import-excel-default');
+    // Route Group
+    Route::resource('group', GroupController::class);
+    Route::get('group-api', [GroupController::class, 'indexApi'])->name('group.listapi');
+    Route::get('group-export-pdf-default', [GroupController::class, 'exportPdf'])->name('group.export-pdf-default');
+    Route::get('group-export-excel-default', [GroupController::class, 'exportExcel'])->name('group.export-excel-default');
+    Route::post('group-import-excel-default', [GroupController::class, 'importExcel'])->name('group.import-excel-default');
 
-        // Route Employee
-        Route::resource('employee', EmployeeController::class);
-        Route::get('employee-api', [EmployeeController::class, 'indexApi'])->name('employee.listapi');
-        Route::get('employee-export-pdf-default', [EmployeeController::class, 'exportPdf'])->name('employee.export-pdf-default');
-        Route::get('employee-export-excel-default', [EmployeeController::class, 'exportExcel'])->name('employee.export-excel-default');
-        Route::post('employee-import-excel-default', [EmployeeController::class, 'importExcel'])->name('employee.import-excel-default');
+    // Route Employee
+    Route::resource('employee', EmployeeController::class);
+    Route::get('employee-api', [EmployeeController::class, 'indexApi'])->name('employee.listapi');
+    Route::get('employee-export-pdf-default', [EmployeeController::class, 'exportPdf'])->name('employee.export-pdf-default');
+    Route::get('employee-export-excel-default', [EmployeeController::class, 'exportExcel'])->name('employee.export-excel-default');
+    Route::post('employee-import-excel-default', [EmployeeController::class, 'importExcel'])->name('employee.import-excel-default');
 
-        // Route Workshops
-        Route::resource('workshop', WorkshopController::class);
-        Route::get('workshop-api', [WorkshopController::class, 'indexApi'])->name('workshop.listapi');
-        Route::get('workshop-export-pdf-default', [WorkshopController::class, 'exportPdf'])->name('workshop.export-pdf-default');
-        Route::get('workshop-export-excel-default', [WorkshopController::class, 'exportExcel'])->name('workshop.export-excel-default');
-        Route::post('workshop-import-excel-default', [WorkshopController::class, 'importExcel'])->name('workshop.import-excel-default');
+    // Route Workshops
+    Route::post('workshop/store-name', [WorkshopController::class, 'storeName'])->name('workshop.store-name');
+    Route::resource('workshop', WorkshopController::class);
+    Route::get('workshop-api', [WorkshopController::class, 'indexApi'])->name('workshop.listapi');
+    Route::get('workshop-export-pdf-default', [WorkshopController::class, 'exportPdf'])->name('workshop.export-pdf-default');
+    Route::get('workshop-export-excel-default', [WorkshopController::class, 'exportExcel'])->name('workshop.export-excel-default');
+    Route::post('workshop-import-excel-default', [WorkshopController::class, 'importExcel'])->name('workshop.import-excel-default');
 
-        // Route Training Location
-        Route::resource('training-location', TrainingLocationController::class);
-        Route::get('training-location-api', [TrainingLocationController::class, 'indexApi'])->name('training-location.listapi');
-        Route::get('training-location-export-pdf-default', [TrainingLocationController::class, 'exportPdf'])->name('training-location.export-pdf-default');
-        Route::get('training-location-export-excel-default', [TrainingLocationController::class, 'exportExcel'])->name('training-location.export-excel-default');
-        Route::post('training-location-import-excel-default', [TrainingLocationController::class, 'importExcel'])->name('training-location.import-excel-default');
+    // Route Training Location
+    Route::resource('training-location', TrainingLocationController::class);
+    Route::get('training-location-api', [TrainingLocationController::class, 'indexApi'])->name('training-location.listapi');
+    Route::get('training-location-export-pdf-default', [TrainingLocationController::class, 'exportPdf'])->name('training-location.export-pdf-default');
+    Route::get('training-location-export-excel-default', [TrainingLocationController::class, 'exportExcel'])->name('training-location.export-excel-default');
+    Route::post('training-location-import-excel-default', [TrainingLocationController::class, 'importExcel'])->name('training-location.import-excel-default');
 
-        // Route Jobdesc Section
-        Route::resource('jobdesc-section', JobdescSectionController::class);
-        Route::get('jobdesc-section-api', [JobdescSectionController::class, 'indexApi'])->name('jobdesc-section.listapi');
-        Route::get('jobdesc-section-export-pdf-default', [JobdescSectionController::class, 'exportPdf'])->name('jobdesc-section.export-pdf-default');
-        Route::get('jobdesc-section-export-excel-default', [JobdescSectionController::class, 'exportExcel'])->name('jobdesc-section.export-excel-default');
-        Route::post('jobdesc-section-import-excel-default', [JobdescSectionController::class, 'importExcel'])->name('jobdesc-section.import-excel-default');
+    // Route Jobdesc Section
+    Route::resource('jobdesc-section', JobdescSectionController::class);
+    Route::get('jobdesc-section-api', [JobdescSectionController::class, 'indexApi'])->name('jobdesc-section.listapi');
+    Route::get('jobdesc-section-export-pdf-default', [JobdescSectionController::class, 'exportPdf'])->name('jobdesc-section.export-pdf-default');
+    Route::get('jobdesc-section-export-excel-default', [JobdescSectionController::class, 'exportExcel'])->name('jobdesc-section.export-excel-default');
+    Route::post('jobdesc-section-import-excel-default', [JobdescSectionController::class, 'importExcel'])->name('jobdesc-section.import-excel-default');
 
-        Route::get('/report/jobdesc-section',       [JobdescSectionController::class, 'jobdescSection']);
-        Route::post('/section/jobdesc',             [JobdescSectionController::class, 'storeData']);
-        Route::put('/section/jobdesc/{id}',         [JobdescSectionController::class, 'updateData']);
-        Route::delete('/section/jobdesc/{id}',      [JobdescSectionController::class, 'destroyData']);
-        Route::get('/section/jobdesc/{id}',         [JobdescSectionController::class, 'showData']);
+    Route::get('/report/jobdesc-section',       [JobdescSectionController::class, 'jobdescSection']);
+    Route::post('/section/jobdesc',             [JobdescSectionController::class, 'storeData']);
+    Route::put('/section/jobdesc/{id}',         [JobdescSectionController::class, 'updateData']);
+    Route::delete('/section/jobdesc/{id}',      [JobdescSectionController::class, 'destroyData']);
+    Route::get('/section/jobdesc/{id}',         [JobdescSectionController::class, 'showData']);
 
-        // Route Jobdesc Employee
-        Route::resource('jobdesc-employee', JobdescEmployeeController::class);
-        Route::get('jobdesc-employee-api', [JobdescEmployeeController::class, 'indexApi'])->name('jobdesc-employee.listapi');
-        Route::get('jobdesc-employee-export-pdf-default', [JobdescEmployeeController::class, 'exportPdf'])->name('jobdesc-employee.export-pdf-default');
-        Route::get('jobdesc-employee-export-excel-default', [JobdescEmployeeController::class, 'exportExcel'])->name('jobdesc-employee.export-excel-default');
-        Route::post('jobdesc-employee-import-excel-default', [JobdescEmployeeController::class, 'importExcel'])->name('jobdesc-employee.import-excel-default');
+    // Route Jobdesc Employee
+    Route::resource('jobdesc-employee', JobdescEmployeeController::class);
+    Route::get('jobdesc-employee-api', [JobdescEmployeeController::class, 'indexApi'])->name('jobdesc-employee.listapi');
+    Route::get('jobdesc-employee-export-pdf-default', [JobdescEmployeeController::class, 'exportPdf'])->name('jobdesc-employee.export-pdf-default');
+    Route::get('jobdesc-employee-export-excel-default', [JobdescEmployeeController::class, 'exportExcel'])->name('jobdesc-employee.export-excel-default');
+    Route::post('jobdesc-employee-import-excel-default', [JobdescEmployeeController::class, 'importExcel'])->name('jobdesc-employee.import-excel-default');
 
-        Route::get('/report/jobdesc-employee',       [JobdescEmployeeController::class, 'jobdescEmployee']);
-        Route::post('/employee/jobdesc',             [JobdescEmployeeController::class, 'storeData']);
-        Route::put('/employee/jobdesc/{id}',         [JobdescEmployeeController::class, 'updateData']);
-        Route::delete('/employee/jobdesc/{id}',      [JobdescEmployeeController::class, 'destroyData']);
-        Route::get('/employee/jobdesc/{id}',         [JobdescEmployeeController::class, 'showData']);
-
-
-        
-    });
+    Route::get('/report/jobdesc-employee',       [JobdescEmployeeController::class, 'jobdescEmployee']);
+    Route::post('/employee/jobdesc',             [JobdescEmployeeController::class, 'storeData']);
+    Route::put('/employee/jobdesc/{id}',         [JobdescEmployeeController::class, 'updateData']);
+    Route::delete('/employee/jobdesc/{id}',      [JobdescEmployeeController::class, 'destroyData']);
+    Route::get('/employee/jobdesc/{id}',         [JobdescEmployeeController::class, 'showData']);
+});

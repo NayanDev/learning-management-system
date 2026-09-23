@@ -5,7 +5,7 @@ foreach ($trainings as $training) {
     $start = \Carbon\Carbon::parse($training['header']['start_date']);
     $end = \Carbon\Carbon::parse($training['header']['end_date']);
 
-    $hours = $start->diffInHours($end);
+    $hours = floor($start->diffInHours($end));
     $startDate = $start->format('Y-m-d');
     $endDate = $end->format('Y-m-d');
 
@@ -19,7 +19,7 @@ foreach ($trainings as $training) {
         } else {
             // Lintas hari
             // Hitung hari sebenarnya (integer)
-            $days = $start->diffInDays($end);
+            $days = floor($start->diffInDays($end));
 
             // Jika ada sisa jam lebih dari 0, berarti tambah 1 hari lagi
             $remainingHours = $hours - ($days * 24);
@@ -274,22 +274,32 @@ $trainings = $transformedTrainings;
                 <br>
                 <u><strong>{{ $created->user->name ?? '-' }}</strong></u>
                 <br>
-                <span>Staff {{ ucwords(strtolower($created->user->divisi)) ?? '-' }}</span>
+                
+                <span>{{strtoupper($created->user->position) ?? '-'}} {{ $created->user->divisi ?? '-' }}</span>
                 @elseif($created->status === 'submit')
                 <div style="display: flex; justify-content: center;">
                     <div style="display: inline-block;">
-                        {!! DNS2D::getBarcodeHTML( $created->user->name . "\n" . 'Staff ' . $created->user->divisi . "\n" . '(ini adalah dokumen resmi dan sah)', 'QRCODE', 1, 1 ) !!}
+                        {!! DNS2D::getBarcodeHTML(
+                            route('signature.verified', [
+                                'model' => class_basename($created),
+                                'id'    => $created->id,
+                                'user'  => $created->user->id,
+                            ]),
+                            'QRCODE',
+                            2,
+                            2
+                        ) !!}
                     </div>
                 </div>
                 <br>
                 <u><strong>{{ $created->user->name ?? '-' }}</strong></u>
                 <br>
-                <span>Staff {{ ucwords(strtolower($created->user->divisi)) ?? '-' }}</span>
+                <span>{{strtoupper($created->user->position) ?? '-'}} {{ $created->user->divisi ?? '-' }}</span>
                 @else
                 <div style="height: 50px"></div>
                 <u><strong>{{ $created->user->name ?? '-' }}</strong></u>
                 <br>
-                <span>Staff {{ ucwords(strtolower($created->user->divisi)) ?? '-' }}</span>
+                <span>{{strtoupper($created->user->position) ?? '-'}} {{ $created->user->divisi ?? '-' }}</span>
                 @endif
             </td>
             <td class="no-border" style="width:20%;"></td>
@@ -316,7 +326,7 @@ $trainings = $transformedTrainings;
                 <br>
                 <u><strong>{{ $created->approver->name ?? '-' }}</strong></u>
                 <br>
-                <span>Manager {{ ucwords(strtolower($created->approver->divisi)) ?? '-' }}</span>
+                <span>{{strtoupper($created->approver->position) ?? '-'}} {{ strtoupper($created->approver->divisi) ?? '-' }}</span>
                 @else
                 <div style="height: 50px"></div>
                 <em>Data belum tersedia</em>

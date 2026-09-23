@@ -92,7 +92,7 @@
                 <br>
                 Dibuat Oleh,
                 <br><br>
-                @if($event->status === 'approve')
+                @if($event->status === 'approve' || $event->status === 'close' || $event->status === 'acknowledge')
                 <div style="display: flex; justify-content: center;">
                     <div style="display: inline-block;">
                         {!! DNS2D::getBarcodeHTML(
@@ -111,25 +111,16 @@
                 <u><strong>{{ $event->approver->name ?? '-' }}</strong></u>
                 <br>
                 <span>Manager {{ optional($event->approver)->divisi ?? '-' }}</span>
-                @elseif($event->status === 'submit')
+                @elseif($event->status === 'submit' || $event->status === 'open' || $event->status === 'reject')
                 <div style="display: flex; justify-content: center;">
                     <div style="display: inline-block;">
-                        {!! DNS2D::getBarcodeHTML(
-                            route('signature.verified', [
-                                'model' => class_basename($event),
-                                'id'    => $event->id,
-                                'user'  => $event->approver->id ?? 'not-available',
-                            ]),
-                            'QRCODE',
-                            2,
-                            2
-                        ) !!}
+                        
                     </div>
                 </div>
+                <br><br><br>
+                <u><strong>SARJONO</strong></u>
                 <br>
-                <u><strong>{{ $event->approver->name ?? '-' }}</strong></u>
-                <br>
-                <span>Manager {{ optional($event->approver)->divisi ?? '-' }}</span>
+                <span>Manager Umum & SDM</span>
                 @else
                 <div style="display: flex; justify-content: center;">
                     <div style="display: inline-block;">
@@ -153,28 +144,30 @@
             </td>
             <td class="no-border" style="width:25%;"></td>
             <td class="no-border" style="width:25%;"></td>
+            @if($event->status === 'close' || $event->status === 'acknowledge')
             <td class="no-border text-center"style="width:25%;">
                 <br><br>
                 Mengetahui,
                 <br><br>
                 <div style="display: flex; justify-content: center;">
-                    <div style="display: inline-block;">
-                        {!! DNS2D::getBarcodeHTML(
-                            route('director.signature.verified', [
-                                'model' => class_basename($event),
-                                'id'    => $event->id
-                            ]),
-                            'QRCODE',
-                            2,
-                            2
-                        ) !!}
-                    </div>
+                        <div style="display: inline-block;">
+                            {!! DNS2D::getBarcodeHTML(
+                                route('director.signature.verified', [
+                                    'model' => class_basename($event),
+                                    'id'    => $event->id
+                                ]),
+                                'QRCODE',
+                                2,
+                                2
+                            ) !!}
+                        </div>
                 </div>
                 <br>
                 <u><strong>MAKMURI YUSIN</strong></u>
                 <br>
                 <span>Direktur Umum & SDM</span>
             </td>
+            @endif
         </tr>
     </table>
     <p style="text-align: right">F.DUP.05.R.00.T.090217</p>

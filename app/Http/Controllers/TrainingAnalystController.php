@@ -33,7 +33,7 @@ class TrainingAnalystController extends DefaultController
         $this->title = 'Training Analyst';
         $this->generalUri = 'training-analyst';
         $this->arrPermissions = [];
-        $this->actionButtons = ['btn_approve', 'btn_access', 'btn_edit', 'btn_delete'];
+        $this->actionButtons = ['btn_access', 'btn_edit', 'btn_delete'];
 
         $this->tableHeaders = [
             ['name' => 'No', 'column' => '#', 'order' => true],
@@ -65,6 +65,27 @@ class TrainingAnalystController extends DefaultController
             ]
         ];
     }
+
+
+    public function submit($idx, SignatureService $signatureService)
+    {
+        $training = TrainingAnalyst::findOrFail($idx);
+
+        $training->update([
+            'status' => 'submit',
+            'created_date' => now(),
+            'approve_by' => Auth::id(),
+            'updated_at' => now(),
+        ]);
+
+        $signatureService->create($training);
+
+        return redirect()->back()->with(
+            'success',
+            'Training berhasil disubmit ke Manager.'
+        );
+    }
+
 
 
     protected function fields($mode = "create", $id = '-')
@@ -99,84 +120,58 @@ class TrainingAnalystController extends DefaultController
                 ];
         }
 
+        // Qualification selalu fixed (tidak dari DB)
+        $qualificationItems = ['SMA', 'Bachelor', 'Sertifikasi', 'Magister', 'Doctoral', 'Professor'];
+        $qualificationHtmlFields = array_map(fn($item) => [
+            'name'  => 'qualification',
+            'type'  => 'onlyview',
+            'label' => 'Data',
+            'class' => 'col-md-12 my-2',
+            'value' => $item,
+        ], $qualificationItems);
+
+        // General & Technic: html_fields selalu 1 baris template; values untuk JS edit
+        $generalHtmlFields = [
+            [
+                'name'  => 'general',
+                'type'  => 'text',
+                'label' => 'Data',
+                'class' => 'col-md-10',
+            ]
+        ];
+
+        $technicHtmlFields = [
+            [
+                'name'  => 'technic',
+                'type'  => 'text',
+                'label' => 'Data',
+                'class' => 'col-md-10',
+            ]
+        ];
+
         $fields = [
             [
-                'type' => 'multiinput',
-                'label' => 'Qualification',
-                'method' => 'qualification',
+                'type'          => 'multiinput',
+                'label'         => 'Qualification',
+                'method'        => 'qualification',
                 'enable_action' => false,
-                'html_fields' => [
-                    [
-                        'name' => 'qualification',
-                        'type' => 'onlyview',
-                        'label' => 'Data',
-                        'class' => 'col-md-12 my-2',
-                        'value' => 'SMA'
-                    ],
-                    [
-                        'name' => 'qualification',
-                        'type' => 'onlyview',
-                        'label' => 'Data',
-                        'class' => 'col-md-12 my-2',
-                        'value' => 'Bachelor'
-                    ],
-                    [
-                        'name' => 'qualification',
-                        'type' => 'onlyview',
-                        'label' => 'Data',
-                        'class' => 'col-md-12 my-2',
-                        'value' => 'Sertifikasi'
-                    ],
-                    [
-                        'name' => 'qualification',
-                        'type' => 'onlyview',
-                        'label' => 'Data',
-                        'class' => 'col-md-12 my-2',
-                        'value' => 'Magister'
-                    ],
-                    [
-                        'name' => 'qualification',
-                        'type' => 'onlyview',
-                        'label' => 'Data',
-                        'class' => 'col-md-12 my-2',
-                        'value' => 'Doctoral'
-                    ],
-                    [
-                        'name' => 'qualification',
-                        'type' => 'onlyview',
-                        'label' => 'Data',
-                        'class' => 'col-md-12 my-2',
-                        'value' => 'Professor'
-                    ],
-                ]
+                'html_fields'   => $qualificationHtmlFields,
             ],
             [
-                'type' => 'multiinput',
-                'label' => 'General',
-                'method' => 'general',
+                'type'          => 'multiinput',
+                'label'         => 'General',
+                'method'        => 'general',
                 'enable_action' => true,
-                'html_fields' => [
-                    [
-                        'name' => 'general',
-                        'type' => 'text',
-                        'label' => 'Data',
-                        'class' => 'col-md-10'
-                    ]
-                ]
+                'html_fields'   => $generalHtmlFields,
+                'values'        => ($mode === 'edit' && isset($edit)) ? (json_decode($edit->general, true) ?? []) : [],
             ],
             [
-                'type' => 'multiinput',
-                'label' => 'Technic',
-                'method' => 'technic',
+                'type'          => 'multiinput',
+                'label'         => 'Technic',
+                'method'        => 'technic',
                 'enable_action' => true,
-                'html_fields' => [
-                    [
-                        'name' => 'technic',
-                        'type' => 'text',
-                        'label' => 'Data',
-                        'class' => 'col-md-10'
-                    ]
-                ]
+                'html_fields'   => $technicHtmlFields,
+                'values'        => ($mode === 'edit' && isset($edit)) ? (json_decode($edit->technic, true) ?? []) : [],
             ],
             [
                 'type' => 'hidden',
@@ -255,6 +250,53 @@ class TrainingAnalystController extends DefaultController
     }
 
 
+    protected function update(Request $request, $id)
+    {
+        $rules = $this->rules($id);
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            $messageErrors = (new Validation)->modify($validator, $rules);
+
+            return response()->json([
+                'status' => false,
+                'alert' => 'danger',
+                'message' => 'Required Form',
+                'validation_errors' => $messageErrors,
+            ], 200);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $change = TrainingAnalyst::where('id', $id)->firstOrFail();
+
+            $change->training_id  = $request->input('training_id', $change->training_id);
+            $change->qualification = json_encode($request->qualification ?? []);
+            $change->general      = json_encode($request->general ?? []);
+            $change->technic      = json_encode($request->technic ?? []);
+            $change->user_id      = $request->input('user_id', $change->user_id);
+            $change->divisi       = $request->input('divisi', $change->divisi);
+            $change->save();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'alert' => 'success',
+                'message' => 'Data Was Updated Successfully',
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
     protected function defaultDataQuery()
     {
         $filters = [];
@@ -269,7 +311,7 @@ class TrainingAnalystController extends DefaultController
             $orderState = request('order_state');
         }
         if (request('training_id')) {
-            $filters[] = ['training_id', '=', request('training_id')];
+            $filters[] = ['training_analysts.training_id', '=', request('training_id')];
         }
 
         $dataQueries = TrainingAnalyst::join('users', 'users.id', '=', 'training_analysts.user_id')
@@ -287,13 +329,20 @@ class TrainingAnalystController extends DefaultController
 
         // Cek role user
         $user = Auth::user();
+        $hrDivisions = ['UMUM & SDM', 'UMUM DAN SDM', 'SDM'];
 
-        if ($user->role->name === 'manager') {
+        if ($user->role->name === 'developer') {
+            // Developer: tampilkan semua data
+        } elseif ($user->role->name === 'supervisi' && in_array(strtoupper($user->divisi), $hrDivisions)) {
+            // Manager / Asman HR (divisi UMUM & SDM): tampilkan semua data
+        } elseif ($user->role->name === 'supervisi') {
+            // Manager bagian lain: tampilkan data sesuai divisinya
             $dataQueries = $dataQueries->where(
                 'training_analysts.divisi',
-                $user->divisi
+                strtoupper($user->divisi)
             );
-        } elseif ($user->role->name !== 'admin') {
+        } else {
+            // User biasa: tampilkan data yang ditambahkan sendiri
             $dataQueries = $dataQueries->where(
                 'training_analysts.user_id',
                 $user->id
@@ -345,6 +394,11 @@ class TrainingAnalystController extends DefaultController
         $baseUrlExcel = route($this->generalUri . '.export-excel-default');
         $baseUrlPdf = route($this->generalUri . '.export-pdf-default');
 
+        $params = "";
+        if (request('training_id')) {
+            $params = "?training_id=" . request('training_id');
+        }
+
         $moreActions = [
             [
                 'key' => 'import-excel-default',
@@ -377,7 +431,7 @@ class TrainingAnalystController extends DefaultController
         $data['table_headers'] = $this->tableHeaders;
         $data['title'] = $this->title;
         $data['uri_key'] = $this->generalUri;
-        $data['uri_list_api'] = route($this->generalUri . '.listapi');
+        $data['uri_list_api'] = route($this->generalUri . '.listapi') . $params;
         $data['uri_create'] = route($this->generalUri . '.create');
         $data['url_store'] = route($this->generalUri . '.store');
         $data['fields'] = $this->fields();
@@ -404,7 +458,7 @@ class TrainingAnalystController extends DefaultController
         $queryString = request('training_analyst');
         $user = auth::user();
 
-        if ($user->role !== 'admin') {
+        if ($user->role->name !== 'developer') {
             $access = TrainingAnalyst::where('divisi', $user->divisi)
                 ->where('id', $queryString)
                 ->first();
@@ -432,6 +486,7 @@ class TrainingAnalystController extends DefaultController
         $data['edit_fields'] = $this->fields('edit');
         $data['templateImportExcel'] = "#";
 
+        $data['traing_analyst_single'] = $trainingAnalyst->first();
         $data['training_analyst'] = $trainingAnalyst;
         $data['analyst_data'] = $analystData;
 
@@ -443,12 +498,17 @@ class TrainingAnalystController extends DefaultController
     {
         try {
             DB::beginTransaction();
-            $trainingAnalystId = request('training_analyst_id');
-            $existingIds = TrainingAnalystData::where('training_analyst_id', $trainingAnalystId)->pluck('id')->toArray();
+            $trainingAnalystId = $request->input('training_analyst_id');
+            $existingIds = TrainingAnalystData::where('training_analyst_id', $trainingAnalystId)
+                ->pluck('id')
+                ->toArray();
 
             $processIds = [];
 
-            foreach ($request->training_data as $index => $data) {
+            // Null-safe: training_data bisa null/kosong jika semua baris dihapus
+            $trainingData = $request->input('training_data', []) ?? [];
+
+            foreach ($trainingData as $index => $data) {
                 $id = isset($existingIds[$index]) ? $existingIds[$index] : null;
                 $training = TrainingAnalystData::updateOrCreate(
                     [
@@ -456,19 +516,25 @@ class TrainingAnalystController extends DefaultController
                         'training_analyst_id' => $trainingAnalystId
                     ],
                     [
-                        'position' => $data['position'],
-                        'personil' => $data['personil'],
+                        'position'      => $data['position'],
+                        'personil'      => $data['personil'],
                         'qualification' => json_encode($data['qualification']),
-                        'general' => json_encode($data['general']),
-                        'technic' => json_encode($data['technic'])
+                        'general'       => json_encode($data['general']),
+                        'technic'       => json_encode($data['technic'])
                     ]
                 );
                 $processIds[] = $training->id;
             }
 
-            TrainingAnalystData::where('training_analyst_id', $trainingAnalystId)
-                ->whereNotIn('id', $processIds)
-                ->delete();
+            // Hapus record yang tidak ada di processIds
+            // Jika processIds kosong (semua dihapus), hapus semua record sekaligus
+            if (empty($processIds)) {
+                TrainingAnalystData::where('training_analyst_id', $trainingAnalystId)->delete();
+            } else {
+                TrainingAnalystData::where('training_analyst_id', $trainingAnalystId)
+                    ->whereNotIn('id', $processIds)
+                    ->delete();
+            }
 
             DB::commit();
 

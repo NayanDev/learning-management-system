@@ -622,6 +622,70 @@ class UserController extends DefaultController
     }
 
 
+    public function updateSignature(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'signature_data' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Signature wajib diisi.',
+            ], 422);
+        }
+
+        $signatureData = $request->input('signature_data');
+        if (!preg_match('/^data:image\/(svg\+xml|png);base64,(.+)$/', $signatureData, $matches)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Format signature tidak valid.',
+            ], 422);
+        }
+
+        $extension = $matches[1] === 'svg+xml' ? 'svg' : 'png';
+        $content = base64_decode($matches[2], true);
+        if ($content === false) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Data signature tidak valid.',
+            ], 422);
+        }
+
+        try {
+            $user = User::findOrFail(Auth::id());
+            $storagePath = storage_path('app/public/signature');
+
+            if (!is_dir($storagePath)) {
+                mkdir($storagePath, 0755, true);
+            }
+
+            $signatureFileName = 'signature_' . $user->id . '_' . time() . '_' . uniqid() . '.' . $extension;
+            file_put_contents($storagePath . '/' . $signatureFileName, $content);
+
+            $oldSignature = $user->signature;
+            $user->update(['signature' => $signatureFileName]);
+
+            if ($oldSignature && $oldSignature !== $signatureFileName) {
+                $oldPath = $storagePath . '/' . $oldSignature;
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Signature berhasil disimpan.',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Signature gagal disimpan: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
     protected function filters()
     {
         $kjs = Role::get();
@@ -737,7 +801,6 @@ class UserController extends DefaultController
             $user->telp = $telp;
             $user->qualification = $qualification;
             $user->role_id = $roleId;
-            $user->password = bcrypt($password);
 
             // Only update password if provided
             if (!empty($password)) {

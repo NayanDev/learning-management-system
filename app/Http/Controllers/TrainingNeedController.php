@@ -156,6 +156,53 @@ class TrainingNeedController extends DefaultController
         return $rules;
     }
 
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'training_id' => ['required', 'integer', 'exists:trainings,id'],
+            'notes' => ['nullable', 'string'],
+        ]);
+
+        Training::query()
+            ->whereKey($validated['training_id'])
+            ->where('status', 'open')
+            ->where('year', now()->year + 1)
+            ->firstOrFail();
+
+        TrainingNeed::create([
+            'training_id' => $validated['training_id'],
+            'user_id' => Auth::id(),
+            'divisi' => Auth::user()->divisi,
+            'status' => 'open',
+            'notes' => $validated['notes'] ?? null,
+            'created_date' => now(),
+        ]);
+
+        return redirect()
+            ->route('dashboard.index')
+            ->with('success', 'Form rencana usulan berhasil disimpan.');
+    }
+
+
+    public function submit($id, SignatureService $signatureService)
+    {
+        $training = TrainingNeed::findOrFail($id);
+
+        $training->update([
+            'status'       => 'submit',
+            'created_date' => now(),
+            'approve_by'   => Auth::id(),
+            'updated_at'   => now(),
+        ]);
+
+        $signatureService->create($training);
+
+        return redirect()->back()->with(
+            'success',
+            'Berhasil disubmit ke Manager.'
+        );
+    }
+
 
     protected function defaultDataQuery()
     {
@@ -186,13 +233,20 @@ class TrainingNeedController extends DefaultController
 
         // Cek role user
         $user = Auth::user();
+        $hrDivisions = ['UMUM & SDM', 'UMUM DAN SDM', 'SDM'];
 
-        if ($user->role->name === 'manager') {
+        if ($user->role->name === 'developer') {
+            // Developer: tampilkan semua data
+        } elseif ($user->role->name === 'supervisi' && in_array(strtoupper($user->divisi), $hrDivisions)) {
+            // Manager / Asman HR (divisi UMUM & SDM): tampilkan semua data
+        } elseif ($user->role->name === 'supervisi') {
+            // Manager bagian lain: tampilkan data sesuai divisinya
             $dataQueries = $dataQueries->where(
                 'training_needs.divisi',
-                $user->divisi
+                strtoupper($user->divisi)
             );
-        } elseif ($user->role->name !== 'admin') {
+        } else {
+            // User biasa: tampilkan data yang ditambahkan sendiri
             $dataQueries = $dataQueries->where(
                 'training_needs.user_id',
                 $user->id
@@ -262,6 +316,11 @@ class TrainingNeedController extends DefaultController
             ],
         ];
 
+        $params = "";
+        if (request('training_id')) {
+            $params = "?training_id=" . request('training_id');
+        }
+
         $permissions =  $this->arrPermissions;
         if ($this->dynamicPermission) {
             $permissions = (new Constant())->permissionByMenu($this->generalUri);
@@ -276,7 +335,7 @@ class TrainingNeedController extends DefaultController
         $data['table_headers'] = $this->tableHeaders;
         $data['title'] = $this->title;
         $data['uri_key'] = $this->generalUri;
-        $data['uri_list_api'] = route($this->generalUri . '.listapi');
+        $data['uri_list_api'] = route($this->generalUri . '.listapi') . $params;
         $data['uri_create'] = route($this->generalUri . '.create');
         $data['url_store'] = route($this->generalUri . '.store');
         $data['fields'] = $this->fields();
@@ -369,7 +428,7 @@ class TrainingNeedController extends DefaultController
             ];
             // return dd($data);
 
-            $pdf = PDF::loadView('pdf.training_need', $data)
+            $pdf = Pdf::loadView('pdf.training_need', $data)
                 ->setPaper('A4', 'landscape');
 
             return $pdf->stream("Rencana_Training_" . date('Y-m-d') . ".pdf");

@@ -24,14 +24,16 @@ class Section extends Model
     public function getBadgeJobdescAttribute()
     {
         if ($this->jobdescSection && filled($this->jobdescSection->file)) {
-            return "<span class='badge bg-light-success text-success'>
+            $html = "<span class='badge bg-light-success'>
                         Uploaded
+                    </span>";
+        } else {
+            $html = "<span class='badge bg-light-danger'>
+                        Empty
                     </span>";
         }
 
-        return "<span class='badge bg-light-danger text-danger'>
-                    Empty
-                </span>";
+        return $html;
     }
 
 

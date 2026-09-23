@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('jobdesc_sections', function (Blueprint $table) {
             $table->id();
-            $table->string('uuid', 12)->unique();
             $table->string('name');
             $table->string('file')->nullable();
             $table->foreignId('section_id')->constrained('sections')->onDelete('cascade');

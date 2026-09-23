@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Workshop;
 use Idev\EasyAdmin\app\Http\Controllers\DefaultController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class WorkshopController extends DefaultController
 {
@@ -54,12 +57,30 @@ class WorkshopController extends DefaultController
 
         $fields = [
                     [
-                        'type' => 'text',
+                        'type' => 'repeatable',
                         'label' => 'Name',
                         'name' =>  'name',
                         'class' => 'col-md-12 my-2',
                         'required' => $this->flagRules('name', $id),
-                        'value' => (isset($edit)) ? $edit->name : ''
+                        'value' => (isset($edit)) ? $edit->name : '',
+                        'enable_action' => true,
+                        'html_fields' => [
+                                                [
+                                            'label' => 'Name',
+                                            'type' => 'text',
+                                            'name' =>  'kode',
+                                        ],
+                                        [
+                                            'label' => 'date',
+                                            'type' => 'datetime',
+                                            'name' =>  'date',
+                                        ],
+                                        [
+                                            'label' => 'notes',
+                                            'type' => 'textarea',
+                                            'name' =>  'notes',
+                                        ],
+                        ],
                     ],
                     [
                         'type' => 'text',
@@ -101,6 +122,39 @@ class WorkshopController extends DefaultController
         ];
 
         return $rules;
+    }
+
+
+    public function storeName(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+        ]);
+
+        $attributes = ['name' => trim($validated['name'])];
+
+        if (Schema::hasColumn('workshops', 'user_id')) {
+            $attributes['user_id'] = Auth::id();
+        }
+
+        if (Schema::hasColumn('workshops', 'competency')) {
+            $attributes['competency'] = '-';
+        }
+
+        $workshop = new Workshop();
+        foreach ($attributes as $attribute => $value) {
+            $workshop->setAttribute($attribute, $value);
+        }
+        $workshop->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Nama workshop berhasil disimpan.',
+            'data' => [
+                'id' => $workshop->id,
+                'name' => $workshop->name,
+            ],
+        ]);
     }
 
 

@@ -88,9 +88,7 @@
                         <div class="row mb-4 align-items-center">
                             <div class="col-sm-4 info-label">Jabatan</div>
                             <div class="col-sm-8 info-value">
-                                {{ $approval->user?->role?->name === 'manager'
-                                    ? 'Manager ' . ($approval->user?->divisi ?? '')
-                                    : $approval->user->unit_kerja }}
+                                {{ strtoupper($approval->user->position ?? '-') }} {{ strtoupper($approval->user->divisi ?? '-') }}
                             </div>
                         </div>
 

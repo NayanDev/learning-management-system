@@ -13,7 +13,7 @@ class TrainingAnalyst extends Model
     protected $table = 'training_analysts';
     protected $primaryKey = 'id';
     protected $fillable = ["training_id", "qualification", "general", "technic", "status", "notes", "created_date", "approve_by", "user_id", "divisi"];
-    protected $appends = ['btn_access', 'btn_approve', 'btn_delete', 'btn_edit', 'btn_show', 'badge_status'];
+    protected $appends = ['btn_access', 'btn_delete', 'btn_edit', 'btn_show', 'badge_status'];
 
     public function user()
     {
@@ -27,7 +27,7 @@ class TrainingAnalyst extends Model
 
     public function training()
     {
-        return $this->belongsTo(Training::class);
+        return $this->belongsTo(Training::class, 'training_id');
     }
 
     public function approval()
@@ -86,14 +86,14 @@ class TrainingAnalyst extends Model
             </button>";
         $pdf = "<a id='export-pdf' class='btn btn-sm btn-outline-success radius-6' target='_blank' href='" . url('training-analyst-pdf') . "?training_analyst=" . $this->id . "' title='Export PDF'><i class='ti ti-file'></i></a>";
 
-        if ($this->status === "open" && ($roleName === "officer" || $roleName === "admin")) {
+        if ($this->status === "open" && ($roleName === "trainer" || $roleName === "developer")) {
             $html = $btn;
             return $html;
         } else if ($this->status === "submit") {
-            if ($roleName === "officer" || $roleName === "admin") {
+            if ($roleName === "trainer" || $roleName === "developer") {
                 $html = $btnOff;
                 return $html;
-            } else if ($roleName === "manager") {
+            } else if ($roleName === "supervisi") {
                 $html = $btn;
                 return $html;
             }

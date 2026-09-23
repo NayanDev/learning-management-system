@@ -59,6 +59,7 @@
         };
 
         window.addEventListener('resize', resizeCanvas);
+        document.getElementById('modalDirectorSignature').addEventListener('shown.bs.modal', resizeCanvas);
         resizeCanvas();
 
         document.getElementById('btnClearDirectorSignature').addEventListener('click', function() {

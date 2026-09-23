@@ -87,6 +87,7 @@ class EmployeeController extends DefaultController
             ['source' => 'https://cdn.datatables.net/2.3.8/js/dataTables.bootstrap5.min.js'],
             ['source' => asset('custom/js/initDataTable.js')],
             ['source' => asset('custom/js/modalConfig.js')],
+            ['source' => asset('custom/js/FilterEmployee.js')],
         ];
 
         $this->importStyles = [
@@ -475,5 +476,50 @@ class EmployeeController extends DefaultController
         );
 
     }
+
+    protected function filters()
+    {
+        $arrCompany = Company::select(
+            'id as value',
+            'name as text'
+        )
+        ->get()
+        ->prepend([
+            'value' => null,
+            'text' => '-- Pilih Company --',
+        ]);
+
+        $arrDivision = Division::select(
+            'id as value',
+            'name as text',
+            'company_id'
+        )
+        ->get()
+        ->prepend([
+            'value' => null,
+            'text' => '-- Pilih Division --',
+            'company_id' => null,
+        ]);
+
+        $fields = [
+            [
+                'type' => 'select',
+                'label' => 'Company',
+                'name' => 'company_id',
+                'class' => 'col-md-2',
+                'options' => $arrCompany,
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Division',
+                'name' => 'division_id',
+                'class' => 'col-md-2',
+                'options' => $arrDivision,
+            ],
+        ];
+
+        return $fields;
+    }
+
 
 }

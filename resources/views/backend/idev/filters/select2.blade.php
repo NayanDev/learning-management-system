@@ -11,7 +11,11 @@ $preffix_method = (isset($method))? $method."_": "";
         name="{{$select_name}}" 
         class="form-control support-live-select2 @if($prefix_repeatable) filter-repeatable @endif">
         @foreach($filter['options'] as $key => $opt)
-        <option value="{{$opt['value']}}">{{$opt['text']}}</option>
+        <option 
+            value="{{ $opt['value'] }}"
+            @if(isset($filter['selected_value']) && $opt['value'] == $filter['selected_value']) selected @endif>
+            {{ $opt['text'] }}
+        </option>
         @endforeach
     </select>
 </div>

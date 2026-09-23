@@ -118,14 +118,14 @@ class Event extends Model
                     return $btnOff;
                 }
 
-                if ($roleName === "manager" && $divisiName === "UMUM & SDM") {
+                if ($roleName === "manager" && $divisiName === "Umum & SDM") {
                     return $btn; // approve manager
                 }
             }
 
             // APPROVE → manager sudah selesai (FINISH)
             if ($this->status === "approve") {
-                if ($roleName === "manager" && $divisiName === "UMUM & SDM") {
+                if ($roleName === "manager" && $divisiName === "Umum & SDM") {
                     return $pdf; // langsung selesai
                 }
 
@@ -153,7 +153,7 @@ class Event extends Model
             if ($this->status === "submit") {
                 if ($roleName === "admin") {
                     return $btnOff;
-                } elseif ($roleName === "manager" && $divisiName === "UMUM & SDM") {
+                } elseif ($roleName === "manager" && $divisiName === "Umum & SDM") {
                     return $btn;
                 }
             }
@@ -161,8 +161,8 @@ class Event extends Model
             if ($this->status === "approve") {
                 if ($roleName === "admin") {
                     return $btnDirector;
-                } elseif ($roleName === "manager" && $divisiName === "UMUM & SDM") {
-                    return $btnOff;
+                } elseif ($roleName === "manager" && $divisiName === "Umum & SDM") {
+                    return $pdf;
                 }
             }
 
@@ -170,7 +170,7 @@ class Event extends Model
                 $this->status === "close" &&
                 (
                     $roleName === "admin" ||
-                    ($roleName === "manager" && $divisiName === "UMUM & SDM") ||
+                    ($roleName === "manager" && $divisiName === "Umum & SDM") ||
                     $roleName === "direktur"
                 )
             ) {

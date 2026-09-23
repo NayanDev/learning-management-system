@@ -151,7 +151,7 @@ class TrainingWorkshopController extends DefaultController
             ],
             [
                 'type' => 'text',
-                'label' => 'Position',
+                'label' => 'Position Trainer',
                 'name' =>  'position',
                 'class' => 'col-md-12 my-2',
                 'required' => $this->flagRules('position', $id),
@@ -228,13 +228,20 @@ class TrainingWorkshopController extends DefaultController
 
         // Cek role user
         $user = Auth::user();
+        $hrDivisions = ['UMUM & SDM', 'UMUM DAN SDM', 'SDM'];
 
-        if ($user->role->name === 'manager') {
+        if ($user->role->name === 'developer') {
+            // Developer: tampilkan semua data
+        } elseif ($user->role->name === 'supervisi' && in_array(strtoupper($user->divisi), $hrDivisions)) {
+            // Manager / Asman HR (divisi UMUM & SDM): tampilkan semua data
+        } elseif ($user->role->name === 'supervisi') {
+            // Manager bagian lain: tampilkan data sesuai divisinya
             $dataQueries = $dataQueries->where(
                 'training_need_workshops.divisi',
-                $user->divisi
+                strtoupper($user->divisi)
             );
-        } elseif ($user->role->name !== 'admin') {
+        } else {
+            // User biasa: tampilkan data yang ditambahkan sendiri
             $dataQueries = $dataQueries->where(
                 'training_need_workshops.user_id',
                 $user->id
@@ -307,7 +314,7 @@ class TrainingWorkshopController extends DefaultController
         if ($this->dynamicPermission) {
             $permissions = (new Constant())->permissionByMenu($this->generalUri);
         }
-        $layout = (request('from_ajax') && request('from_ajax') == true) ? 'easyadmin::backend.idev.list_drawer_ajax' : 'easyadmin::backend.idev.list_drawer';
+        $layout = (request('from_ajax') && request('from_ajax') == true) ? 'easyadmin::backend.idev.list_drawer_ajax' : 'backend.idev.list_drawer_training_workshop';
         if(isset($this->drawerLayout)){
             $layout = $this->drawerLayout;
         }

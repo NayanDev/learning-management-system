@@ -166,7 +166,9 @@ class EvaluationController extends DefaultController
             abort(403, 'Token Not Found.');
         }
         $event = Event::where('token', $token)->first();
-        $participants = Participant::where('event_id', $event->id)->get();
+        $participants = Participant::where('event_id', $event->id)
+        ->whereHas('attendances')
+        ->get();
 
         // Ambil data evaluasi yang sudah ada untuk semua participant
         $existingEvaluations = [];
@@ -197,7 +199,9 @@ class EvaluationController extends DefaultController
             abort(403, 'Token Not Found.');
         }
         $event = Event::where('token', $token)->first();
-        $participants = Participant::where('event_id', $event->id)->get();
+        $participants = Participant::where('event_id', $event->id)
+        ->whereHas('attendances')
+        ->get();
 
         // Ambil data evaluasi yang sudah ada untuk semua participant
         $existingEvaluations = [];
@@ -233,7 +237,9 @@ class EvaluationController extends DefaultController
             abort(403, 'Event tidak ditemukan.');
         }
         
-        $participants = Participant::where('event_id', $event->id)->get();
+        $participants = Participant::where('event_id', $event->id)
+        ->whereHas('attendances')
+        ->get();
 
         // Ambil data evaluasi yang sudah ada untuk semua participant
         $evaluationData = [];
@@ -529,7 +535,9 @@ class EvaluationController extends DefaultController
             $participants = collect([$participant]);
         } else {
             // Ambil semua peserta pada event ini
-            $participants = Participant::with('user')->where('event_id', $eventId)->get();
+            $participants = Participant::where('event_id', $event->id)
+            ->whereHas('attendances')
+            ->get();
         }
 
         // Ambil evaluasi berdasarkan peserta dan event

@@ -16,7 +16,7 @@
         @php
             $tableUrl = $table['url'] ?? '';
             if (!empty($detail->id)) {
-                $tableUrl .= (str_contains($tableUrl, '?') ? '&' : '?') . 'section_id=' . $detail->id;
+                $tableUrl .= (str_contains($tableUrl, '?') ? '&' : '?') . 'data_id=' . $detail->id;
             }
             // Konversi ke URL absolut agar fetch dari JS selalu benar
             if ($tableUrl && !str_starts_with($tableUrl, 'http')) {

@@ -11,47 +11,47 @@ class Sidebar
 
   public function generate()
   {
-      $menus = $this->menus();
-      $constant = new Constant();
-      $permission = $constant->permissions();
-      $arrMenu = [];
+    $menus = $this->menus();
+    $constant = new Constant();
+    $permission = $constant->permissions();
+    $arrMenu = [];
 
-      foreach ($menus as $key => $menu) {
-          $visibilityMenu = in_array(
-              $menu['key'] . ".index",
-              $permission['list_access']
-          );
-          if (isset($menu['override_visibility'])) {
-              $visibilityMenu = $menu['override_visibility'];
-          }
-          $menu['visibility'] = $visibilityMenu;
-          $menu['url'] = Route::has($menu['key'] . ".index")
-              ? route($menu['key'] . ".index")
-              : "#";
-          $menu['base_key'] = $menu['key'];
-          $menu['key'] = $menu['key'] . ".index";
-          if (isset($menu['childrens']) && count($menu['childrens']) > 0) {
-              foreach ($menu['childrens'] as &$child) {
-                  $childVisibility = in_array(
-                      $child['key'] . ".index",
-                      $permission['list_access']
-                  );
-                  if (isset($child['override_visibility'])) {
-                      $childVisibility = $child['override_visibility'];
-                  }
-                  $child['visibility'] = $childVisibility;
-                  $child['url'] = Route::has($child['key'] . ".index")
-                      ? route($child['key'] . ".index")
-                      : "#";
-                  $child['base_key'] = $child['key'];
-                  $child['key'] = $child['key'] . ".index";
-              }
-              unset($child);
-          }
-          $arrMenu[] = $menu;
+    foreach ($menus as $key => $menu) {
+      $visibilityMenu = in_array(
+        $menu['key'] . ".index",
+        $permission['list_access']
+      );
+      if (isset($menu['override_visibility'])) {
+        $visibilityMenu = $menu['override_visibility'];
       }
+      $menu['visibility'] = $visibilityMenu;
+      $menu['url'] = Route::has($menu['key'] . ".index")
+        ? route($menu['key'] . ".index")
+        : "#";
+      $menu['base_key'] = $menu['key'];
+      $menu['key'] = $menu['key'] . ".index";
+      if (isset($menu['childrens']) && count($menu['childrens']) > 0) {
+        foreach ($menu['childrens'] as &$child) {
+          $childVisibility = in_array(
+            $child['key'] . ".index",
+            $permission['list_access']
+          );
+          if (isset($child['override_visibility'])) {
+            $childVisibility = $child['override_visibility'];
+          }
+          $child['visibility'] = $childVisibility;
+          $child['url'] = Route::has($child['key'] . ".index")
+            ? route($child['key'] . ".index")
+            : "#";
+          $child['base_key'] = $child['key'];
+          $child['key'] = $child['key'] . ".index";
+        }
+        unset($child);
+      }
+      $arrMenu[] = $menu;
+    }
 
-      return $arrMenu;
+    return $arrMenu;
   }
 
 
@@ -73,99 +73,69 @@ class Sidebar
           'childrens' => []
         ],
         [
-            'name' => 'Master Data',
-            'icon' => 'ti ti-database',
-            'key' => 'company',
-            'base_key' => '#',
-            'visibility' => true,
-            'ajax_load' => false,
-            'childrens' => [
-              [
-                  'name' => 'Company',
-                  'visibility' => false,
-                  'base_key' => 'company',
-                  'key' => 'company',
-              ],
-              [
-                  'name' => 'Division',
-                  'visibility' => true,
-                  'base_key' => 'division',
-                  'key' => 'division',
-              ],
-              [
-                  'name' => 'Department',
-                  'visibility' => true,
-                  'base_key' => 'department',
-                  'key' => 'department',
-              ],
-              [
-                  'name' => 'Position',
-                  'visibility' => true,
-                  'base_key' => 'position',
-                  'key' => 'position',
-              ],
-              [
-                  'name' => 'Section',
-                  'visibility' => true,
-                  'base_key' => 'section',
-                  'key' => 'section',
-              ],
-              [
-                  'name' => 'Group',
-                  'visibility' => true,
-                  'base_key' => 'group',
-                  'key' => 'group',
-              ],
-              [
-                  'name' => 'Employee',
-                  'visibility' => true,
-                  'base_key' => 'employee',
-                  'key' => 'employee',
-              ],
-              [
-                  'name' => 'Workshop',
-                  'visibility' => true,
-                  'base_key' => 'workshop',
-                  'key' => 'workshop',
-              ],
-              [
-                  'name' => 'Training Location',
-                  'visibility' => true,
-                  'base_key' => 'training-location',
-                  'key' => 'training-location',
-              ],
-            ]
-          ],
+          'name' => 'Master Data',
+          'icon' => 'ti ti-database',
+          'key' => 'company',
+          'base_key' => '#',
+          'visibility' => true,
+          'ajax_load' => false,
+          'childrens' => [
+            [
+              'name' => 'Company',
+              'visibility' => false,
+              'base_key' => 'company',
+              'key' => 'company',
+            ],
+            [
+              'name' => 'Division',
+              'visibility' => true,
+              'base_key' => 'division',
+              'key' => 'division',
+            ],
+            [
+              'name' => 'Department',
+              'visibility' => true,
+              'base_key' => 'department',
+              'key' => 'department',
+            ],
+            [
+              'name' => 'Position',
+              'visibility' => true,
+              'base_key' => 'position',
+              'key' => 'position',
+            ],
+            [
+              'name' => 'Section',
+              'visibility' => true,
+              'base_key' => 'section',
+              'key' => 'section',
+            ],
+            [
+              'name' => 'Group',
+              'visibility' => true,
+              'base_key' => 'group',
+              'key' => 'group',
+            ],
+            [
+              'name' => 'Training Location',
+              'visibility' => true,
+              'base_key' => 'training-location',
+              'key' => 'training-location',
+            ],
+          ]
+        ],
         [
-            'name' => 'Approval',
-            'icon' => 'ti ti-checkup-list',
-            'key' => 'approval',
-            'base_key' => 'approval',
-            'visibility' => true,
-            'ajax_load' => false,
-            'childrens' => []
-          ],
-        [
-            'name' => 'Jobdesc Section',
-            'icon' => 'ti ti-checkup-list',
-            'key' => 'jobdesc-section',
-            'base_key' => 'jobdesc-section',
-            'visibility' => true,
-            'ajax_load' => false,
-            'childrens' => []
-          ],
-        [
-            'name' => 'Jobdesc Employee',
-            'icon' => 'ti ti-checkup-list',
-            'key' => 'jobdesc-employee',
-            'base_key' => 'jobdesc-employee',
-            'visibility' => true,
-            'ajax_load' => false,
-            'childrens' => []
-          ],
+          'name' => 'Employee',
+          'icon' => 'ti ti-users',
+          'key' => 'employee',
+          'base_key' => 'employee',
+          'visibility' => true,
+          'ajax_load' => false,
+          'childrens' => []
+        ],
         [
           'name' => 'Workshop',
-          'icon' => 'ti ti-tools',
+          'icon' => 'ti ti-book',
           'key' => 'workshop',
           'base_key' => 'workshop',
           'visibility' => true,
@@ -354,14 +324,14 @@ class Sidebar
           'childrens' => []
         ],
         [
-            'name' => 'Certification External',
-            'icon' => 'ti ti-certificate',
-            'key' => 'certification-external',
-            'base_key' => 'certification-external',
-            'visibility' => true,
-            'ajax_load' => false,
-            'childrens' => []
-          ],
+          'name' => 'Certification External',
+          'icon' => 'ti ti-certificate',
+          'key' => 'certification-external',
+          'base_key' => 'certification-external',
+          'visibility' => true,
+          'ajax_load' => false,
+          'childrens' => []
+        ],
         [
           'name' => 'Evaluation',
           'icon' => 'ti ti-pencil',
@@ -381,41 +351,41 @@ class Sidebar
           'childrens' => []
         ],
         [
-            'name' => 'Report Training',
-            'icon' => 'ti ti-file',
-            'key' => 'report-training',
-            'base_key' => 'report-training',
-            'visibility' => true,
-            'ajax_load' => false,
-            'childrens' => []
-          ],
+          'name' => 'Report Training',
+          'icon' => 'ti ti-file',
+          'key' => 'report-training',
+          'base_key' => 'report-training',
+          'visibility' => true,
+          'ajax_load' => false,
+          'childrens' => []
+        ],
         [
-            'name' => 'Resume Materi',
-            'icon' => 'ti ti-file-text',
-            'key' => 'resume-materi',
-            'base_key' => 'resume-materi',
-            'visibility' => true,
-            'ajax_load' => false,
-            'childrens' => []
-          ],
+          'name' => 'Resume Materi',
+          'icon' => 'ti ti-file-text',
+          'key' => 'resume-materi',
+          'base_key' => 'resume-materi',
+          'visibility' => true,
+          'ajax_load' => false,
+          'childrens' => []
+        ],
         [
-            'name' => 'Matrik',
-            'icon' => 'ti ti-sparkles',
-            'key' => 'matrik',
-            'base_key' => 'matrik',
-            'visibility' => true,
-            'ajax_load' => false,
-            'childrens' => []
-          ],
+          'name' => 'Matrik',
+          'icon' => 'ti ti-sparkles',
+          'key' => 'matrik',
+          'base_key' => 'matrik',
+          'visibility' => true,
+          'ajax_load' => false,
+          'childrens' => []
+        ],
         [
-            'name' => 'Director Signature',
-            'icon' => 'ti ti-menu',
-            'key' => 'director-signature',
-            'base_key' => 'director-signature',
-            'visibility' => true,
-            'ajax_load' => false,
-            'childrens' => []
-          ],
+          'name' => 'Director Signature',
+          'icon' => 'ti ti-menu',
+          'key' => 'director-signature',
+          'base_key' => 'director-signature',
+          'visibility' => true,
+          'ajax_load' => false,
+          'childrens' => []
+        ],
         [
           'name' => 'Role',
           'icon' => 'ti ti-key',

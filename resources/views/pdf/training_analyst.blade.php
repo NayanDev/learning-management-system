@@ -227,7 +227,7 @@ $technic = json_decode($training_analyst->technic, true);
                 <br>
                 <strong><u>{{ $created->user->name ?? '-' }}</u></strong>
                 <br>
-                <span>Staff {{ ucwords(strtolower($created->user->divisi)) }}</span>
+                <span>{{ strtoupper($created->user->position ?? Auth::user()->position) }} {{ $created->user->divisi }}</span>
                 @elseif($created->status === 'submit')
                 <div style="display: flex; justify-content: center;">
                     <div style="display: inline-block;">
@@ -246,12 +246,12 @@ $technic = json_decode($training_analyst->technic, true);
                 <br>
                 <strong><u>{{ $created->user->name ?? '-' }}</u></strong>
                 <br>
-                <span>Staff {{ ucwords(strtolower($created->user->divisi)) }}</span>
+                <span>{{ strtoupper($created->user->position ?? Auth::user()->position) }} {{ $created->user->divisi }}</span>
                 @else
                 <div style="height: 50px"></div>
                 <strong><u>{{ $created->user->name ?? '-' }}</u></strong>
                 <br>
-                <span>Staff {{ ucwords(strtolower($created->user->divisi)) }}</span>
+                <span>{{ strtoupper($created->user->position ?? Auth::user()->position) }} {{ $created->user->divisi }}</span>
                 @endif
             </td>
             <td class="no-border" style="width:20%;"></td>
@@ -277,7 +277,7 @@ $technic = json_decode($training_analyst->technic, true);
                 <br>
                 <strong><u>{{ $created->approver->name ?? '-' }}</u></strong>
                 <br>
-                <span>Manager {{ ucwords(strtolower($created->approver->divisi)) }}</span>
+                <span>{{ strtoupper("Manager " . $created->approver->divisi) }}</span>
                 @else
                 <div style="height: 50px"></div>
                 <em>Data belum tersedia</em>

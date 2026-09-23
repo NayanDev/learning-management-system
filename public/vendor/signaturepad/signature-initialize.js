@@ -9,7 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initializeSignaturePad() {
     const canvas = document.getElementById('signature-pad');
-    // Deteksi ukuran layar
+    if (!canvas) return;
+
     const isMobile = window.innerWidth <= 768; // Anggap 768px sebagai batas ukuran mobile
     
     // Set ukuran kanvas sesuai perangkat
@@ -20,9 +21,7 @@ function initializeSignaturePad() {
         canvas.width = 400;  // Lebar lebih besar untuk desktop
         canvas.height = 300;  // Sesuaikan dengan ukuran desktop
     }
-    
-    if (!canvas) return;
-    
+
     signaturePad = new SignaturePad(canvas, {
         backgroundColor: null,
         penColor: 'rgba(11, 11, 170, 0.91)',
@@ -32,15 +31,16 @@ function initializeSignaturePad() {
         throttle: 16,
         minDistance: 5,
     });
-    
+
     // Listen for signature changes
     signaturePad.addEventListener("afterUpdateStroke", function() {
         isSignatureSaved = false;
         updateSignatureStatus();
     });
-    
+
     resizeCanvas();
 }
+
 
 function setupEventListeners() {
     // Handle signature method change
@@ -65,10 +65,14 @@ function resizeCanvas() {
     const canvas = document.getElementById('signature-pad');
     if (!canvas || !signaturePad) return;
     
+    const data = signaturePad.toData();
     const ratio = Math.max(window.devicePixelRatio || 1, 1);
     canvas.width = canvas.offsetWidth * ratio;
     canvas.height = canvas.offsetHeight * ratio;
     canvas.getContext("2d").scale(ratio, ratio);
+
+    signaturePad.clear();
+    signaturePad.fromData(data);
 }
 
 function clearSignature() {

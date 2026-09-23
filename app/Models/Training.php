@@ -35,6 +35,16 @@ class Training extends Model
     }
 
 
+    public function trainingNeeds()
+    {
+        return $this->hasMany(TrainingNeed::class);
+    }
+
+    public function trainingAnalysts()
+    {
+        return $this->hasMany(TrainingAnalyst::class);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -43,6 +53,15 @@ class Training extends Model
     public function approver()
     {
         return $this->belongsTo(User::class, 'approve_by');
+    }
+
+    public function trainingNeedWorkshops()
+    {
+        return $this->hasMany(
+            TrainingWorkshop::class,
+            'training_need_id',
+            'id'
+        );
     }
 
 
@@ -75,11 +94,11 @@ class Training extends Model
             </button>";
         $pdf = "<a id='export-pdf' class='btn btn-sm btn-outline-success radius-6' target='_blank' href='" . url('training-schedule-pdf') . "?training_id=" . $this->id . "' title='Export PDF'><i class='ti ti-file'></i></a>";
 
-        if (($this->status === "open" || $this->status === "reject") && $roleName === "admin") {
+        if (($this->status === "open" || $this->status === "reject") && $roleName === "developer") {
             $html = $btn;
             return $html;
         } else if ($this->status === "submit") {
-            if ($roleName === "admin") {
+            if ($roleName === "developer") {
                 $html = $btnOff;
                 return $html;
             } else if ($roleName === "manager" && $divisiName === "UMUM & SDM") {
@@ -87,14 +106,14 @@ class Training extends Model
                 return $html;
             }
         } else if ($this->status === "approve") {
-            if ($roleName === "admin") {
+            if ($roleName === "developer") {
                 $html = $btnDirector;
                 return $html;
             } else if ($roleName === "manager" && $divisiName === "UMUM & SDM") {
                 $html = $btnOff;
                 return $html;
             }
-        } else if (($this->status === "close" && $roleName === "admin") || ($this->status === "close" && $roleName === "manager" && $divisiName === "UMUM & SDM") || ($this->status === "close" && $roleName === "direktur")) {
+        } else if (($this->status === "close" && $roleName === "developer") || ($this->status === "close" && $roleName === "manager" && $divisiName === "UMUM & SDM") || ($this->status === "close" && $roleName === "direktur")) {
             $html = $pdf;
             return $html;
         }
@@ -105,9 +124,10 @@ class Training extends Model
     {
         $currentDateTime = date('Y-m-d H:i:s');
         $role = Auth::user()->role->name;
+        $arrLink = [];
 
         if ($this->end_date < $currentDateTime || $this->status === "close") {
-            if (in_array($role, ['admin', 'programmer'])) {
+            if (in_array($role, ['developer'])) {
                 $disable = false;
             } else {
                 $disable = false;
@@ -116,23 +136,34 @@ class Training extends Model
             $disable = false;
         }
 
-        $arrLink = [
-            [
-                'label' => 'Analisa Kebutuhan Latihan',
-                'url' => url('training-analyst') . '?training_id=' . $this->id,
-                'icon' => 'ti ti-users',
+        $asmanHR = (strtolower(Auth::user()->position) == 'manager' && Auth::user()->divisi == 'UMUM & SDM') || (strtolower(Auth::user()->position) == 'asman' && Auth::user()->divisi == 'UMUM & SDM');
+
+        // Setting Admin TNA tetap di posisi pertama
+        if (in_array($role, ['developer', 'administrator']) || $asmanHR) {
+            $arrLink[] = [
+                'label' => 'Setting Admin TNA',
+                'url' => url('tna-admin') . '?training_id=' . $this->id,
+                'icon' => 'ti ti-settings',
                 'disabled' => $disable
-            ],
-            [
-                'label' => 'Rencana Usulan Pelatihan',
-                'url' => url('training-need') . '?training_id=' . $this->id,
-                'icon' => 'ti ti-archive',
-                'disabled' => $disable
-            ],
+            ];
+        }
+
+        $arrLink[] = [
+            'label' => 'Analisa Kebutuhan Latihan',
+            'url' => url('training-analyst') . '?training_id=' . $this->id,
+            'icon' => 'ti ti-users',
+            'disabled' => $disable
+        ];
+
+        $arrLink[] = [
+            'label' => 'Rencana Usulan Pelatihan',
+            'url' => url('training-need') . '?training_id=' . $this->id,
+            'icon' => 'ti ti-archive',
+            'disabled' => $disable
         ];
 
         // Hanya role tertentu yang bisa melihat Training Schedule
-        if (in_array($role, ['admin'])) {
+        if (in_array($role, ['developer']) || $asmanHR) {
             $arrLink[] = [
                 'label' => 'Training Schedule',
                 'url' => url('training-schedule-pdf') . '?training_id=' . $this->id,
@@ -141,11 +172,12 @@ class Training extends Model
             ];
         }
 
-        // $arrLink[] = [
-        //     'label' => 'Training Unplanned',
-        //     'url' => url('training-unplan') . '?training_id=' . $this->id,
-        //     'icon' => 'ti ti-help'
-        // ];
+        $arrLink[] = [
+            'label' => 'Training Unplanned',
+            'url' => url('training-unplan') . '?training_id=' . $this->id,
+            'icon' => 'ti ti-help',
+            'disabled' => $disable
+        ];
 
         $html = "<button type='button'
                     data-links='" . json_encode($arrLink) . "'

@@ -128,7 +128,7 @@ class JobdescSectionController extends DefaultController
 
     public function jobdescSection(Request $request)
     {
-        $sectionId = $request->query('section_id');
+        $sectionId = $request->query('data_id');
         $query = $this->defaultDataQuery();
 
         if ($sectionId) {

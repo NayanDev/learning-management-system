@@ -247,49 +247,72 @@ if ($totalRows == 0) {
                 <br>
                 Dibuat Oleh,
                 <br><br>
-                <div style="display: flex; justify-content: center;">
-                    <div style="display: inline-block;">
-                        {!! DNS2D::getBarcodeHTML(
-                            route('signature.verified', [
-                                'model' => class_basename($created),
-                                'id'    => $created->id,
-                                'user'  => $created->approver->id ?? 'not-available',
-                            ]),
-                            'QRCODE',
-                            2,
-                            2
-                        ) !!}
+
+                @if(in_array($created->status, ['approve', 'acknowledge', 'close']))
+                    {{-- Status approve / acknowledge / close → tampilkan QR + nama manager --}}
+                    <div style="display: flex; justify-content: center;">
+                        <div style="display: inline-block;">
+                            {!! DNS2D::getBarcodeHTML(
+                                route('signature.verified', [
+                                    'model' => class_basename($created),
+                                    'id'    => $created->id,
+                                    'user'  => $created->approver->id ?? 'not-available',
+                                ]),
+                                'QRCODE',
+                                2,
+                                2
+                            ) !!}
+                        </div>
                     </div>
-                </div>
-                <br>
-                <u><strong>SARJONO</strong></u>
-                <br>
-                <span>Manager Umum & SDM</span>
+                    <br>
+                    <u><strong>{{ $created->approver->name ?? 'SARJONO' }}</strong></u>
+                    <br>
+                    <span>Manager {{ optional($created->approver)->divisi ?? 'Umum & SDM' }}</span>
+                @else
+                    {{-- Status open / submit → belum ada tanda tangan & nama --}}
+                    <br><br><br><br><br>
+                    <u><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></u>
+                    <br>
+                    <span>Manager Umum & SDM</span>
+                @endif
             </td>
             <td class="no-border" style="width:20%;"></td>
             <td class="no-border" style="width:20%;"></td>
             <td class="no-border" style="width:20%;"></td>
-            <td class="no-border text-center" style="width:20%;">
-                Mengetahui,
-                <br><br>
-                <div style="display: flex; justify-content: center;">
-                    <div style="display: inline-block;">
-                        {!! DNS2D::getBarcodeHTML(
-                            route('director.signature.verified', [
-                                'model' => class_basename($created),
-                                'id'    => $created->id
-                            ]),
-                            'QRCODE',
-                            2,
-                            2
-                        ) !!}
+
+            @if(in_array($created->status, ['acknowledge', 'close']))
+                {{-- Status acknowledge / close → tampilkan QR + nama direktur --}}
+                <td class="no-border text-center" style="width:20%;">
+                    Mengetahui,
+                    <br><br>
+                    <div style="display: flex; justify-content: center;">
+                        <div style="display: inline-block;">
+                            {!! DNS2D::getBarcodeHTML(
+                                route('director.signature.verified', [
+                                    'model' => class_basename($created),
+                                    'id'    => $created->id
+                                ]),
+                                'QRCODE',
+                                2,
+                                2
+                            ) !!}
+                        </div>
                     </div>
-                </div>
-                <br>
-                <u><strong>MAKMURI YUSIN</strong></u>
-                <br>
-                <span>Direktur Umum & SDM</span>
-            </td>
+                    <br>
+                    <u><strong>MAKMURI YUSIN</strong></u>
+                    <br>
+                    <span>Direktur Umum & SDM</span>
+                </td>
+            @else
+                {{-- Status open / submit / approve → direktur belum tanda tangan --}}
+                <td class="no-border text-center" style="width:20%;">
+                    Mengetahui,
+                    <br><br><br><br><br>
+                    <u><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></u>
+                    <br>
+                    <span>Direktur Umum & SDM</span>
+                </td>
+            @endif
         </tr>
     </table>
     <p style="text-align: right">F.DUP.10.R.00.T.01.07.17</p>

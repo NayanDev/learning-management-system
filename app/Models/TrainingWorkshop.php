@@ -11,13 +11,18 @@ class TrainingWorkshop extends Model
 
     protected $table = 'training_need_workshops';
     protected $primaryKey = 'id';
-    protected $fillable = ["training_need_id", "workshop_id", "start_date", "end_date", "instructor", "position", "user_id", "divisi"];
+    protected $fillable = ["training_need_id", "workshop_id", "start_date", "end_date", "instructor", "position", "user_id", "divisi", "implementation_status", "application_status"];
     protected $appends = ['btn_access', 'btn_delete', 'btn_edit', 'btn_show'];
 
 
     public function workshop()
     {
         return $this->belongsTo(Workshop::class, 'workshop_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function participants()

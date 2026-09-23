@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('materi_resumes', function (Blueprint $table) {
             $table->id();
-            $table->string('uuid', 12)->unique();
             $table->string('name');
             $table->string('file')->nullable();
             $table->text('description')->nullable();
