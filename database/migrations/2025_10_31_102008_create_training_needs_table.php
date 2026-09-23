@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('divisi');
             $table->foreignId('approve_by')->nullable()->constrained('users')->nullOnDelete();
             $table->enum('status', ['open', 'submit', 'approve', 'close', 'reject'])->default('open');
+            $table->enum('application_status', ['open', 'submit', 'approve', 'close', 'reject'])->default('open');
+            $table->enum('implementation_status', ['open', 'used'])->default('open');
             $table->text('notes')->nullable();
             $table->dateTime('created_date')->nullable();
             $table->timestamps();
