@@ -30,21 +30,21 @@ class DepartmentController extends DefaultController
         $this->actionButtons = ['btn_edit', 'btn_show', 'btn_delete'];
 
         $this->tableHeaders = [
-                    ['name' => 'No', 'column' => '#', 'order' => true],
-                    ['name' => 'Division', 'column' => 'division_name', 'order' => true],
-                    // ['name' => 'Uuid', 'column' => 'uuid', 'order' => true],
-                    ['name' => 'Name', 'column' => 'name', 'order' => true], 
-                    ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
-                    ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
+            ['name' => 'No', 'column' => '#', 'order' => true],
+            ['name' => 'Division', 'column' => 'division_name', 'order' => true],
+            // ['name' => 'Uuid', 'column' => 'uuid', 'order' => true],
+            ['name' => 'Name', 'column' => 'name', 'order' => true],
+            ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
+            ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
         ];
 
 
-        $this->importExcelConfig = [ 
+        $this->importExcelConfig = [
             'primaryKeys' => ['division_id'],
             'headers' => [
-                    ['name' => 'Division id', 'column' => 'division_id'],
-                    ['name' => 'Uuid', 'column' => 'uuid'],
-                    ['name' => 'Name', 'column' => 'name'], 
+                ['name' => 'Division id', 'column' => 'division_id'],
+                // ['name' => 'Uuid', 'column' => 'uuid'],
+                ['name' => 'Name', 'column' => 'name'],
             ]
         ];
     }
@@ -60,25 +60,25 @@ class DepartmentController extends DefaultController
         $divisionOptions = Division::select(['id as value', 'name as text'])->get();
 
         $fields = [
-                    [
-                        'type' => 'select',
-                        'label' => 'Division id',
-                        'name' =>  'division_id',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('division_id', $id),
-                        'value' => (isset($edit)) ? $edit->division_id : '',
-                        'options' => $divisionOptions,
-                    ],
-                    [
-                        'type' => 'text',
-                        'label' => 'Name',
-                        'name' =>  'name',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('name', $id),
-                        'value' => (isset($edit)) ? $edit->name : ''
-                    ],
+            [
+                'type' => 'select',
+                'label' => 'Division id',
+                'name' =>  'division_id',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('division_id', $id),
+                'value' => (isset($edit)) ? $edit->division_id : '',
+                'options' => $divisionOptions,
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Name',
+                'name' =>  'name',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('name', $id),
+                'value' => (isset($edit)) ? $edit->name : ''
+            ],
         ];
-        
+
         return $fields;
     }
 
@@ -86,7 +86,7 @@ class DepartmentController extends DefaultController
     protected function rules($id = null)
     {
         $rules = [
-                    'name' => 'required|string',
+            'name' => 'required|string',
         ];
 
         return $rules;
@@ -116,7 +116,6 @@ class DepartmentController extends DefaultController
         $dataQueries = Department::join('divisions', 'divisions.id', 'departments.division_id')
             ->where($filters)
             ->where(function ($query) use ($orThose) {
-                $query->orWhere('departments.uuid', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('departments.name', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('divisions.name', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('departments.created_at', 'LIKE', '%' . $orThose . '%');
@@ -124,7 +123,6 @@ class DepartmentController extends DefaultController
             })
             ->select(
                 'departments.id',
-                'departments.uuid',
                 'departments.name',
                 'divisions.name as division_name',
                 'departments.created_at',
@@ -142,9 +140,9 @@ class DepartmentController extends DefaultController
             'division_id' => 'required',
             'name' => 'required',
         ];
-        
+
         $validator = Validator::make($request->all(), $rules);
-        
+
         if ($validator->fails()) {
             $messageErrors = (new Validation)->modify($validator, $rules);
             return response()->json([
@@ -161,7 +159,7 @@ class DepartmentController extends DefaultController
             // Simpan data Department
             $department = new Department();
             $department->division_id = $request->division_id;
-            $department->uuid = Str::random(12);
+            // $department->uuid = Str::random(12);
             $department->name = $request->name;
             $department->save();
 
@@ -173,7 +171,6 @@ class DepartmentController extends DefaultController
                 'message' => 'Department Created Successfully',
                 'redirect_to' => route('department.index'),
             ], 200);
-
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -184,5 +181,4 @@ class DepartmentController extends DefaultController
             ], 500);
         }
     }
-
 }

@@ -104,7 +104,7 @@
                     @foreach($event->trainers as $trainer)
                         <td class="no-border text-left" style="width:25%;position:relative;">
                             @if($loop->iteration === 1)
-                                Semarang, {{ $event->created_date ? \Carbon\Carbon::parse($event->created_date)->translatedFormat('d F Y') : now()->translatedFormat('d F Y') }}
+                                Semarang, {{ \Carbon\Carbon::parse($event->start_date)->translatedFormat('d F Y') }}
                             @endif
                             <br>
                             Pembicara
@@ -129,7 +129,7 @@
                     @foreach($event->trainers as $trainer)
                         <td class="no-border text-center" style="width:50%;position:relative;">
                             @if($loop->iteration === 1)
-                                Semarang, {{ $event->created_date ? \Carbon\Carbon::parse($event->created_date)->translatedFormat('d F Y') : now()->translatedFormat('d F Y') }}
+                                Semarang, {{ \Carbon\Carbon::parse($event->start_date)->translatedFormat('d F Y') }}
                             @endif
                             <br>
                             Pembicara {{ $loop->iteration }}
@@ -153,7 +153,7 @@
                     @foreach($event->trainers as $trainer)
                         <td class="no-border text-center" style="width: 33.33%;">
                             @if($loop->iteration === 1)
-                                Semarang, {{ $event->created_date ? \Carbon\Carbon::parse($event->created_date)->translatedFormat('d F Y') : now()->translatedFormat('d F Y') }}
+                                Semarang, {{ \Carbon\Carbon::parse($event->start_date)->translatedFormat('d F Y') }}
                             @endif
                             <br>
                             Pembicara {{ $loop->iteration }}

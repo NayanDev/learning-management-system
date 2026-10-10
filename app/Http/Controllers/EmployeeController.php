@@ -32,52 +32,51 @@ class EmployeeController extends DefaultController
     {
         $this->title = 'Employee';
         $this->generalUri = 'employee';
-        $this->arrPermissions = ['show', 'edit','create','delete'];
+        $this->arrPermissions = ['show', 'edit', 'create', 'delete'];
         $this->actionButtons = ['btn_edit', 'btn_show', 'btn_delete'];
 
         $this->tableHeaders = [
-                    ['name' => 'No', 'column' => '#', 'order' => true],
-                    // ['name' => 'Uuid', 'column' => 'uuid', 'order' => true],
-                    ['name' => 'Name', 'column' => 'name', 'order' => true],
-                    ['name' => 'Email', 'column' => 'email', 'order' => true],
-                    ['name' => 'Phone', 'column' => 'phone', 'order' => true],
-                    ['name' => 'Gender', 'column' => 'gender', 'order' => true],
-                    ['name' => 'Has Jobdesc', 'column' => 'badge_jobdesc', 'order' => true],
-                    ['name' => 'Company', 'column' => 'company_name', 'order' => true],
-                    ['name' => 'Division', 'column' => 'division_name', 'order' => true],
-                    ['name' => 'Department', 'column' => 'department_name', 'order' => true],
-                    ['name' => 'Position', 'column' => 'position_name', 'order' => true],
-                    ['name' => 'Section', 'column' => 'section_name', 'order' => true],
-                    ['name' => 'Group', 'column' => 'group_name', 'order' => true],
-                    ['name' => 'Status', 'column' => 'status', 'order' => true],
-                    ['name' => 'Nik', 'column' => 'nik', 'order' => true],
-                    ['name' => 'Signature', 'column' => 'signature', 'order' => true],
-                    ['name' => 'Is trainer', 'column' => 'is_trainer', 'order' => true],
-                    ['name' => 'Is leader', 'column' => 'is_leader', 'order' => true], 
-                    ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
-                    ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
+            ['name' => 'No', 'column' => '#', 'order' => true],
+            ['name' => 'Name', 'column' => 'name', 'order' => true],
+            ['name' => 'Email', 'column' => 'email', 'order' => true],
+            ['name' => 'Phone', 'column' => 'phone', 'order' => true],
+            ['name' => 'Gender', 'column' => 'gender', 'order' => true],
+            ['name' => 'Has Jobdesc', 'column' => 'badge_jobdesc', 'order' => true],
+            ['name' => 'Company', 'column' => 'company_name', 'order' => true],
+            ['name' => 'Division', 'column' => 'division_name', 'order' => true],
+            ['name' => 'Department', 'column' => 'department_name', 'order' => true],
+            ['name' => 'Position', 'column' => 'position_name', 'order' => true],
+            ['name' => 'Section', 'column' => 'section_name', 'order' => true],
+            ['name' => 'Group', 'column' => 'group_name', 'order' => true],
+            ['name' => 'Status', 'column' => 'status', 'order' => true],
+            ['name' => 'Nik', 'column' => 'nik', 'order' => true],
+            ['name' => 'Signature', 'column' => 'signature', 'order' => true],
+            ['name' => 'Is trainer', 'column' => 'is_trainer', 'order' => true],
+            ['name' => 'Is leader', 'column' => 'is_leader', 'order' => true],
+            ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
+            ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
         ];
 
 
-        $this->importExcelConfig = [ 
-            'primaryKeys' => ['uuid'],
+        $this->importExcelConfig = [
+            'primaryKeys' => ['id'],
             'headers' => [
-                    ['name' => 'Uuid', 'column' => 'uuid'],
-                    ['name' => 'Name', 'column' => 'name'],
-                    ['name' => 'Email', 'column' => 'email'],
-                    ['name' => 'Phone', 'column' => 'phone'],
-                    ['name' => 'Gender', 'column' => 'gender'],
-                    ['name' => 'Company id', 'column' => 'company_id'],
-                    ['name' => 'Division id', 'column' => 'division_id'],
-                    ['name' => 'Department id', 'column' => 'department_id'],
-                    ['name' => 'Position id', 'column' => 'position_id'],
-                    ['name' => 'Section id', 'column' => 'section_id'],
-                    ['name' => 'Group id', 'column' => 'group_id'],
-                    ['name' => 'Status', 'column' => 'status'],
-                    ['name' => 'Nik', 'column' => 'nik'],
-                    ['name' => 'Signature', 'column' => 'signature'],
-                    ['name' => 'Is trainer', 'column' => 'is_trainer'],
-                    ['name' => 'Is leader', 'column' => 'is_leader'], 
+                ['name' => 'Id', 'column' => 'id'],
+                ['name' => 'Name', 'column' => 'name'],
+                ['name' => 'Email', 'column' => 'email'],
+                ['name' => 'Phone', 'column' => 'phone'],
+                ['name' => 'Gender', 'column' => 'gender'],
+                ['name' => 'Company id', 'column' => 'company_id'],
+                ['name' => 'Division id', 'column' => 'division_id'],
+                ['name' => 'Department id', 'column' => 'department_id'],
+                ['name' => 'Position id', 'column' => 'position_id'],
+                ['name' => 'Section id', 'column' => 'section_id'],
+                ['name' => 'Group id', 'column' => 'group_id'],
+                ['name' => 'Status', 'column' => 'status'],
+                ['name' => 'Nik', 'column' => 'nik'],
+                ['name' => 'Signature', 'column' => 'signature'],
+                ['name' => 'Is trainer', 'column' => 'is_trainer'],
+                ['name' => 'Is leader', 'column' => 'is_leader'],
             ]
         ];
 
@@ -135,146 +134,146 @@ class EmployeeController extends DefaultController
         ]);
 
         $fields = [
-                    [
-                        'type' => 'text',
-                        'label' => 'Name',
-                        'name' =>  'name',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('name', $id),
-                        'value' => (isset($edit)) ? $edit->name : ''
-                    ],
-                    [
-                        'type' => 'text',
-                        'label' => 'Email',
-                        'name' =>  'email',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('email', $id),
-                        'value' => (isset($edit)) ? $edit->email : ''
-                    ],
-                    [
-                        'type' => 'text',
-                        'label' => 'Phone',
-                        'name' =>  'phone',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('phone', $id),
-                        'value' => (isset($edit)) ? $edit->phone : ''
-                    ],
-                    [
-                        'type' => 'select',
-                        'label' => 'Gender',
-                        'name' =>  'gender',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('gender', $id),
-                        'value' => (isset($edit)) ? $edit->gender : '',
-                        'options' => [
-                            ['value' => 'male', 'text' => 'male'],
-                            ['value' => 'female', 'text' => 'female']
-                        ]
-                    ],
-                    [
-                        'type' => 'select',
-                        'label' => 'Company',
-                        'name' => 'company_id',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('company_id', $id),
-                        'value' => isset($edit) ? $edit->company_id : '',
-                        'options' => $companyOptions,
-                    ],
-                    [
-                        'type' => 'select',
-                        'label' => 'Division',
-                        'name' => 'division_id',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('division_id', $id),
-                        'value' => isset($edit) ? $edit->division_id : '',
-                        'options' => $divisionOptions,
-                    ],
-                    [
-                        'type' => 'select',
-                        'label' => 'Department',
-                        'name' => 'department_id',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('department_id', $id),
-                        'value' => isset($edit) ? $edit->department_id : '',
-                        'options' => $departmentOptions,
-                    ],
-                    [
-                        'type' => 'select',
-                        'label' => 'Position',
-                        'name' => 'position_id',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('position_id', $id),
-                        'value' => isset($edit) ? $edit->position_id : '',
-                        'options' => $positionOptions,
-                    ],
-                    [
-                        'type' => 'select',
-                        'label' => 'Section',
-                        'name' => 'section_id',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('section_id', $id),
-                        'value' => isset($edit) ? $edit->section_id : '',
-                        'options' => $sectionOptions,
-                    ],
-                    [
-                        'type' => 'select',
-                        'label' => 'Group',
-                        'name' => 'group_id',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('group_id', $id),
-                        'value' => isset($edit) ? $edit->group_id : '',
-                        'options' => $groupOptions,
-                    ],
-                    [
-                        'type' => 'select',
-                        'label' => 'Status',
-                        'name' =>  'status',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('status', $id),
-                        'value' => (isset($edit)) ? $edit->status : '',
-                        'options' => [
-                            ['value' => '', 'text' => 'Pilih Status'],
-                            ['value' => 'Staff', 'text' => 'Staff'],
-                            ['value' => 'Karyawan Baru', 'text' => 'Karyawan Baru'],
-                            ['value' => 'Bulanan Tetap', 'text' => 'Bulanan Tetap'],
-                            ['value' => 'Bulanan Kontrak', 'text' => 'Bulanan Kontrak'],
-                            ['value' => 'Harian Kontrak', 'text' => 'Harian Kontrak'],
-                        ]
-                    ],
-                    [
-                        'type' => 'text',
-                        'label' => 'Nik',
-                        'name' =>  'nik',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('nik', $id),
-                        'value' => (isset($edit)) ? $edit->nik : ''
-                    ],
-                    [
-                        'type' => 'select',
-                        'label' => 'Is trainer',
-                        'name' =>  'is_trainer',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('is_trainer', $id),
-                        'value' => (isset($edit)) ? $edit->is_trainer : '',
-                        'options' => [
-                            ['value' => 0, 'text' => 'No'],
-                            ['value' => 1, 'text' => 'Yes'],
-                        ]
-                    ],
-                    [
-                        'type' => 'select',
-                        'label' => 'Is leader',
-                        'name' =>  'is_leader',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('is_leader', $id),
-                        'value' => (isset($edit)) ? $edit->is_leader : '',
-                        'options' => [
-                            ['value' => 0, 'text' => 'No'],
-                            ['value' => 1, 'text' => 'Yes'],
-                        ]
-                    ],
+            [
+                'type' => 'text',
+                'label' => 'Name',
+                'name' =>  'name',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('name', $id),
+                'value' => (isset($edit)) ? $edit->name : ''
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Email',
+                'name' =>  'email',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('email', $id),
+                'value' => (isset($edit)) ? $edit->email : ''
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Phone',
+                'name' =>  'phone',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('phone', $id),
+                'value' => (isset($edit)) ? $edit->phone : ''
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Gender',
+                'name' =>  'gender',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('gender', $id),
+                'value' => (isset($edit)) ? $edit->gender : '',
+                'options' => [
+                    ['value' => 'male', 'text' => 'male'],
+                    ['value' => 'female', 'text' => 'female']
+                ]
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Company',
+                'name' => 'company_id',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('company_id', $id),
+                'value' => isset($edit) ? $edit->company_id : '',
+                'options' => $companyOptions,
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Division',
+                'name' => 'division_id',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('division_id', $id),
+                'value' => isset($edit) ? $edit->division_id : '',
+                'options' => $divisionOptions,
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Department',
+                'name' => 'department_id',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('department_id', $id),
+                'value' => isset($edit) ? $edit->department_id : '',
+                'options' => $departmentOptions,
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Position',
+                'name' => 'position_id',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('position_id', $id),
+                'value' => isset($edit) ? $edit->position_id : '',
+                'options' => $positionOptions,
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Section',
+                'name' => 'section_id',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('section_id', $id),
+                'value' => isset($edit) ? $edit->section_id : '',
+                'options' => $sectionOptions,
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Group',
+                'name' => 'group_id',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('group_id', $id),
+                'value' => isset($edit) ? $edit->group_id : '',
+                'options' => $groupOptions,
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Status',
+                'name' =>  'status',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('status', $id),
+                'value' => (isset($edit)) ? $edit->status : '',
+                'options' => [
+                    ['value' => '', 'text' => 'Pilih Status'],
+                    ['value' => 'Staff', 'text' => 'Staff'],
+                    ['value' => 'Karyawan Baru', 'text' => 'Karyawan Baru'],
+                    ['value' => 'Bulanan Tetap', 'text' => 'Bulanan Tetap'],
+                    ['value' => 'Bulanan Kontrak', 'text' => 'Bulanan Kontrak'],
+                    ['value' => 'Harian Kontrak', 'text' => 'Harian Kontrak'],
+                ]
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Nik',
+                'name' =>  'nik',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('nik', $id),
+                'value' => (isset($edit)) ? $edit->nik : ''
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Is trainer',
+                'name' =>  'is_trainer',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('is_trainer', $id),
+                'value' => (isset($edit)) ? $edit->is_trainer : '',
+                'options' => [
+                    ['value' => 0, 'text' => 'No'],
+                    ['value' => 1, 'text' => 'Yes'],
+                ]
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Is leader',
+                'name' =>  'is_leader',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('is_leader', $id),
+                'value' => (isset($edit)) ? $edit->is_leader : '',
+                'options' => [
+                    ['value' => 0, 'text' => 'No'],
+                    ['value' => 1, 'text' => 'Yes'],
+                ]
+            ],
         ];
-        
+
         return $fields;
     }
 
@@ -282,16 +281,16 @@ class EmployeeController extends DefaultController
     protected function rules($id = null)
     {
         $rules = [
-                    'uuid' => 'required|string',
-                    'name' => 'required|string',
-                    'email' => 'required|string',
-                    'phone' => 'required|string',
-                    'gender' => 'required|string',
-                    'company_id' => 'required|string',
-                    'status' => 'required|string',
-                    'nik' => 'required|string',
-                    'is_trainer' => 'required|string',
-                    'is_leader' => 'required|string',
+            'id' => 'required|string',
+            'name' => 'required|string',
+            'email' => 'required|string',
+            'phone' => 'required|string',
+            'gender' => 'required|string',
+            'company_id' => 'required|string',
+            'status' => 'required|string',
+            'nik' => 'required|string',
+            'is_trainer' => 'required|string',
+            'is_leader' => 'required|string',
         ];
 
         return $rules;
@@ -346,7 +345,6 @@ class EmployeeController extends DefaultController
             ->leftJoin('groups', 'groups.id', 'employees.group_id')
             ->where($filters)
             ->where(function ($query) use ($orThose) {
-                $query->orWhere('employees.uuid', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('employees.name', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('employees.email', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('employees.phone', 'LIKE', '%' . $orThose . '%');
@@ -364,7 +362,6 @@ class EmployeeController extends DefaultController
             })
             ->select(
                 'employees.id',
-                'employees.uuid',
                 'employees.name',
                 'employees.email',
                 'employees.phone',
@@ -420,7 +417,6 @@ class EmployeeController extends DefaultController
         try {
             // Simpan data Employee
             $employee = new Employee();
-            $employee->uuid = Str::random(12);
             $employee->name = $request->name;
             $employee->email = $request->email;
             $employee->phone = $request->phone;
@@ -446,7 +442,6 @@ class EmployeeController extends DefaultController
                 'message' => 'Employee Created Successfully',
                 'redirect_to' => route('employee.index'),
             ], 200);
-
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -463,18 +458,19 @@ class EmployeeController extends DefaultController
     {
 
         $singleData = $this->defaultDataQuery()
-            ->where('employees.id',$id)
+            ->where('employees.id', $id)
             ->first();
 
-        return view('backend.idev.show_with_tab',array_merge(
+        return view(
+            'backend.idev.show_with_tab',
+            array_merge(
                 [
-                    'detail'=>$singleData,
-                    'title'=>$this->title,
+                    'detail' => $singleData,
+                    'title' => $this->title,
                 ],
                 (new EmployeePage())->build()
             )
         );
-
     }
 
     protected function filters()
@@ -483,23 +479,23 @@ class EmployeeController extends DefaultController
             'id as value',
             'name as text'
         )
-        ->get()
-        ->prepend([
-            'value' => null,
-            'text' => '-- Pilih Company --',
-        ]);
+            ->get()
+            ->prepend([
+                'value' => null,
+                'text' => '-- Pilih Company --',
+            ]);
 
         $arrDivision = Division::select(
             'id as value',
             'name as text',
             'company_id'
         )
-        ->get()
-        ->prepend([
-            'value' => null,
-            'text' => '-- Pilih Division --',
-            'company_id' => null,
-        ]);
+            ->get()
+            ->prepend([
+                'value' => null,
+                'text' => '-- Pilih Division --',
+                'company_id' => null,
+            ]);
 
         $fields = [
             [
@@ -520,6 +516,4 @@ class EmployeeController extends DefaultController
 
         return $fields;
     }
-
-
 }

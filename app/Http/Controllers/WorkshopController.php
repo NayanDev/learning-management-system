@@ -26,23 +26,21 @@ class WorkshopController extends DefaultController
         $this->actionButtons = ['btn_edit', 'btn_show', 'btn_delete'];
 
         $this->tableHeaders = [
-                    ['name' => 'No', 'column' => '#', 'order' => true],
-                    ['name' => 'Name', 'column' => 'name', 'order' => true],
-                    ['name' => 'Kode', 'column' => 'kode', 'order' => true],
-                    ['name' => 'Competency', 'column' => 'competency', 'order' => true],
-                    ['name' => 'User id', 'column' => 'user_id', 'order' => true], 
-                    ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
-                    ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
+            ['name' => 'No', 'column' => '#', 'order' => true],
+            ['name' => 'Name', 'column' => 'name', 'order' => true],
+            ['name' => 'Code', 'column' => 'code', 'order' => true],
+            ['name' => 'Competency', 'column' => 'competency', 'order' => true],
+            ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
+            ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
         ];
 
 
-        $this->importExcelConfig = [ 
+        $this->importExcelConfig = [
             'primaryKeys' => ['name'],
             'headers' => [
-                    ['name' => 'Name', 'column' => 'name'],
-                    ['name' => 'Kode', 'column' => 'kode'],
-                    ['name' => 'Competency', 'column' => 'competency'],
-                    ['name' => 'User id', 'column' => 'user_id'], 
+                ['name' => 'Name', 'column' => 'name'],
+                ['name' => 'Code', 'column' => 'code'],
+                ['name' => 'Competency', 'column' => 'competency'],
             ]
         ];
     }
@@ -56,58 +54,32 @@ class WorkshopController extends DefaultController
         }
 
         $fields = [
-                    [
-                        'type' => 'repeatable',
-                        'label' => 'Name',
-                        'name' =>  'name',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('name', $id),
-                        'value' => (isset($edit)) ? $edit->name : '',
-                        'enable_action' => true,
-                        'html_fields' => [
-                                                [
-                                            'label' => 'Name',
-                                            'type' => 'text',
-                                            'name' =>  'kode',
-                                        ],
-                                        [
-                                            'label' => 'date',
-                                            'type' => 'datetime',
-                                            'name' =>  'date',
-                                        ],
-                                        [
-                                            'label' => 'notes',
-                                            'type' => 'textarea',
-                                            'name' =>  'notes',
-                                        ],
-                        ],
-                    ],
-                    [
-                        'type' => 'text',
-                        'label' => 'Kode',
-                        'name' =>  'kode',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('kode', $id),
-                        'value' => (isset($edit)) ? $edit->kode : ''
-                    ],
-                    [
-                        'type' => 'text',
-                        'label' => 'Competency',
-                        'name' =>  'competency',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('competency', $id),
-                        'value' => (isset($edit)) ? $edit->competency : ''
-                    ],
-                    [
-                        'type' => 'text',
-                        'label' => 'User id',
-                        'name' =>  'user_id',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('user_id', $id),
-                        'value' => (isset($edit)) ? $edit->user_id : ''
-                    ],
+            [
+                'type' => 'text',
+                'label' => 'Name',
+                'name' =>  'name',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('name', $id),
+                'value' => (isset($edit)) ? $edit->name : ''
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Code',
+                'name' =>  'code',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('code', $id),
+                'value' => (isset($edit)) ? $edit->code : ''
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Competency',
+                'name' =>  'competency',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('competency', $id),
+                'value' => (isset($edit)) ? $edit->competency : ''
+            ],
         ];
-        
+
         return $fields;
     }
 
@@ -115,10 +87,9 @@ class WorkshopController extends DefaultController
     protected function rules($id = null)
     {
         $rules = [
-                    'name' => 'required|string',
-                    'kode' => 'required|string',
-                    'competency' => 'required|string',
-                    'user_id' => 'required|string',
+            'name' => 'required|string',
+            'code' => 'required|string',
+            'competency' => 'required|string',
         ];
 
         return $rules;
@@ -132,10 +103,6 @@ class WorkshopController extends DefaultController
         ]);
 
         $attributes = ['name' => trim($validated['name'])];
-
-        if (Schema::hasColumn('workshops', 'user_id')) {
-            $attributes['user_id'] = Auth::id();
-        }
 
         if (Schema::hasColumn('workshops', 'competency')) {
             $attributes['competency'] = '-';
@@ -206,5 +173,4 @@ class WorkshopController extends DefaultController
             'data' => $workshops
         ]);
     }
-
 }

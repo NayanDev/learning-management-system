@@ -58,7 +58,7 @@ class ResultQuestion extends Model
             ['label' => 'Report Post-test', 'url' => url('assesment-pdf') . "?participant_id=" . $this->participant_id . '&type=post_test', 'icon' => 'ti ti-file'],
             ['label' => 'Report Post-test 2', 'url' => url('assesment-pdf') . "?participant_id=" . $this->participant_id . '&type=post_test_2', 'icon' => 'ti ti-file'],
         ];
-        if(Auth::user()->role->name == 'admin'){
+        if (Auth::user()->role->name == 'developer') {
             $html = "<button type='button' data-links='" . json_encode($arrLink) . "' onclick='setMM(this)' title='Navigation' class='btn btn-outline-warning btn-sm radius-6' style='margin:1px;' data-bs-toggle='modal' data-bs-target='#modalMultiLink'>
                     <i class='ti ti-list'></i>
                 </button>";

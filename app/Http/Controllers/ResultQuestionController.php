@@ -162,10 +162,10 @@ class ResultQuestionController extends DefaultController
 
         if ($user->role->name === 'participant') {
             $dataQueries->where('participants.nik', $user->nik);
-        } elseif ($user->role->name !== 'admin') {
+        } elseif ($user->role->name !== 'developer') {
             $dataQueries->where(function ($q) use ($user) {
                 $q->where('participants.user_id', $user->id)
-                ->orWhere('participants.nik', $user->nik);
+                    ->orWhere('participants.nik', $user->nik);
             });
         }
 
@@ -262,7 +262,7 @@ class ResultQuestionController extends DefaultController
 
     protected function filters()
     {
-        if (Auth::user()->role->name === 'admin') {
+        if (Auth::user()->role->name === 'developer') {
             $isEvent = Event::get();
         } else {
             $isEvent = Event::where('user_id', Auth::user()->id)->get();

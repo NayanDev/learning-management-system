@@ -82,7 +82,7 @@ class DashboardController extends DefaultController
             ->distinct()
             ->orderByDesc('year')
             ->pluck('year')
-            ->map(fn ($year) => (int) $year)
+            ->map(fn($year) => (int) $year)
             ->values()
             ->all();
 
@@ -93,35 +93,35 @@ class DashboardController extends DefaultController
         $availableYears = array_values(array_unique($availableYears));
 
         $evaluationTriMonths = Event::query()
-        ->with(['trainers.user'])
-        ->where('status', 'close')
-        ->where('start_date', '<', Carbon::now()->subMonths(3))
-        ->where('year', $selectedYear)
-        ->where(function ($query) use ($user) {
+            ->with(['trainers.user'])
+            ->where('status', 'close')
+            ->where('start_date', '<', Carbon::now()->subMonths(3))
+            ->where('year', $selectedYear)
+            ->where(function ($query) use ($user) {
 
-            $isAdmin = in_array(optional($user->role)->name, ['admin', 'adminhr']);
+                $isAdmin = in_array(optional($user->role)->name, ['developer']);
 
-            // kalau admin, langsung lolos
-            if ($isAdmin) {
-                $query->whereRaw('1 = 1');
-                return;
-            }
+                // kalau admin, langsung lolos
+                if ($isAdmin) {
+                    $query->whereRaw('1 = 1');
+                    return;
+                }
 
-            // kondisi non-admin
-            $query->whereExists(function ($q) {
-                $q->select(DB::raw(1))
-                    ->from('trainers')
-                    ->whereColumn('trainers.event_id', 'events.id')
-                    ->where('trainers.user_id', Auth::id());
+                // kondisi non-admin
+                $query->whereExists(function ($q) {
+                    $q->select(DB::raw(1))
+                        ->from('trainers')
+                        ->whereColumn('trainers.event_id', 'events.id')
+                        ->where('trainers.user_id', Auth::id());
+                })
+                    ->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                            ->from('evaluation_months')
+                            ->whereColumn('evaluation_months.event_id', 'events.id')
+                            ->where('evaluation_months.user_id', Auth::id());
+                    });
             })
-            ->whereNotExists(function ($q) {
-                $q->select(DB::raw(1))
-                    ->from('evaluation_months')
-                    ->whereColumn('evaluation_months.event_id', 'events.id')
-                    ->where('evaluation_months.user_id', Auth::id());
-            });
-        })
-        ->get();
+            ->get();
 
         $evaluationTriMonths = $evaluationTriMonths->map(function ($event) {
             $dueDate = Carbon::parse($event->start_date)->addMonthsNoOverflow(3);
@@ -156,42 +156,42 @@ class DashboardController extends DefaultController
             return $event;
         });
 
-        $isAdmin = in_array(optional($user->role)->name, ['admin', 'adminhr']);
+        $isAdmin = in_array(optional($user->role)->name, ['developer']);
 
         $upcomingTraining = Event::query()
-        ->select('events.*')
-        ->selectRaw('EXISTS (
+            ->select('events.*')
+            ->selectRaw('EXISTS (
             SELECT 1 FROM trainers 
             WHERE trainers.event_id = events.id 
             AND trainers.user_id = ?
         ) as is_trainer', [Auth::id()])
-        ->where('status', 'open')
-        ->whereYear('start_date', $currentYear)
-        ->where('start_date', '>', Carbon::now())
-        ->when(!$isAdmin, function ($query) {
-            $query->where(function ($q) {
-                $q->whereExists(function ($sub) {
-                    $sub->select(DB::raw(1))
-                        ->from('trainers')
-                        ->whereColumn('trainers.event_id', 'events.id')
-                        ->where('trainers.user_id', Auth::id());
-                })
-                ->orWhereExists(function ($sub) {
-                    $sub->select(DB::raw(1))
-                        ->from('participants')
-                        ->whereColumn('participants.event_id', 'events.id')
-                        ->where('participants.nik', Auth::user()->nik);
+            ->where('status', 'open')
+            ->whereYear('start_date', $currentYear)
+            ->where('start_date', '>', Carbon::now())
+            ->when(!$isAdmin, function ($query) {
+                $query->where(function ($q) {
+                    $q->whereExists(function ($sub) {
+                        $sub->select(DB::raw(1))
+                            ->from('trainers')
+                            ->whereColumn('trainers.event_id', 'events.id')
+                            ->where('trainers.user_id', Auth::id());
+                    })
+                        ->orWhereExists(function ($sub) {
+                            $sub->select(DB::raw(1))
+                                ->from('participants')
+                                ->whereColumn('participants.event_id', 'events.id')
+                                ->where('participants.nik', Auth::user()->nik);
+                        });
                 });
-            });
-        })
-        ->get();
+            })
+            ->get();
 
         $data['title'] = $this->title;
         $data['selectedYear'] = $selectedYear;
         $data['availableYears'] = $availableYears;
 
-        $allowedRoles = ['adminhr', 'admin'];
-        $allowedPosition = ['Manager', 'Asman'];
+        $allowedRoles = ['developer'];
+        $allowedPosition = ['MANAGER', 'ASMAN'];
         $user = Auth::user();
         if (in_array($user->role->name, $allowedRoles) || in_array($user->position, $allowedPosition) && strtoupper($user->divisi) === 'UMUM & SDM') {
             // tampilkan semua data
@@ -235,28 +235,28 @@ class DashboardController extends DefaultController
 
 
         $data['eventsAttendance'] = $this->takeTrainingAttendance($selectedYear);
-        
+
         // Get TNA data from TrainingWorkshop
-        $data['totalTNA'] = \App\Models\TrainingWorkshop::whereHas('trainingNeed', function($q) use ($selectedYear) {
-            $q->whereHas('training', function($q2) use ($selectedYear) {
+        $data['totalTNA'] = \App\Models\TrainingWorkshop::whereHas('trainingNeed', function ($q) use ($selectedYear) {
+            $q->whereHas('training', function ($q2) use ($selectedYear) {
                 $q2->where('year', $selectedYear);
             });
         })->count();
-        
+
         // TNA yang sudah terlaksana (ada event yang sudah selesai)
-        $data['completedTNA'] = \App\Models\TrainingWorkshop::whereHas('trainingNeed', function($q) use ($selectedYear) {
-            $q->whereHas('training', function($q2) use ($selectedYear) {
+        $data['completedTNA'] = \App\Models\TrainingWorkshop::whereHas('trainingNeed', function ($q) use ($selectedYear) {
+            $q->whereHas('training', function ($q2) use ($selectedYear) {
                 $q2->where('year', $selectedYear);
             });
-        })->whereHas('workshop', function($q) {
-            $q->whereHas('events', function($q2) {
+        })->whereHas('workshop', function ($q) {
+            $q->whereHas('events', function ($q2) {
                 $q2->where('end_date', '<', Carbon::now());
             });
         })->count();
-        
+
         // Calculate percentage
-        $data['tnaPercentage'] = $data['totalTNA'] > 0 
-            ? round(($data['completedTNA'] / $data['totalTNA']) * 100, 2) 
+        $data['tnaPercentage'] = $data['totalTNA'] > 0
+            ? round(($data['completedTNA'] / $data['totalTNA']) * 100, 2)
             : 0;
 
         $layout = 'backend.idev.participant_dashboard';
@@ -453,7 +453,7 @@ class DashboardController extends DefaultController
             ->distinct()
             ->orderByDesc('year')
             ->pluck('year')
-            ->map(fn ($year) => (int) $year)
+            ->map(fn($year) => (int) $year)
             ->values()
             ->all();
 
@@ -466,27 +466,27 @@ class DashboardController extends DefaultController
         $isAdmin = in_array(optional($user->role)->name, ['developer']);
 
         $evaluationTriMonths = Event::query()
-        ->with(['trainers.user'])
-        ->where('status', 'close')
-        ->where('start_date', '<=', Carbon::now())
-        ->where('year', $selectedYear)
-        ->where(function ($query) use ($user, $isAdmin) {
+            ->with(['trainers.user'])
+            // ->where('status', 'close')
+            ->where('start_date', '<=', Carbon::now())
+            ->where('year', $selectedYear)
+            ->where(function ($query) use ($user, $isAdmin) {
 
-            // kalau admin, langsung lolos
-            if ($isAdmin) {
-                $query->whereRaw('1 = 1');
-                return;
-            }
+                // kalau admin, langsung lolos
+                if ($isAdmin) {
+                    $query->whereRaw('1 = 1');
+                    return;
+                }
 
-            // kondisi non-admin
-            $query->whereExists(function ($q) {
-                $q->select(DB::raw(1))
-                    ->from('trainers')
-                    ->whereColumn('trainers.event_id', 'events.id')
-                    ->where('trainers.user_id', Auth::id());
-            });
-        })
-        ->get();
+                // kondisi non-admin
+                $query->whereExists(function ($q) {
+                    $q->select(DB::raw(1))
+                        ->from('trainers')
+                        ->whereColumn('trainers.event_id', 'events.id')
+                        ->where('trainers.user_id', Auth::id());
+                });
+            })
+            ->get();
 
         $evaluationTriMonths = $evaluationTriMonths->map(function ($event) {
             $dueDate = Carbon::parse($event->start_date)->addMonthsNoOverflow(3);
@@ -524,50 +524,52 @@ class DashboardController extends DefaultController
         $evaluationIncomplete = $evaluationTriMonths->filter(function ($event) {
             $statuses = collect($event->evaluation_trainer_statuses ?? []);
 
-            return $statuses->isNotEmpty() && $statuses->contains(fn ($status) => !$status['is_filled']);
+            return $statuses->isNotEmpty() && $statuses->contains(fn($status) => !$status['is_filled']);
         });
 
         $now = Carbon::now();
         $evaluationUpcoming = $evaluationIncomplete->filter(function ($event) use ($now) {
-            return $event->evaluation_due_date->greaterThanOrEqualTo($now)
+            return $event->instructor == 'internal'
+                && $event->evaluation_due_date->greaterThanOrEqualTo($now)
                 && $event->evaluation_due_date->lessThanOrEqualTo($now->copy()->addMonthsNoOverflow(3));
         })->values();
+
 
         $evaluationNotCompleted = $evaluationTriMonths->filter(function ($event) use ($now) {
             $statuses = collect($event->evaluation_trainer_statuses ?? []);
 
             return $event->evaluation_due_date->lessThan($now)
                 && $statuses->isNotEmpty()
-                && $statuses->contains(fn ($status) => !$status['is_filled']);
+                && $statuses->contains(fn($status) => !$status['is_filled']);
         })->values();
 
         $upcomingTraining = Event::query()
-        ->select('events.*')
-        ->selectRaw('EXISTS (
+            ->select('events.*')
+            ->selectRaw('EXISTS (
             SELECT 1 FROM trainers 
             WHERE trainers.event_id = events.id 
             AND trainers.user_id = ?
         ) as is_trainer', [Auth::id()])
-        ->where('status', 'open')
-        ->whereYear('start_date', $currentYear)
-        ->where('start_date', '>', Carbon::now())
-        ->when(!$isAdmin, function ($query) {
-            $query->where(function ($q) {
-                $q->whereExists(function ($sub) {
-                    $sub->select(DB::raw(1))
-                        ->from('trainers')
-                        ->whereColumn('trainers.event_id', 'events.id')
-                        ->where('trainers.user_id', Auth::id());
-                })
-                ->orWhereExists(function ($sub) {
-                    $sub->select(DB::raw(1))
-                        ->from('participants')
-                        ->whereColumn('participants.event_id', 'events.id')
-                        ->where('participants.nik', Auth::user()->nik);
+            ->where('status', 'open')
+            ->whereYear('start_date', $currentYear)
+            ->where('start_date', '>', Carbon::now())
+            ->when(!$isAdmin, function ($query) {
+                $query->where(function ($q) {
+                    $q->whereExists(function ($sub) {
+                        $sub->select(DB::raw(1))
+                            ->from('trainers')
+                            ->whereColumn('trainers.event_id', 'events.id')
+                            ->where('trainers.user_id', Auth::id());
+                    })
+                        ->orWhereExists(function ($sub) {
+                            $sub->select(DB::raw(1))
+                                ->from('participants')
+                                ->whereColumn('participants.event_id', 'events.id')
+                                ->where('participants.nik', Auth::user()->nik);
+                        });
                 });
-            });
-        })
-        ->get();
+            })
+            ->get();
 
         $data['title'] = $this->title;
         $data['selectedYear'] = $selectedYear;
@@ -580,8 +582,8 @@ class DashboardController extends DefaultController
             ->first();
         $trainingneed = Training::query()
             ->with([
-                'trainingNeeds' => fn ($query) =>
-                    $query->where('divisi', $user->divisi)
+                'trainingNeeds' => fn($query) =>
+                $query->where('divisi', $user->divisi)
             ])
             ->where('status', 'open')
             ->where('year', Carbon::now()->year + 1)
@@ -605,11 +607,12 @@ class DashboardController extends DefaultController
             $data['totalEvents'] = Event::where('year', $selectedYear)->count();
             $data['completedEvents'] = Event::where('year', $selectedYear)->where('status', 'close')->count();
             $data['upcomingEvents'] = Event::where('year', $selectedYear)->where('status', 'open')->count();
-            $data['totalTrainingWorkshops'] = TrainingWorkshop::whereHas('trainingNeed', function ($query) use ($selectedYear) {
-                $query->whereHas('training', function ($trainingQuery) use ($selectedYear) {
-                    $trainingQuery->where('year', $selectedYear);
-                });
-            })->count();
+            // $data['totalTrainingWorkshops'] = TrainingWorkshop::whereHas('trainingNeed', function ($query) use ($selectedYear) {
+            //     $query->whereHas('training', function ($trainingQuery) use ($selectedYear) {
+            //         $trainingQuery->where('year', $selectedYear);
+            //     });
+            // })->count();
+            $data['totalTrainingWorkshops'] = 54;
             $data['countCertificates'] = Certification::whereHas('event', function ($query) use ($selectedYear) {
                 $query->where('year', $selectedYear);
             })->count();
@@ -652,28 +655,28 @@ class DashboardController extends DefaultController
 
 
         $data['eventsAttendance'] = $this->takeTrainingAttendance($selectedYear);
-        
+
         // Get TNA data from TrainingWorkshop
-        $data['totalTNA'] = \App\Models\TrainingWorkshop::whereHas('trainingNeed', function($q) use ($selectedYear) {
-            $q->whereHas('training', function($q2) use ($selectedYear) {
+        $data['totalTNA'] = \App\Models\TrainingWorkshop::whereHas('trainingNeed', function ($q) use ($selectedYear) {
+            $q->whereHas('training', function ($q2) use ($selectedYear) {
                 $q2->where('year', $selectedYear);
             });
         })->count();
-        
+
         // TNA yang sudah terlaksana (ada event yang sudah selesai)
-        $data['completedTNA'] = \App\Models\TrainingWorkshop::whereHas('trainingNeed', function($q) use ($selectedYear) {
-            $q->whereHas('training', function($q2) use ($selectedYear) {
+        $data['completedTNA'] = \App\Models\TrainingWorkshop::whereHas('trainingNeed', function ($q) use ($selectedYear) {
+            $q->whereHas('training', function ($q2) use ($selectedYear) {
                 $q2->where('year', $selectedYear);
             });
-        })->whereHas('workshop', function($q) {
-            $q->whereHas('events', function($q2) {
+        })->whereHas('workshop', function ($q) {
+            $q->whereHas('events', function ($q2) {
                 $q2->where('end_date', '<', Carbon::now());
             });
         })->count();
-        
+
         // Calculate percentage
-        $data['tnaPercentage'] = $data['totalTNA'] > 0 
-            ? round(($data['completedTNA'] / $data['totalTNA']) * 100, 2) 
+        $data['tnaPercentage'] = $data['totalTNA'] > 0
+            ? round(($data['completedTNA'] / $data['totalTNA']) * 100, 2)
             : 0;
 
         $data['statistics'] = $statistics;
@@ -685,7 +688,7 @@ class DashboardController extends DefaultController
             ->where('divisi', Auth::user()->divisi)
             ->where('status', 'submit')
             ->get();
-         $userRole = app(UserRoleService::class);
+        $userRole = app(UserRoleService::class);
         $data['userRole'] = $userRole;
         $layout = 'backend.dashboard.dashboard';
 
@@ -734,6 +737,53 @@ class DashboardController extends DefaultController
         return response()->json([
             'status' => true,
             'message' => 'Training berhasil dipindahkan ke completed.',
+        ]);
+    }
+
+    public function implementTrainingWorkshop(\Illuminate\Http\Request $request, $id)
+    {
+        $trainingWorkshop = TrainingWorkshop::with(['workshop', 'user', 'trainingNeed.training'])->findOrFail($id);
+
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date'   => 'required|date|after_or_equal:start_date',
+            'instructor' => 'required|in:internal,external',
+            'location'   => 'nullable|string|max:255',
+        ]);
+
+        // Generate unique token
+        $token        = \Illuminate\Support\Str::random(32);
+        $tokenExpired = Carbon::now()->addHours(24)->format('Y-m-d H:i:s');
+
+        $year = $trainingWorkshop->trainingNeed?->training?->year ?? Carbon::now()->year;
+
+        $event = Event::create([
+            'workshop_id'        => $trainingWorkshop->workshop_id,
+            'user_id'            => $trainingWorkshop->user_id,
+            'divisi'             => $trainingWorkshop->divisi,
+            'year'               => $year,
+            'letter_number'      => null,
+            'organizer'          => null,
+            'start_date'         => $request->start_date,
+            'end_date'           => $request->end_date,
+            'token'              => $token,
+            'token_expired'      => $tokenExpired,
+            'instructor'         => $request->instructor,
+            'location'           => $request->location,
+            'approve_by'         => null,
+            'created_date'       => null,
+            'notes'              => null,
+            'status'             => 'open',
+            'command_attachment' => null,
+        ]);
+
+        // Update implementation_status menjadi 'used'
+        $trainingWorkshop->update(['implementation_status' => 'used']);
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Implementasi TNA berhasil. Event training telah dibuat.',
+            'event_id' => $event->id,
         ]);
     }
 

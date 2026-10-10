@@ -17,12 +17,16 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('company');
             $table->string('divisi');
-            $table->string('unit_kerja');
+            $table->string('unit_kerja')->nullable();
             $table->string('status');
             $table->string('jk');
             $table->string('telp');
             $table->string('nik')->unique()->nullable();
             $table->string('signature')->nullable();
+            $table->string('position')->nullable();
+            $table->string('qualification')->nullable();
+            $table->boolean('is_trainer')->default(false);
+            $table->boolean('is_leader')->default(false);
             $table->unsignedBigInteger('role_id');
             $table->string('password');
             $table->timestamps();

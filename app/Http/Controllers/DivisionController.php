@@ -30,23 +30,23 @@ class DivisionController extends DefaultController
         $this->actionButtons = ['btn_edit', 'btn_show', 'btn_delete'];
 
         $this->tableHeaders = [
-                    ['name' => 'No', 'column' => '#', 'order' => true],
-                    ['name' => 'Company', 'column' => 'company_name', 'order' => true],
-                    // ['name' => 'Uuid', 'column' => 'uuid', 'order' => true],
-                    ['name' => 'Name', 'column' => 'name', 'order' => true],
-                    ['name' => 'Is functional', 'column' => 'is_functional', 'order' => true], 
-                    ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
-                    ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
+            ['name' => 'No', 'column' => '#', 'order' => true],
+            ['name' => 'Company', 'column' => 'company_name', 'order' => true],
+            // ['name' => 'Uuid', 'column' => 'uuid', 'order' => true],
+            ['name' => 'Name', 'column' => 'name', 'order' => true],
+            ['name' => 'Is functional', 'column' => 'is_functional', 'order' => true],
+            ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
+            ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
         ];
 
 
-        $this->importExcelConfig = [ 
+        $this->importExcelConfig = [
             'primaryKeys' => ['company_id'],
             'headers' => [
-                    ['name' => 'Company id', 'column' => 'company_id'],
-                    ['name' => 'Uuid', 'column' => 'uuid'],
-                    ['name' => 'Name', 'column' => 'name'],
-                    ['name' => 'Is functional', 'column' => 'is_functional'], 
+                ['name' => 'Company id', 'column' => 'company_id'],
+                // ['name' => 'Uuid', 'column' => 'uuid'],
+                ['name' => 'Name', 'column' => 'name'],
+                ['name' => 'Is functional', 'column' => 'is_functional'],
             ]
         ];
     }
@@ -58,41 +58,41 @@ class DivisionController extends DefaultController
         if ($id != '-') {
             $edit = $this->modelClass::where('id', $id)->first();
         }
-        
+
         $companyOptions = Company::select(['id as value', 'name as text'])->get();
 
         $fields = [
-                    [
-                        'type' => 'select',
-                        'label' => 'Company id',
-                        'name' =>  'company_id',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('company_id', $id),
-                        'value' => (isset($edit)) ? $edit->company_id : '',
-                        'options' => $companyOptions
-                    ],
-                    [
-                        'type' => 'text',
-                        'label' => 'Name',
-                        'name' =>  'name',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('name', $id),
-                        'value' => (isset($edit)) ? $edit->name : ''
-                    ],
-                    [
-                        'type' => 'select',
-                        'label' => 'Is functional',
-                        'name' =>  'is_functional',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('is_functional', $id),
-                        'value' => (isset($edit)) ? $edit->is_functional : '',
-                        'options' => [
-                            ['value' => 1, 'text' => 'Yes'],
-                            ['value' => 0, 'text' => 'No'],
-                        ]
-                    ],
+            [
+                'type' => 'select',
+                'label' => 'Company id',
+                'name' =>  'company_id',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('company_id', $id),
+                'value' => (isset($edit)) ? $edit->company_id : '',
+                'options' => $companyOptions
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Name',
+                'name' =>  'name',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('name', $id),
+                'value' => (isset($edit)) ? $edit->name : ''
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Is functional',
+                'name' =>  'is_functional',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('is_functional', $id),
+                'value' => (isset($edit)) ? $edit->is_functional : '',
+                'options' => [
+                    ['value' => 1, 'text' => 'Yes'],
+                    ['value' => 0, 'text' => 'No'],
+                ]
+            ],
         ];
-        
+
         return $fields;
     }
 
@@ -100,7 +100,7 @@ class DivisionController extends DefaultController
     protected function rules($id = null)
     {
         $rules = [
-                    'name' => 'required|string',
+            'name' => 'required|string',
         ];
 
         return $rules;
@@ -130,7 +130,6 @@ class DivisionController extends DefaultController
         $dataQueries = Division::join('companies', 'companies.id', 'divisions.company_id')
             ->where($filters)
             ->where(function ($query) use ($orThose) {
-                $query->orWhere('divisions.uuid', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('divisions.name', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('companies.name', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('divisions.is_functional', 'LIKE', '%' . $orThose . '%');
@@ -139,7 +138,6 @@ class DivisionController extends DefaultController
             })
             ->select(
                 'divisions.id',
-                'divisions.uuid',
                 'divisions.name',
                 'divisions.is_functional',
                 'companies.name as company_name',
@@ -159,9 +157,9 @@ class DivisionController extends DefaultController
             'name' => 'required',
             'is_functional' => 'required',
         ];
-        
+
         $validator = Validator::make($request->all(), $rules);
-        
+
         if ($validator->fails()) {
             $messageErrors = (new Validation)->modify($validator, $rules);
             return response()->json([
@@ -178,7 +176,7 @@ class DivisionController extends DefaultController
             // Simpan data Division
             $division = new Division();
             $division->company_id = $request->company_id;
-            $division->uuid = Str::random(12);
+            // $division->uuid = Str::random(12);
             $division->name = $request->name;
             $division->is_functional = $request->is_functional;
             $division->save();
@@ -191,7 +189,6 @@ class DivisionController extends DefaultController
                 'message' => 'Division Created Successfully',
                 'redirect_to' => route('division.index'),
             ], 200);
-
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -202,5 +199,4 @@ class DivisionController extends DefaultController
             ], 500);
         }
     }
-
 }

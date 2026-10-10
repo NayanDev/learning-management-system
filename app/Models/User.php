@@ -13,7 +13,7 @@ class User extends Authenticatable
 
     protected $table = 'users';
     protected $primaryKey = 'id';
-    protected $fillable = ["name", "email", "company", "divisi", "unit_kerja", "status", "jk", "telp", "nik", "signature", "role_id", "password", "qualification", "is_leader", "is_trainer"];
+    protected $fillable = ["name", "email", "company", "divisi", "unit_kerja", "status", "jk", "telp", "nik", "signature", "role_id", "password", "qualification", "position", "is_leader", "is_trainer"];
     protected $appends = ['btn_delete', 'btn_edit', 'btn_show', 'view_image'];
     protected $casts = [
         'is_leader' => 'boolean',

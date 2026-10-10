@@ -30,25 +30,25 @@ class SectionController extends DefaultController
         $this->actionButtons = ['btn_edit', 'btn_show', 'btn_delete'];
 
         $this->tableHeaders = [
-                    ['name' => 'No', 'column' => '#', 'order' => true],
-                    ['name' => 'Department', 'column' => 'department_name', 'order' => true],
-                    // ['name' => 'Uuid', 'column' => 'uuid', 'order' => true],
-                    ['name' => 'Name', 'column' => 'name', 'order' => true], 
-                    ['name' => 'Has Jobdesc', 'column' => 'badge_jobdesc', 'order' => true], 
-                    ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
-                    ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
+            ['name' => 'No', 'column' => '#', 'order' => true],
+            ['name' => 'Department', 'column' => 'department_name', 'order' => true],
+            // ['name' => 'Uuid', 'column' => 'uuid', 'order' => true],
+            ['name' => 'Name', 'column' => 'name', 'order' => true],
+            ['name' => 'Has Jobdesc', 'column' => 'badge_jobdesc', 'order' => true],
+            ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
+            ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
         ];
 
 
-        $this->importExcelConfig = [ 
+        $this->importExcelConfig = [
             'primaryKeys' => ['department_id'],
             'headers' => [
-                    ['name' => 'Department id', 'column' => 'department_id'],
-                    ['name' => 'Uuid', 'column' => 'uuid'],
-                    ['name' => 'Name', 'column' => 'name'], 
+                ['name' => 'Department id', 'column' => 'department_id'],
+                // ['name' => 'Uuid', 'column' => 'uuid'],
+                ['name' => 'Name', 'column' => 'name'],
             ]
         ];
-        
+
 
         $this->importScripts = [
             ['source' => 'https://cdn.datatables.net/2.3.8/js/dataTables.min.js'],
@@ -74,25 +74,25 @@ class SectionController extends DefaultController
         $departmentOptions = Department::select(['id as value', 'name as text'])->get();
 
         $fields = [
-                    [
-                        'type' => 'select',
-                        'label' => 'Department id',
-                        'name' =>  'department_id',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('department_id', $id),
-                        'value' => (isset($edit)) ? $edit->department_id : '',
-                        'options' => $departmentOptions,
-                    ],
-                    [
-                        'type' => 'text',
-                        'label' => 'Name',
-                        'name' =>  'name',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('name', $id),
-                        'value' => (isset($edit)) ? $edit->name : ''
-                    ],
+            [
+                'type' => 'select',
+                'label' => 'Department id',
+                'name' =>  'department_id',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('department_id', $id),
+                'value' => (isset($edit)) ? $edit->department_id : '',
+                'options' => $departmentOptions,
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Name',
+                'name' =>  'name',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('name', $id),
+                'value' => (isset($edit)) ? $edit->name : ''
+            ],
         ];
-        
+
         return $fields;
     }
 
@@ -100,13 +100,13 @@ class SectionController extends DefaultController
     protected function rules($id = null)
     {
         $rules = [
-                    'name' => 'required|string',
+            'name' => 'required|string',
         ];
 
         return $rules;
     }
 
-    
+
     protected function defaultDataQuery()
     {
         $filters = [];
@@ -130,7 +130,6 @@ class SectionController extends DefaultController
         $dataQueries = Section::join('departments', 'departments.id', 'sections.department_id')
             ->where($filters)
             ->where(function ($query) use ($orThose) {
-                $query->orWhere('sections.uuid', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('sections.name', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('departments.name', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('sections.created_at', 'LIKE', '%' . $orThose . '%');
@@ -138,7 +137,6 @@ class SectionController extends DefaultController
             })
             ->select(
                 'sections.id',
-                'sections.uuid',
                 'sections.name',
                 'departments.name as department_name',
                 'sections.created_at',
@@ -174,7 +172,7 @@ class SectionController extends DefaultController
         try {
             // Simpan data Section
             $section = new Section();
-            $section->uuid = Str::random(12);
+            // $section->uuid = Str::random(12);
             $section->department_id = $request->department_id;
             $section->name = $request->name;
             $section->save();
@@ -187,7 +185,6 @@ class SectionController extends DefaultController
                 'message' => 'Section Created Successfully',
                 'redirect_to' => route('section.index'),
             ], 200);
-
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -204,19 +201,18 @@ class SectionController extends DefaultController
     {
 
         $singleData = $this->defaultDataQuery()
-            ->where('sections.id',$id)
+            ->where('sections.id', $id)
             ->first();
 
-        return view('backend.idev.show_with_tab',array_merge(
+        return view(
+            'backend.idev.show_with_tab',
+            array_merge(
                 [
-                    'detail'=>$singleData,
-                    'title'=>$this->title,
+                    'detail' => $singleData,
+                    'title' => $this->title,
                 ],
                 (new JobdescPage())->build()
             )
         );
-
     }
-
-
 }

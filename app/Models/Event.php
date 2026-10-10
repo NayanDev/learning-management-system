@@ -13,7 +13,7 @@ class Event extends Model
 
     protected $table = 'events';
     protected $primaryKey = 'id';
-    protected $fillable = ["workshop_id", "user_id", "divisi", "year", "letter_number", "organizer", "start_date", "end_date", "token", "token_expired", "instructor", "location", "approve_by", "created_date", "notes", "status","command_attachment"];
+    protected $fillable = ["workshop_id", "user_id", "divisi", "year", "letter_number", "organizer", "start_date", "end_date", "token", "token_expired", "instructor", "location", "approve_by", "created_date", "notes", "status", "command_attachment"];
     protected $appends = ['btn_approve', 'btn_delete', 'btn_edit', 'btn_multilink'];
 
 
@@ -36,7 +36,7 @@ class Event extends Model
     {
         return $this->hasMany(Evaluation::class);
     }
-    
+
 
     public function workshop()
     {
@@ -107,29 +107,29 @@ class Event extends Model
 
             // OPEN / REJECT
             if ($this->status === "open" || $this->status === "reject") {
-                if ($roleName === "admin") {
+                if ($roleName === "developer") {
                     return $btn;
                 }
             }
 
             // SUBMIT → hanya admin lihat / control
             if ($this->status === "submit") {
-                if ($roleName === "admin") {
+                if ($roleName === "developer") {
                     return $btnOff;
                 }
 
-                if ($roleName === "manager" && $divisiName === "Umum & SDM") {
+                if ($roleName === "manager" && $divisiName === "UMUM & SDM") {
                     return $btn; // approve manager
                 }
             }
 
             // APPROVE → manager sudah selesai (FINISH)
             if ($this->status === "approve") {
-                if ($roleName === "manager" && $divisiName === "Umum & SDM") {
+                if ($roleName === "manager" && $divisiName === "UMUM & SDM") {
                     return $pdf; // langsung selesai
                 }
 
-                if ($roleName === "admin") {
+                if ($roleName === "developer") {
                     return $pdf;
                 }
             }
@@ -138,30 +138,29 @@ class Event extends Model
             if ($this->status === "close") {
                 return $pdf;
             }
-
         } else {
 
             // ✔ INTERNAL: flow normal sampai direktur
 
             if (
                 ($this->status === "open" || $this->status === "reject") &&
-                $roleName === "admin"
+                $roleName === "developer"
             ) {
                 return $btn;
             }
 
             if ($this->status === "submit") {
-                if ($roleName === "admin") {
+                if ($roleName === "developer") {
                     return $btnOff;
-                } elseif ($roleName === "manager" && $divisiName === "Umum & SDM") {
+                } elseif ($roleName === "manager" && $divisiName === "UMUM & SDM") {
                     return $btn;
                 }
             }
 
             if ($this->status === "approve") {
-                if ($roleName === "admin") {
+                if ($roleName === "developer") {
                     return $btnDirector;
-                } elseif ($roleName === "manager" && $divisiName === "Umum & SDM") {
+                } elseif ($roleName === "manager" && $divisiName === "UMUM & SDM") {
                     return $pdf;
                 }
             }
@@ -169,8 +168,8 @@ class Event extends Model
             if (
                 $this->status === "close" &&
                 (
-                    $roleName === "admin" ||
-                    ($roleName === "manager" && $divisiName === "Umum & SDM") ||
+                    $roleName === "developer" ||
+                    ($roleName === "manager" && $divisiName === "UMUM & SDM") ||
                     $roleName === "direktur"
                 )
             ) {
@@ -194,9 +193,9 @@ class Event extends Model
             ->where('event_id', $this->id)
             ->where('user_id', Auth::id())
             ->exists();
-            
+
         //CONDITIONAL MENU
-        $isAdmin = in_array(optional($user->role)->name, ['admin', 'adminhr']);
+        $isAdmin = in_array(optional($user->role)->name, ['developer']);
 
         $arrLink = [
             ['label' => 'Trainer', 'url' => url('trainer') . "?event_id=" . $this->id, 'icon' => 'ti ti-users'],
@@ -211,40 +210,40 @@ class Event extends Model
             // ['label' => 'Certification', 'url' => url('certification') . "?event_id=" . $this->id, 'icon' => 'ti ti-certificate'],
             // ['label' => 'Checkout Access', 'url' => route('set.checkout', ['id' => $this->id]), 'icon' => 'ti ti-qrcode'],
             ['label' => 'Evaluation Participant', 'url' => url($this->instructor === 'external' ? 'evaluation-bulk-public' : 'evaluation-bulk') . "?token=" . $token, 'icon' => 'ti ti-pencil'],
-            
+
             // ['label' => 'Training Report', 'url' => url('training-report') . "?event_id=" . $this->id, 'icon' => 'ti ti-clipboard'],
             // ['label' => 'Documentation', 'url' => url('documentation') . "?event_id=" . $this->id, 'icon' => 'ti ti-photo'],
             // ['label' => 'Bulk Signature', 'url' => url('signature-bulk-update') . "?event_id=" . $this->id, 'icon' => 'ti ti-signature'],
             // ['label' => 'Report Evaluation', 'url' => url('evaluation-pdf') . "?event_id=" . $this->id, 'icon' => 'ti ti-file-text'],
         ];
-        
-        
+
+
         if ($isAdmin) {
             $arrLink[] = [
                 'label' => 'Training Report',
                 'url' => url('report-training') . "?event_id=" . $this->id,
                 'icon' => 'ti ti-clipboard'
             ];
-        
+
             $arrLink[] = [
                 'label' => 'Documentation',
                 'url' => url('documentation') . "?event_id=" . $this->id,
                 'icon' => 'ti ti-photo'
             ];
-        
+
             $arrLink[] = [
                 'label' => 'Bulk Signature',
                 'url' => url('signature-bulk-update') . "?event_id=" . $this->id,
                 'icon' => 'ti ti-signature'
             ];
-        
+
             $arrLink[] = [
                 'label' => 'Report Evaluation',
                 'url' => url('evaluation-pdf') . "?event_id=" . $this->id,
                 'icon' => 'ti ti-file-text'
             ];
 
-            if($this->instructor === 'external'){
+            if ($this->instructor === 'external') {
                 $arrLink[] = [
                     'label' => 'Resume Materi',
                     'url' => url('resume-materi') . "?event_id=" . $this->id,
@@ -252,7 +251,7 @@ class Event extends Model
                 ];
             }
 
-            if($this->instructor === 'external'){
+            if ($this->instructor === 'external') {
                 $arrLink[] = [
                     'label' => 'Certification External',
                     'url' => url('certification-external') . "?event_id=" . $this->id,
@@ -261,9 +260,9 @@ class Event extends Model
             }
         }
 
-        
+
         if (
-                ($trainers && !$showEvaluationMonth) || $isAdmin
+            ($trainers && !$showEvaluationMonth) || $isAdmin
         ) {
             $arrLink[] = [
                 'label' => 'Evaluation 3 Month',

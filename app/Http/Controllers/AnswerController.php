@@ -143,7 +143,7 @@ class AnswerController extends DefaultController
             });
 
         // Cek role user
-        if (Auth::user()->role->name !== 'admin') {
+        if (Auth::user()->role->name !== 'developer') {
             $dataQueries = $dataQueries->where('answers.user_id', Auth::user()->id);
         }
 

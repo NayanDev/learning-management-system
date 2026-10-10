@@ -24,7 +24,7 @@ class MateriController extends DefaultController
 
         $this->tableHeaders = [
                     ['name' => 'No', 'column' => '#', 'order' => true],
-                    ['name' => 'Uuid', 'column' => 'uuid', 'order' => true],
+                    // ['name' => 'Uuid', 'column' => 'uuid', 'order' => true],
                     ['name' => 'Name', 'column' => 'name', 'order' => true],
                     ['name' => 'File', 'column' => 'file', 'order' => true],
                     ['name' => 'Description', 'column' => 'description', 'order' => true],

@@ -172,7 +172,7 @@ class ParticipantController extends DefaultController
             });
 
         // Cek role user
-        if (Auth::user()->role->name !== 'admin') {
+        if (Auth::user()->role->name !== 'developer') {
             $dataQueries = $dataQueries->where('participants.nik', Auth::user()->nik);
         }
 

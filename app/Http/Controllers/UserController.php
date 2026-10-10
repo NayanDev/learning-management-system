@@ -177,6 +177,49 @@ class UserController extends DefaultController
                 'value' => (isset($edit)) ? $edit->qualification : ''
             ],
             [
+                'type' => 'select',
+                'label' => 'Position',
+                'name' => 'position',
+                'class' => 'col-md-12 my-2',
+                'value' => (isset($edit)) ? $edit->position : '',
+                'options' => [
+                    ['value' => '', 'text' => 'Select Position'],
+                    ['value' => 'MANAGER', 'text' => 'MANAGER'],
+                    ['value' => 'ASMAN', 'text' => 'ASMAN'],
+                    ['value' => 'SUPERVISOR', 'text' => 'SUPERVISOR'],
+                    ['value' => 'KEPALA KELOMPOK', 'text' => 'KEPALA KELOMPOK'],
+                    ['value' => 'ANALIS', 'text' => 'ANALIS'],
+                    ['value' => 'INSPEKTOR', 'text' => 'INSPEKTOR'],
+                    ['value' => 'OPERATOR', 'text' => 'OPERATOR'],
+                    ['value' => 'TEKNISI', 'text' => 'TEKNISI'],
+                    ['value' => 'ADMINISTRASI', 'text' => 'ADMINISTRASI'],
+                ],
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Is Leader',
+                'name' => 'is_leader',
+                'class' => 'col-md-12 my-2',
+                'value' => isset($edit) ? ($edit->is_leader ? '1' : '0') : '',
+                'options' => [
+                    ['value' => '', 'text' => 'Select Option'],
+                    ['value' => '1', 'text' => 'Yes'],
+                    ['value' => '0', 'text' => 'No'],
+                ],
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Is Trainer',
+                'name' => 'is_trainer',
+                'class' => 'col-md-12 my-2',
+                'value' => isset($edit) ? ($edit->is_trainer ? '1' : '0') : '',
+                'options' => [
+                    ['value' => '', 'text' => 'Select Option'],
+                    ['value' => '1', 'text' => 'Yes'],
+                    ['value' => '0', 'text' => 'No'],
+                ],
+            ],
+            [
                 'type' => 'select2',
                 'label' => 'Role',
                 'name' => 'role_id',
@@ -212,7 +255,7 @@ class UserController extends DefaultController
 
             if ($response->successful()) {
                 $responseData = $response->json();
-                
+
                 // Ekstrak data dari response API dengan format {success, message, data}
                 if (!isset($responseData['data']) || !is_array($responseData['data'])) {
                     Log::warning("API response tidak memiliki key 'data' atau bukan array", [
@@ -220,7 +263,7 @@ class UserController extends DefaultController
                     ]);
                     return [];
                 }
-                
+
                 $employees = $responseData['data'];
                 $options = [];
 
@@ -386,6 +429,9 @@ class UserController extends DefaultController
         $telp = $request->telp;
         $nik = $request->nik;
         $qualification = $request->qualification;
+        $position = $request->position;
+        $is_trainer = $request->is_trainer;
+        $is_leader = $request->is_leader;
         $roleId = $request->role_id;
         $password = $request->password;
 
@@ -431,6 +477,9 @@ class UserController extends DefaultController
             $insert->jk = $jk;
             $insert->telp = $telp;
             $insert->qualification = $qualification;
+            $insert->position = $position;
+            $insert->is_trainer = $is_trainer;
+            $insert->is_leader = $is_leader;
             $insert->signature = $signatureFileName;
             $insert->role_id = $roleId;
             $insert->password = bcrypt($password);
@@ -599,6 +648,10 @@ class UserController extends DefaultController
                 'divisi' => $request->divisi,
                 'unit_kerja' => $request->unit_kerja,
                 'status' => $request->status,
+                'position' => $request->position,
+                'qualification' => $request->qualification,
+                // 'is_trainer' => $request->is_trainer,
+                // 'is_leader' => $request->is_leader,
                 'jk' => $request->jk,
                 'telp' => $request->telp,
                 'signature' => $signatureFileName,
@@ -766,6 +819,10 @@ class UserController extends DefaultController
         $divisi = $request->divisi;
         $unit_kerja = $request->unit_kerja;
         $status = $request->status;
+        $position = $request->position;
+        $qualification = $request->qualification;
+        $is_trainer = $request->is_trainer;
+        $is_leader = $request->is_leader;
         $jk = $request->jk;
         $telp = $request->telp;
         $roleId = $request->role_id;
@@ -798,6 +855,10 @@ class UserController extends DefaultController
             $user->unit_kerja = $unit_kerja;
             $user->status = $status;
             $user->jk = $jk;
+            $user->position = $position;
+            $user->qualification = $qualification;
+            $user->is_trainer = $is_trainer;
+            $user->is_leader = $is_leader;
             $user->telp = $telp;
             $user->qualification = $qualification;
             $user->role_id = $roleId;
@@ -1005,14 +1066,14 @@ class UserController extends DefaultController
     protected function signatureVerified()
     {
         $eventId = request('event_id');
-        if(!$eventId) {
+        if (!$eventId) {
             abort(403, 'Event Not Found');
         }
 
         $event = Event::where('id', $eventId)->first();
-        if(!$event) {
+        if (!$event) {
             abort(404, 'Event Not Found');
-        }   
+        }
 
         // $id = request('id');
         // $user = User::find($id);

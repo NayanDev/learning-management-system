@@ -285,19 +285,19 @@ class CertificationController extends DefaultController
                 $query->orWhere('participants.name', 'LIKE', '%' . $orThose . '%');
             });
 
-            $user = Auth::user();
+        $user = Auth::user();
 
-            $adminRoles = ['admin'];
-            $isAdmin = in_array($user->role->name, $adminRoles);
+        $adminRoles = ['developer'];
+        $isAdmin = in_array($user->role->name, $adminRoles);
 
-            $isManagerUmumSDM = $user->role->name === 'manager'
-                && $user->divisi === 'UMUM & SDM';
+        $isManagerUmumSDM = $user->role->name === 'manager'
+            && $user->divisi === 'UMUM & SDM';
 
-            if (!($isAdmin || $isManagerUmumSDM)) {
-                $dataQueries = $dataQueries->whereHas('participant', function ($query) use ($user) {
-                    $query->where('nik', $user->nik);
-                });
-            }
+        if (!($isAdmin || $isManagerUmumSDM)) {
+            $dataQueries = $dataQueries->whereHas('participant', function ($query) use ($user) {
+                $query->where('nik', $user->nik);
+            });
+        }
 
         $dataQueries = $dataQueries
             ->select('certifications.*', 'workshops.name as workshop_name', 'template_certifications.name as template_certification_name', 'participants.name as participant_name')
@@ -377,7 +377,6 @@ class CertificationController extends DefaultController
                 'status' => true,
                 'message' => 'Approve Certification successfully'
             ]);
-
         } catch (Exception $e) {
             DB::rollback();
 
@@ -387,7 +386,4 @@ class CertificationController extends DefaultController
             ], 500);
         }
     }
-
-
-    
 }

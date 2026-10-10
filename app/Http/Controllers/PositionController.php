@@ -29,19 +29,19 @@ class PositionController extends DefaultController
         $this->actionButtons = ['btn_edit', 'btn_show', 'btn_delete'];
 
         $this->tableHeaders = [
-                    ['name' => 'No', 'column' => '#', 'order' => true],
-                    // ['name' => 'Uuid', 'column' => 'uuid', 'order' => true],
-                    ['name' => 'Name', 'column' => 'name', 'order' => true], 
-                    ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
-                    ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
+            ['name' => 'No', 'column' => '#', 'order' => true],
+            // ['name' => 'Uuid', 'column' => 'uuid', 'order' => true],
+            ['name' => 'Name', 'column' => 'name', 'order' => true],
+            ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
+            ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
         ];
 
 
-        $this->importExcelConfig = [ 
-            'primaryKeys' => ['uuid'],
+        $this->importExcelConfig = [
+            // 'primaryKeys' => ['uuid'],
             'headers' => [
-                    ['name' => 'Uuid', 'column' => 'uuid'],
-                    ['name' => 'Name', 'column' => 'name'], 
+                // ['name' => 'Uuid', 'column' => 'uuid'],
+                ['name' => 'Name', 'column' => 'name'],
             ]
         ];
     }
@@ -55,16 +55,16 @@ class PositionController extends DefaultController
         }
 
         $fields = [
-                    [
-                        'type' => 'text',
-                        'label' => 'Name',
-                        'name' =>  'name',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('name', $id),
-                        'value' => (isset($edit)) ? $edit->name : ''
-                    ],
+            [
+                'type' => 'text',
+                'label' => 'Name',
+                'name' =>  'name',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('name', $id),
+                'value' => (isset($edit)) ? $edit->name : ''
+            ],
         ];
-        
+
         return $fields;
     }
 
@@ -72,7 +72,7 @@ class PositionController extends DefaultController
     protected function rules($id = null)
     {
         $rules = [
-                    'name' => 'required|string',
+            'name' => 'required|string',
         ];
 
         return $rules;
@@ -97,14 +97,12 @@ class PositionController extends DefaultController
 
         $dataQueries = Position::where($filters)
             ->where(function ($query) use ($orThose) {
-                $query->orWhere('positions.uuid', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('positions.name', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('positions.created_at', 'LIKE', '%' . $orThose . '%');
                 $query->orWhere('positions.updated_at', 'LIKE', '%' . $orThose . '%');
             })
             ->select(
                 'positions.id',
-                'positions.uuid',
                 'positions.name',
                 'positions.created_at',
                 'positions.updated_at'
@@ -120,9 +118,9 @@ class PositionController extends DefaultController
         $rules = [
             'name' => 'required',
         ];
-        
+
         $validator = Validator::make($request->all(), $rules);
-        
+
         if ($validator->fails()) {
             $messageErrors = (new Validation)->modify($validator, $rules);
             return response()->json([
@@ -138,7 +136,7 @@ class PositionController extends DefaultController
         try {
             // Simpan data Position
             $position = new Position();
-            $position->uuid = Str::random(12);
+            // $position->uuid = Str::random(12);
             $position->name = $request->name;
             $position->save();
 
@@ -150,7 +148,6 @@ class PositionController extends DefaultController
                 'message' => 'Position Created Successfully',
                 'redirect_to' => route('position.index'),
             ], 200);
-
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -161,5 +158,4 @@ class PositionController extends DefaultController
             ], 500);
         }
     }
-
 }

@@ -212,7 +212,7 @@ class TrainerController extends DefaultController
             });
 
         // Cek role user
-        if (Auth::user()->role->name !== 'admin') {
+        if (Auth::user()->role->name !== 'developer') {
             $dataQueries = $dataQueries->where('trainers.user_id', Auth::user()->id);
         }
 
@@ -299,7 +299,7 @@ class TrainerController extends DefaultController
 
         // Tentukan path folder public/signature_external
         $signaturePath = public_path('signature_external');
-        
+
         // Buat folder jika belum ada
         if (!is_dir($signaturePath)) {
             mkdir($signaturePath, 0755, true);

@@ -246,62 +246,96 @@
 
     <div class="tna-modal" id="tnaFormModal" hidden aria-hidden="true">
         <div class="tna-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="tnaFormTitle">
-            <div class="tna-modal-header p-4">
-                <h5 id="tnaFormTitle" class="mb-0">Apakah anda ingin implementasi TNA ?</h5>
+            <div class="tna-modal-header p-4 d-flex align-items-center justify-content-between">
+                <h5 id="tnaFormTitle" class="mb-0">
+                    <i class="ti ti-rocket me-2 text-primary"></i>Implementasi TNA
+                </h5>
+                <button type="button" class="btn-close" data-tna-close aria-label="Tutup"></button>
             </div>
             <div class="tna-modal-body p-4">
+                <div class="alert alert-info d-flex align-items-center gap-2 py-2 mb-4">
+                    <i class="ti ti-info-circle"></i>
+                    <span>Data berikut akan digunakan untuk membuat <strong>Event Training</strong> baru.</span>
+                </div>
+
                 <form id="tnaExpiredForm">
-                    <!-- Implementation Status -->
+                    {{-- Hidden fields --}}
+                    <input type="hidden" id="tnaFormTnaId" name="tna_id">
+
+                    {{-- Nama Pelatihan (readonly info) --}}
                     <div class="mb-3">
-                        <input type="text" class="form-control" id="tnaFormStatus" name="implementation_status">
+                        <label for="tnaFormWorkshopName" class="form-label fw-semibold">Nama Pelatihan</label>
+                        <input type="text" class="form-control bg-light" id="tnaFormWorkshopName" name="workshop_name" readonly>
                     </div>
 
-                    <!-- Nama Pelatihan -->
-                    <div class="mb-3">
-                        <label for="tnaFormWorkshopName" class="form-label">Nama Pelatihan</label>
-                        <input type="text" class="form-control" id="tnaFormWorkshopName" name="workshop_name" readonly>
+                    <div class="row g-3 mb-3">
+                        {{-- Start Date --}}
+                        <div class="col-md-6">
+                            <label for="tnaFormStartDate" class="form-label fw-semibold">
+                                Tanggal Mulai <span class="text-danger">*</span>
+                            </label>
+                            <input type="datetime-local" class="form-control" id="tnaFormStartDate" name="start_date" required>
+                        </div>
+                        {{-- End Date --}}
+                        <div class="col-md-6">
+                            <label for="tnaFormEndDate" class="form-label fw-semibold">
+                                Tanggal Selesai <span class="text-danger">*</span>
+                            </label>
+                            <input type="datetime-local" class="form-control" id="tnaFormEndDate" name="end_date" required>
+                        </div>
                     </div>
 
-                    <!-- Start Date -->
-                    <div class="mb-3">
-                        <label for="tnaFormStartDate" class="form-label">Tanggal Mulai</label>
-                        <input type="datetime-local" class="form-control" id="tnaFormStartDate" name="start_date" required>
+                    <div class="row g-3 mb-3">
+                        {{-- Divisi --}}
+                        <div class="col-md-6">
+                            <label for="tnaFormDivisi" class="form-label fw-semibold">Divisi</label>
+                            <input type="text" class="form-control bg-light" id="tnaFormDivisi" name="divisi" readonly>
+                        </div>
+                        {{-- User --}}
+                        <div class="col-md-6">
+                            <label for="tnaFormUser" class="form-label fw-semibold">Peserta (User)</label>
+                            <input type="text" class="form-control bg-light" id="tnaFormUser" name="user_name" readonly>
+                        </div>
                     </div>
 
-                    <!-- End Date -->
+                    {{-- Instructor --}}
                     <div class="mb-3">
-                        <label for="tnaFormEndDate" class="form-label">Tanggal Selesai</label>
-                        <input type="datetime-local" class="form-control" id="tnaFormEndDate" name="end_date">
-                    </div>
-
-                    <!-- Divisi -->
-                    <div class="mb-3">
-                        <label for="tnaFormDivisi" class="form-label">Divisi</label>
-                        <input type="text" class="form-control" id="tnaFormDivisi" name="divisi" readonly>
-                    </div>
-
-                    <!-- Instructor -->
-                    <div class="mb-3">
-                        <label for="tnaFormInstructor" class="form-label">Instruktur</label>
-                        <input type="text" class="form-control" id="tnaFormInstructor" name="instructor" readonly>
-                    </div>
-
-                    <!-- User -->
-                    <div class="mb-3">
-                        <label for="tnaFormUser" class="form-label">Trainer</label>
-                        <input type="text" class="form-control" id="tnaFormUser" name="user_name" readonly>
+                        <label class="form-label fw-semibold">
+                            Tipe Instruktur <span class="text-danger">*</span>
+                        </label>
+                        <div class="d-flex gap-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="instructor" id="instructorInternal" value="internal" required>
+                                <label class="form-check-label" for="instructorInternal">
+                                    <i class="ti ti-building me-1"></i> Internal
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="instructor" id="instructorExternal" value="external">
+                                <label class="form-check-label" for="instructorExternal">
+                                    <i class="ti ti-world me-1"></i> External
+                                </label>
+                            </div>
+                        </div>
                     </div>
 
                     {{-- Location --}}
                     <div class="mb-3">
-                        <label for="tnaFormLocation" class="form-label">Location</label>
-                        <input type="text" class="form-control" id="tnaFormLocation" name="location">
+                        <label for="tnaFormLocation" class="form-label fw-semibold">Lokasi</label>
+                        <input type="text" class="form-control" id="tnaFormLocation" name="location" placeholder="Contoh: Ruang Rapat Lt.2">
                     </div>
+
+                    {{-- Error display --}}
+                    <div class="text-danger small mt-2" id="tnaFormError" hidden></div>
                 </form>
             </div>
             <div class="tna-modal-footer p-4 d-flex justify-content-end gap-2">
-                <button type="button" class="btn btn-danger" data-tna-close>Batal</button>
-                <button type="submit" form="tnaExpiredForm" class="btn btn-primary">Simpan</button>
+                <button type="button" class="btn btn-outline-secondary" data-tna-close>
+                    <i class="ti ti-x me-1"></i>Batal
+                </button>
+                <button type="submit" form="tnaExpiredForm" class="btn btn-primary" id="tnaFormSubmitBtn">
+                    <i class="ti ti-check me-1"></i>Simpan &amp; Buat Event
+                </button>
             </div>
         </div>
     </div>
@@ -336,23 +370,25 @@
 
     <script>
     (() => {
-        const formModal = document.getElementById('tnaFormModal');
-        const moveModal = document.getElementById('tnaMoveModal');
+        const formModal    = document.getElementById('tnaFormModal');
+        const moveModal    = document.getElementById('tnaMoveModal');
         const confirmModal = document.getElementById('tnaConfirmModal');
-        const moveName = document.getElementById('tnaMoveName');
+        const moveName     = document.getElementById('tnaMoveName');
         const confirmError = document.getElementById('tnaConfirmError');
-        
+        const formError    = document.getElementById('tnaFormError');
+        const formSubmitBtn = document.getElementById('tnaFormSubmitBtn');
+
         // Form fields
         const formFields = {
-            status: document.getElementById('tnaFormStatus'),
+            tnaId:        document.getElementById('tnaFormTnaId'),
             workshopName: document.getElementById('tnaFormWorkshopName'),
-            startDate: document.getElementById('tnaFormStartDate'),
-            endDate: document.getElementById('tnaFormEndDate'),
-            divisi: document.getElementById('tnaFormDivisi'),
-            instructor: document.getElementById('tnaFormInstructor'),
-            user: document.getElementById('tnaFormUser')
+            startDate:    document.getElementById('tnaFormStartDate'),
+            endDate:      document.getElementById('tnaFormEndDate'),
+            divisi:       document.getElementById('tnaFormDivisi'),
+            user:         document.getElementById('tnaFormUser'),
+            location:     document.getElementById('tnaFormLocation'),
         };
-        
+
         const state = { id: null, name: '', date: '' };
 
         const showModal = modal => {
@@ -367,39 +403,45 @@
 
         // Handle popover for expired items
         document.querySelectorAll('.tna-expired-item').forEach(item => {
-            const popover = item.querySelector('.tna-popover');
+            const popover   = item.querySelector('.tna-popover');
             const actionBtn = item.querySelector('.tna-expired-action');
-            
+
             item.addEventListener('click', (e) => {
-                // Jika klik pada tombol, jangan tampilkan form modal
-                if (e.target.closest('.tna-expired-action')) {
-                    return;
-                }
-                
+                if (e.target.closest('.tna-expired-action')) return;
+
                 e.stopPropagation();
                 document.querySelectorAll('.tna-popover').forEach(p => p.classList.remove('show'));
-                
-                // Tampilkan form modal dengan data
-                state.id = item.dataset.tnaId;
+
+                state.id   = item.dataset.tnaId;
                 state.name = item.dataset.tnaName || 'training ini';
-                state.date = item.dataset.tnaDate || '';
-                
-                // Populate all form fields
-                formFields.status.value = item.dataset.tnaStatus || 'open';
+
+                // Populate form fields
+                formFields.tnaId.value        = item.dataset.tnaId || '';
                 formFields.workshopName.value = item.dataset.tnaName || '-';
-                formFields.startDate.value = item.dataset.tnaDate || '';
-                formFields.endDate.value = item.dataset.tnaEnddate || '';
-                formFields.divisi.value = item.dataset.tnaDivisi || '-';
-                formFields.instructor.value = item.dataset.tnaInstructor || '-';
-                formFields.user.value = item.dataset.tnaUser || '-';
-                
+                formFields.startDate.value    = item.dataset.tnaDate || '';
+                formFields.endDate.value      = item.dataset.tnaEnddate || '';
+                formFields.divisi.value       = item.dataset.tnaDivisi || '-';
+                formFields.user.value         = item.dataset.tnaUser || '-';
+                formFields.location.value     = '';
+
+                // Pre-select instructor radio from data attribute
+                const instructorVal = item.dataset.tnaInstructor || '';
+                document.querySelectorAll('#tnaExpiredForm input[name="instructor"]').forEach(radio => {
+                    radio.checked = (radio.value === instructorVal);
+                });
+
+                // Reset error
+                formError.hidden = true;
+                formError.textContent = '';
+                formSubmitBtn.disabled = false;
+
                 showModal(formModal);
             });
 
             if (actionBtn) {
                 actionBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    state.id = item.dataset.tnaId;
+                    state.id   = item.dataset.tnaId;
                     state.name = item.dataset.tnaName || 'training ini';
                     moveName.textContent = state.name;
                     if (popover) popover.classList.remove('show');
@@ -411,7 +453,7 @@
         // Handle click for other tabs (upcoming, used, completed)
         document.querySelectorAll('#upcoming [data-tna-id], #used [data-tna-id], #completed [data-tna-id]').forEach(item => {
             item.addEventListener('click', () => {
-                state.id = item.dataset.tnaId;
+                state.id   = item.dataset.tnaId;
                 state.name = item.dataset.tnaName || 'training ini';
                 moveName.textContent = state.name;
                 showModal(moveModal);
@@ -423,15 +465,71 @@
             document.querySelectorAll('.tna-popover').forEach(p => p.classList.remove('show'));
         });
 
-        // Handle form submit
-        document.getElementById('tnaExpiredForm').addEventListener('submit', (e) => {
+        // ─── Handle TNA Implement Form Submit ───────────────────────────────
+        document.getElementById('tnaExpiredForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData(document.getElementById('tnaExpiredForm'));
-            console.log('Form submitted:', Object.fromEntries(formData));
-            hideModal(formModal);
-            // TODO: Add API call here to save the form data
+
+            formError.hidden = true;
+            formSubmitBtn.disabled = true;
+            formSubmitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...';
+
+            const formData = new FormData(e.target);
+
+            // Build JSON payload
+            const payload = {
+                start_date: formData.get('start_date'),
+                end_date:   formData.get('end_date'),
+                instructor: formData.get('instructor'),
+                location:   formData.get('location') || null,
+            };
+
+            const tnaId = formFields.tnaId.value;
+
+            try {
+                const response = await fetch(`{{ url('dashboard/training-workshop') }}/${tnaId}/implement`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.status) {
+                    // Handle Laravel validation errors
+                    if (data.errors) {
+                        const msgs = Object.values(data.errors).flat().join('\n');
+                        throw new Error(msgs);
+                    }
+                    throw new Error(data.message || 'Gagal menyimpan data.');
+                }
+
+                hideModal(formModal);
+
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Implementasi TNA berhasil disimpan dan Event Training telah dibuat.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#0d6efd',
+                    timer: 3000,
+                    timerProgressBar: true,
+                });
+
+                window.location.reload();
+
+            } catch (error) {
+                formError.textContent = error.message;
+                formError.hidden = false;
+                formSubmitBtn.disabled = false;
+                formSubmitBtn.innerHTML = '<i class="ti ti-check me-1"></i>Simpan &amp; Buat Event';
+            }
         });
 
+        // ─── Move to Completed ───────────────────────────────────────────────
         moveModal.querySelector('#tnaMoveButton').addEventListener('click', () => {
             hideModal(moveModal);
             confirmError.hidden = true;
@@ -474,3 +572,5 @@
         });
     })();
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

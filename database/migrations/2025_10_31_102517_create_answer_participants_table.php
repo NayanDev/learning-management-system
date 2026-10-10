@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('answer_participants', function (Blueprint $table) {
             $table->id();
-            $table->string('type');
-            $table->foreignId('participant_id')->constrained('participants');
-            $table->foreignId('event_id')->constrained('events');
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('question_id')->constrained('questions');
-            $table->foreignId('answer_id')->constrained('answers');
+            $table->foreignId('event_id')->nullable()->constrained('events');
+            $table->string('type')->nullable();
+            $table->foreignId('participant_id')->nullable()->constrained('participants');
+            $table->foreignId('user_id')->nullable()->constrained('users');
+            $table->foreignId('question_id')->nullable()->constrained('questions');
+            $table->foreignId('answer_id')->nullable()->constrained('answers');
             $table->integer('point');
             $table->timestamps();
         });

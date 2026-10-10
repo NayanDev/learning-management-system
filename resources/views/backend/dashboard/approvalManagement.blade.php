@@ -70,7 +70,7 @@
                     </button>
                 </li>
                 @endif
-                <li class="nav-item" role="presentation">
+                {{-- <li class="nav-item" role="presentation">
                     <button class="nav-link" id="schedule-tab" data-bs-toggle="tab" data-bs-target="#schedule" type="button" role="tab" aria-controls="schedule" aria-selected="false">Jadwal</button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -81,7 +81,7 @@
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="report-tab" data-bs-toggle="tab" data-bs-target="#report" type="button" role="tab" aria-controls="report" aria-selected="false">Laporan Pelatihan</button>
-                </li>
+                </li> --}}
             </ul>
 
             <!-- Tabs Content -->

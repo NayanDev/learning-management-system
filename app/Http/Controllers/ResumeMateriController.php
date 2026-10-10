@@ -19,7 +19,7 @@ class ResumeMateriController extends DefaultController
     protected $generalUri;
     protected $tableHeaders;
     // protected $actionButtons;
-    protected $arrPermissions = ['print', 'list','show', 'create', 'edit', 'delete', 'export-excel-default', 'export-pdf-default', 'import-excel-default'];
+    protected $arrPermissions = ['print', 'list', 'show', 'create', 'edit', 'delete', 'export-excel-default', 'export-pdf-default', 'import-excel-default'];
     protected $importExcelConfig;
 
     public function __construct()
@@ -30,23 +30,23 @@ class ResumeMateriController extends DefaultController
         $this->actionButtons = ['btn_print', 'btn_edit', 'btn_show', 'btn_delete'];
 
         $this->tableHeaders = [
-                    ['name' => 'No', 'column' => '#', 'order' => true],
-                    ['name' => 'Event', 'column' => 'workshop_name', 'order' => true],
-                    ['name' => 'File path', 'column' => 'file_path', 'order' => true],
-                    ['name' => 'User', 'column' => 'user_name', 'order' => true],
-                    ['name' => 'Divisi', 'column' => 'divisi', 'order' => true], 
-                    ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
-                    ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
+            ['name' => 'No', 'column' => '#', 'order' => true],
+            ['name' => 'Event', 'column' => 'workshop_name', 'order' => true],
+            ['name' => 'File path', 'column' => 'file_path', 'order' => true],
+            ['name' => 'User', 'column' => 'user_name', 'order' => true],
+            ['name' => 'Divisi', 'column' => 'divisi', 'order' => true],
+            ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
+            ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
         ];
 
 
-        $this->importExcelConfig = [ 
+        $this->importExcelConfig = [
             'primaryKeys' => ['event_id'],
             'headers' => [
-                    ['name' => 'Event id', 'column' => 'event_id'],
-                    ['name' => 'File path', 'column' => 'file_path'],
-                    ['name' => 'User id', 'column' => 'user_id'],
-                    ['name' => 'Divisi', 'column' => 'divisi'], 
+                ['name' => 'Event id', 'column' => 'event_id'],
+                ['name' => 'File path', 'column' => 'file_path'],
+                ['name' => 'User id', 'column' => 'user_id'],
+                ['name' => 'Divisi', 'column' => 'divisi'],
             ]
         ];
     }
@@ -60,24 +60,24 @@ class ResumeMateriController extends DefaultController
         }
 
         $fields = [
-                    [
-                        'type' => 'upload',
-                        'label' => 'File path',
-                        'name' =>  'file_path',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('file_path', $id),
-                        'value' => (isset($edit)) ? $edit->file_path : ''
-                    ],
-                    [
-                        'type' => 'hidden',
-                        'label' => 'Event ID',
-                        'name' =>  'event_id',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('event_id', $id),
-                        'value' => (isset($edit)) ? $edit->event_id : request('event_id'),
-                    ],
+            [
+                'type' => 'upload',
+                'label' => 'File path',
+                'name' =>  'file_path',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('file_path', $id),
+                'value' => (isset($edit)) ? $edit->file_path : ''
+            ],
+            [
+                'type' => 'hidden',
+                'label' => 'Event ID',
+                'name' =>  'event_id',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('event_id', $id),
+                'value' => (isset($edit)) ? $edit->event_id : request('event_id'),
+            ],
         ];
-        
+
         return $fields;
     }
 
@@ -85,13 +85,13 @@ class ResumeMateriController extends DefaultController
     protected function rules($id = null)
     {
         $rules = [
-                    'file_path' => 'required|string',
+            'file_path' => 'required|string',
         ];
 
         return $rules;
     }
 
-    
+
     protected function store(Request $request)
     {
         $rules = array_merge($this->rules(), [
@@ -169,7 +169,6 @@ class ResumeMateriController extends DefaultController
                 'message' => 'Data Was Created Successfully',
                 'data' => $insert
             ], 200);
-
         } catch (\Exception $e) {
 
             DB::rollBack();
@@ -211,11 +210,11 @@ class ResumeMateriController extends DefaultController
                 $query->orWhere('resume_materies.divisi', 'LIKE', '%' . $orThose . '%');
             });
 
-            if (Auth::user()->role->name !== 'admin') {
-                $dataQueries = $dataQueries->whereHas('participant', function ($query) {
-                    $query->where('nik', Auth::user()->nik);
-                });
-            }
+        if (Auth::user()->role->name !== 'developer') {
+            $dataQueries = $dataQueries->whereHas('participant', function ($query) {
+                $query->where('nik', Auth::user()->nik);
+            });
+        }
 
         $dataQueries = $dataQueries
             ->select('resume_materies.*', 'workshops.name as workshop_name', 'users.name as user_name')
@@ -269,5 +268,4 @@ class ResumeMateriController extends DefaultController
 
         return view($layout, $data);
     }
-
 }

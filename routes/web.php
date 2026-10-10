@@ -89,6 +89,7 @@ Route::group(['middleware' => ['web', 'auth']], function () {
     Route::resource('dashboard', DashboardController::class);
     Route::get('dashboard-test', [DashboardController::class, 'dashboardtest'])->name('dashboard.test');
     Route::post('dashboard/training-workshop/{id}/complete', [DashboardController::class, 'completeTrainingWorkshop'])->name('dashboard.training-workshop.complete');
+    Route::post('dashboard/training-workshop/{id}/implement', [DashboardController::class, 'implementTrainingWorkshop'])->name('dashboard.training-workshop.implement');
     Route::get('dashboard-api', [DashboardController::class, 'indexApi'])->name('dashboard.listapi');
     Route::get('dashboard-export-pdf-default', [DashboardController::class, 'exportPdf'])->name('dashboard.export-pdf-default');
     Route::get('dashboard-export-excel-default', [DashboardController::class, 'exportExcel'])->name('dashboard.export-excel-default');

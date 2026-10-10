@@ -29,6 +29,7 @@ return new class extends Migration
             $table->dateTime('created_date')->nullable();
             $table->text('notes')->nullable();
             $table->enum('status', ['open', 'submit', 'approve', 'close', 'reject'])->default('open');
+            $table->string('command_attachment')->nullable();
             $table->timestamps();
         });
     }

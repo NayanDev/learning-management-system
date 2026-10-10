@@ -152,7 +152,7 @@
     {{-- Dashboard Statistics --}}
     @include('backend.dashboard.statistic', ['statistics' => $statistics])
     
-    @if($roleDeveloper || $roleSupervisiHR)
+    @if($roleDeveloper || $roleSupervisiHR || $roleTrainer)
 
         <div class="row g-3 pb-4">
             
@@ -184,32 +184,6 @@
             @include('backend.dashboard.approvalManagement')
         </div>
 
-    @endif
-
-    @if($roleSupervisi)
-        <div class="row g-3 pb-4">
-            {{-- Include Upcoming Training --}}
-            @include('backend.dashboard.upcomingtraining', [
-                'selectedYear' => $selectedYear,
-                'trainingcoomingsoon' => $trainingcoomingsoon
-            ])
-
-            {{-- Include Evaluation After 3 Month --}}
-            @include('backend.dashboard.evaluationAfterTriMonth', [
-                'selectedYear' => $selectedYear,
-                'evaluationTriMonths' => $evaluationTriMonths,
-                'evaluationNotCompleted' => $evaluationNotCompleted ?? collect()
-            ])
-
-            {{-- Include Training Need Analyst --}}
-            @include('backend.dashboard.trainingNeedAnalyst')
-
-            @if($roleManager)
-                {{-- Include Approval Management --}}
-                @include('backend.dashboard.approvalManagement')
-            @endif
-
-        </div>
     @endif
 
     </div>

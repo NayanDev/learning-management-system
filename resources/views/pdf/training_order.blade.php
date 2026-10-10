@@ -56,7 +56,7 @@
                             <td>{{ $participant->divisi }}</td>    
                             <td style="text-align: center;position: relative;">
                                 @if(($participant->event->end_date < now()) && ($participant->attendance?->date_ready === null))
-                                    {{ $loop->iteration }}. <span style="display: inline-block;position: absolute;left:52%;"> Tidak Hadir</span>
+                                    {{ $loop->iteration }}. <span style="display: inline-block;position: absolute;left:52%;"> </span>
                                 @else
                                     {{ $loop->iteration }}.<img src="{{ asset('storage/signature/'.($participant->attendance?->signready->signature ?? 'default.svg')) }}" style="position: absolute;top:-10;left:70;" alt=" " height="60"></span>
                                 @endif
@@ -70,7 +70,7 @@
                             <td>{{ $participant->divisi }}</td>    
                             <td style="text-align: left;position: relative;">
                                 @if(($participant->event->end_date < now()) && ($participant->attendance?->date_ready === null))
-                                    {{ $loop->iteration }}.Tidak Hadir
+                                    {{ $loop->iteration }}.
                                 @else
                                     {{ $loop->iteration }}.<img src="{{ asset('storage/signature/'.($participant->attendance?->signready->signature ?? 'default.svg')) }}" style="position: absolute;top:-10;left:-10;" alt=" " height="60">
                                 @endif

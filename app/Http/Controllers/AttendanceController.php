@@ -167,10 +167,10 @@ class AttendanceController extends DefaultController
 
         if ($user->role->name === 'participant') {
             $dataQueries->where('participants.nik', $user->nik);
-        } elseif ($user->role->name !== 'admin') {
+        } elseif ($user->role->name !== 'developer') {
             $dataQueries->where(function ($q) use ($user) {
                 $q->where('participants.user_id', $user->id)
-                ->orWhere('participants.nik', $user->nik);
+                    ->orWhere('participants.nik', $user->nik);
             });
         }
 
@@ -253,15 +253,15 @@ class AttendanceController extends DefaultController
             'event' => Event::find($request->event_id)
         ];
 
-        if($event->instructor === 'external')
+        if ($event->instructor === 'external')
             $pdf = Pdf::loadView('pdf.command_external', $data)
-            ->setPaper('A4', 'portrait');
+                ->setPaper('A4', 'portrait');
         else {
             $pdf = Pdf::loadView('pdf.training_order', $data)
-            ->setPaper('A4', 'portrait');
+                ->setPaper('A4', 'portrait');
         }
 
-        
+
 
         return $pdf->stream('surat_perintah_pelatihan.pdf');
     }
@@ -757,30 +757,30 @@ class AttendanceController extends DefaultController
             'participant.event.workshop',
             'participant.event.trainers.user'
         ])
-        ->when($nik, function ($q) use ($nik) {
-            $q->whereHas('participant', function ($q2) use ($nik) {
-                $q2->where('nik', $nik);
+            ->when($nik, function ($q) use ($nik) {
+                $q->whereHas('participant', function ($q2) use ($nik) {
+                    $q2->where('nik', $nik);
+                });
+            })
+            ->get()
+            ->map(function ($a) {
+
+                $event = $a->participant?->event;
+                $workshop = $event?->workshop;
+
+                return [
+                    'id' => $a->id,
+                    'nik' => $a->participant?->nik,
+                    'name' => $a->participant?->name,
+                    'nama_pelatihan' => $workshop?->name,
+                    'tanggal' => $event?->start_date,
+                    'location' => $event?->location,
+                    'trainer' => $event?->trainers
+                        ?->map(fn($t) => $t->external ?? $t->user?->name)
+                        ->filter()
+                        ->implode(', '),
+                ];
             });
-        })
-        ->get()
-        ->map(function ($a) {
-
-            $event = $a->participant?->event;
-            $workshop = $event?->workshop;
-
-            return [
-                'id_attendance' => $a->id,
-                'nik' => $a->participant?->nik,
-                'name' => $a->participant?->name,
-                'nama_pelatihan' => $workshop?->name,
-                'tanggal' => $event?->start_date,
-                'location' => $event?->location,
-                'trainer' => $event?->trainers
-                    ?->map(fn($t) => $t->external ?? $t->user?->name)
-                    ->filter()
-                    ->implode(', '),
-            ];
-        });
 
         // =========================
         // EXTERNAL (participant)
@@ -789,37 +789,37 @@ class AttendanceController extends DefaultController
             'event.workshop',
             'event.trainers.user'
         ])
-        ->when($nik, function ($q) use ($nik) {
-            $q->where('nik', $nik);
-        })
-        ->whereHas('event', function ($q) {
-            $q->where('instructor', 'external');
-        })
-        ->get()
-        ->map(function ($p) {
+            ->when($nik, function ($q) use ($nik) {
+                $q->where('nik', $nik);
+            })
+            ->whereHas('event', function ($q) {
+                $q->where('instructor', 'external');
+            })
+            ->get()
+            ->map(function ($p) {
 
-            $event = $p->event;
-            $workshop = $event?->workshop;
+                $event = $p->event;
+                $workshop = $event?->workshop;
 
-            $trainerList = $event?->trainers
-                ?->map(fn($t) => $t->external ?? $t->user?->name)
-                ->filter()
-                ->toArray() ?? [];
+                $trainerList = $event?->trainers
+                    ?->map(fn($t) => $t->external ?? $t->user?->name)
+                    ->filter()
+                    ->toArray() ?? [];
 
-            if (!empty($event?->instructor)) {
-                $trainerList[] = $event->instructor;
-            }
+                if (!empty($event?->instructor)) {
+                    $trainerList[] = $event->instructor;
+                }
 
-            return [
-                'id_participant' => $p->id,
-                'nik' => $p->nik,
-                'name' => $p->name,
-                'nama_pelatihan' => $workshop?->name,
-                'tanggal' => $event?->start_date,
-                'location' => $event?->location,
-                'trainer' => collect($trainerList)->unique()->implode(', '),
-            ];
-        });
+                return [
+                    'id' => $p->id,
+                    'nik' => $p->nik,
+                    'name' => $p->name,
+                    'nama_pelatihan' => $workshop?->name,
+                    'tanggal' => $event?->start_date,
+                    'location' => $event?->location,
+                    'trainer' => collect($trainerList)->unique()->implode(', '),
+                ];
+            });
 
         // =========================
         // MERGE + RESPONSE

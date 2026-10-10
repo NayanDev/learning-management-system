@@ -23,25 +23,25 @@ class JobdescSectionController extends DefaultController
         $this->actionButtons = ['btn_edit', 'btn_show', 'btn_delete'];
 
         $this->tableHeaders = [
-                    ['name' => 'No', 'column' => '#', 'order' => true],
-                    ['name' => 'Uuid', 'column' => 'uuid', 'order' => true],
-                    ['name' => 'Name', 'column' => 'name', 'order' => true],
-                    ['name' => 'File', 'column' => 'file', 'order' => true],
+            ['name' => 'No', 'column' => '#', 'order' => true],
+            // ['name' => 'Uuid', 'column' => 'uuid', 'order' => true],
+            ['name' => 'Name', 'column' => 'name', 'order' => true],
+            ['name' => 'File', 'column' => 'file', 'order' => true],
             ['name' => 'Section id', 'column' => 'section_id', 'order' => true],
-                    ['name' => 'Is active', 'column' => 'is_active', 'order' => true], 
+            ['name' => 'Is active', 'column' => 'is_active', 'order' => true],
             ['name' => 'Created at', 'column' => 'created_at', 'order' => true],
             ['name' => 'Updated at', 'column' => 'updated_at', 'order' => true],
         ];
 
 
         $this->importExcelConfig = [
-            'primaryKeys' => ['uuid'],
+            // 'primaryKeys' => ['uuid'],
             'headers' => [
-                    ['name' => 'Uuid', 'column' => 'uuid'],
-                    ['name' => 'Name', 'column' => 'name'],
-                    ['name' => 'File', 'column' => 'file'],
+                // ['name' => 'Uuid', 'column' => 'uuid'],
+                ['name' => 'Name', 'column' => 'name'],
+                ['name' => 'File', 'column' => 'file'],
                 ['name' => 'Section id', 'column' => 'section_id'],
-                    ['name' => 'Is active', 'column' => 'is_active'], 
+                ['name' => 'Is active', 'column' => 'is_active'],
             ]
         ];
 
@@ -66,48 +66,40 @@ class JobdescSectionController extends DefaultController
         }
 
         $fields = [
-                    [
-                        'type' => 'text',
-                        'label' => 'Uuid',
-                        'name' =>  'uuid',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('uuid', $id),
-                        'value' => (isset($edit)) ? $edit->uuid : ''
-                    ],
-                    [
-                        'type' => 'text',
-                        'label' => 'Name',
-                        'name' =>  'name',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('name', $id),
-                        'value' => (isset($edit)) ? $edit->name : ''
-                    ],
-                    [
-                        'type' => 'text',
-                        'label' => 'File',
-                        'name' =>  'file',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('file', $id),
-                        'value' => (isset($edit)) ? $edit->file : ''
-                    ],
-                    [
-                        'type' => 'text',
-                        'label' => 'Section id',
-                        'name' =>  'section_id',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('section_id', $id),
-                        'value' => (isset($edit)) ? $edit->section_id : ''
-                    ],
-                    [
-                        'type' => 'text',
-                        'label' => 'Is active',
-                        'name' =>  'is_active',
-                        'class' => 'col-md-12 my-2',
-                        'required' => $this->flagRules('is_active', $id),
-                        'value' => (isset($edit)) ? $edit->is_active : ''
-                    ],
+            [
+                'type' => 'text',
+                'label' => 'Name',
+                'name' =>  'name',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('name', $id),
+                'value' => (isset($edit)) ? $edit->name : ''
+            ],
+            [
+                'type' => 'text',
+                'label' => 'File',
+                'name' =>  'file',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('file', $id),
+                'value' => (isset($edit)) ? $edit->file : ''
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Section id',
+                'name' =>  'section_id',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('section_id', $id),
+                'value' => (isset($edit)) ? $edit->section_id : ''
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Is active',
+                'name' =>  'is_active',
+                'class' => 'col-md-12 my-2',
+                'required' => $this->flagRules('is_active', $id),
+                'value' => (isset($edit)) ? $edit->is_active : ''
+            ],
         ];
-        
+
         return $fields;
     }
 
@@ -115,11 +107,11 @@ class JobdescSectionController extends DefaultController
     protected function rules($id = null)
     {
         $rules = [
-                    'uuid' => 'required|string',
-                    'name' => 'required|string',
-                    'file' => 'required|string',
+            // 'uuid' => 'required|string',
+            'name' => 'required|string',
+            'file' => 'required|string',
             'section_id' => 'required|string',
-                    'is_active' => 'required|string',
+            'is_active' => 'required|string',
         ];
 
         return $rules;
@@ -186,7 +178,7 @@ class JobdescSectionController extends DefaultController
         );
 
         $record = JobdescSection::create([
-            'uuid'       => Str::random(12),
+            // 'uuid'       => Str::random(12),
             'name'       => $request->name,
             'file'       => $filename,
             'section_id' => $request->section_id,
@@ -231,7 +223,7 @@ class JobdescSectionController extends DefaultController
                 . '_' . now()->format('YmdHis')
                 . '.' . $file->getClientOriginalExtension();
             // simpan file
-            $file->storeAs('jobdesc/section',$filename,'public');
+            $file->storeAs('jobdesc/section', $filename, 'public');
             $record->file = $filename;
         }
 
@@ -269,5 +261,4 @@ class JobdescSectionController extends DefaultController
             'section_id' => $data->section_id,
         ]);
     }
-
 }
